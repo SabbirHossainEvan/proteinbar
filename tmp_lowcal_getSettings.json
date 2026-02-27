@@ -1,0 +1,18 @@
+{
+    "status":  1,
+    "message":  "",
+    "data":  {
+                 "id":  1,
+                 "snacks_price":  11.4286,
+                 "ch_snacks_price":  13.33,
+                 "enable_bag":  1,
+                 "bag_price":  50,
+                 "vat":  0.05,
+                 "demo_modal_text":  "Contact Us For Renewal Code Tel: 045973939",
+                 "read_more":  "https://drive.google.com/file/d/1-RSWbrBmMaiyFG1T4hop1mHGzz7x7iql/view?usp=sharing",
+                 "target":  900000,
+                 "payment_complete_text":  "Your payment has been processed successfully.\u003cbr\u003e\n\u003cbr\u003e\nOur customer service representative will get in touch with you shortly to confirm the details of your subscription.\u003cbr\u003e\n\u003cbr\u003e\nThank you for choosing Low Calories to be a part of your healthy journey!",
+                 "text_show_before_payment_ar":  "?????? ???????? ????????? ??????? ??? \u003ca href=\"https://wa.me/97125666667\" target=\"_blank\" style=\"color: #25D366; text-decoration: underline;\"\u003e+971 2 566 6667\u003c/a\u003e ?????? ????? ?????? ?????? ??? ?????? ????? ???????.",
+                 "text_show_before_payment_en":  "To complete your subscription successfully, please contact \u003ca href=\"https://wa.me/97125666667\" target=\"_blank\" style=\"color: #25D366; text-decoration: underline;\"\u003e+971 2 566 6667\u003c/a\u003e to know your area timing before proceeding with the registration process."
+             }
+}

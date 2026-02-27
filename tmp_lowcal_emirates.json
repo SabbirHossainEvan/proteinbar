@@ -1,0 +1,141 @@
+{
+    "status":  1,
+    "message":  "",
+    "data":  [
+                 {
+                     "id":  1,
+                     "status":  true,
+                     "enable_bag":  true,
+                     "en_name":  "ABU DHABI",
+                     "ar_name":  "??? ???",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  2,
+                     "status":  true,
+                     "enable_bag":  true,
+                     "en_name":  "DUBAI",
+                     "ar_name":  "???",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  3,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  "SHARJAH",
+                     "ar_name":  "???????",
+                     "type":  "CH",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  4,
+                     "status":  true,
+                     "enable_bag":  true,
+                     "en_name":  "RAS ALKHAIMA",
+                     "ar_name":  "??? ??????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  5,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  "AL-AIN",
+                     "ar_name":  "?????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  6,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  "AL-RUWAIS",
+                     "ar_name":  "??????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  7,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  "FUJAIRAH",
+                     "ar_name":  "???????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  12,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  "DUBAI",
+                     "ar_name":  "???",
+                     "type":  "CH",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  13,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  "SHARJAH",
+                     "ar_name":  "???????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  15,
+                     "status":  false,
+                     "enable_bag":  false,
+                     "en_name":  " UM ALQUWAIN",
+                     "ar_name":  " ?? ???????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  16,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  " BEDE-ZAYED",
+                     "ar_name":  " ??? ????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  17,
+                     "status":  true,
+                     "enable_bag":  false,
+                     "en_name":  "AJMAN",
+                     "ar_name":  " ?????",
+                     "type":  "LC",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  18,
+                     "status":  false,
+                     "enable_bag":  false,
+                     "en_name":  "ABU DHABI",
+                     "ar_name":  "??? ???",
+                     "type":  "CH",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  19,
+                     "status":  false,
+                     "enable_bag":  false,
+                     "en_name":  "AL-AIN",
+                     "ar_name":  "?????",
+                     "type":  "CH",
+                     "inbody_price":  100
+                 },
+                 {
+                     "id":  20,
+                     "status":  false,
+                     "enable_bag":  false,
+                     "en_name":  "AJMAN",
+                     "ar_name":  " ?????",
+                     "type":  "CH",
+                     "inbody_price":  100
+                 }
+             ]
+}
