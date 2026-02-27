@@ -3,16 +3,16 @@ import type { Location } from "@/types";
 export const locations: Location[] = [
   {
     id: "anfa-casablanca",
-    name: "Proteinbar Anfa",
-    address: "27 Boulevard d'Anfa, Casablanca 20000",
-    phone: "+212 522-000-111",
-    mapUrl: "https://maps.google.com/?q=27+Boulevard+d%27Anfa+Casablanca",
+    name: "PROTEINBAR - Bourgone.",
+    address: "7 Rue Ibnou Jahir, Casablanca",
+    phone: "0520-206366",
+    mapUrl: "https://maps.google.com/?q=7+Rue+Ibnou+Jahir+Casablanca",
   },
   {
     id: "maarif-casablanca",
-    name: "Proteinbar Maarif",
-    address: "18 Rue Normandie, Maarif, Casablanca 20100",
-    phone: "+212 522-000-222",
-    mapUrl: "https://maps.google.com/?q=18+Rue+Normandie+Maarif+Casablanca",
+    name: "PROTEINBAR - Val Fleuri.",
+    address: "95 Rue Bachir Laalej, Casablanca",
+    phone: "0522-235539",
+    mapUrl: "https://maps.google.com/?q=95+Rue+Bachir+Laalej+Casablanca",
   },
 ];

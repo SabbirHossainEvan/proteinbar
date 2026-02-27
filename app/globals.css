@@ -23,3 +23,158 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+.hero-image-zoom {
+  animation: heroZoom 11s ease-out both;
+}
+
+.fade-up {
+  animation: fadeUp 0.8s ease-out both;
+}
+
+.fade-up-delay {
+  animation: fadeUp 0.9s ease-out 0.15s both;
+}
+
+.fade-up-delay-2 {
+  animation: fadeUp 0.9s ease-out 0.3s both;
+}
+
+.fade-up-delay-3 {
+  animation: fadeUp 0.9s ease-out 0.45s both;
+}
+
+.animate-fade-down {
+  animation: fadeDown 0.25s ease-out both;
+}
+
+.nav-link-hover {
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.nav-link-hover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.nav-link-hover:hover::after {
+  transform: scaleX(1);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroZoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.hero-cta {
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0) scale(1);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, filter 0.28s ease;
+}
+
+.hero-cta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 70%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 45%,
+    transparent 100%
+  );
+  transition: left 0.45s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+  color: #ffffff !important;
+}
+
+.hero-cta:hover::before {
+  left: 130%;
+}
+
+.hero-cta:active {
+  transform: translateY(-1px) scale(0.995);
+}
+
+.hero-cta-primary:hover {
+  filter: brightness(1.02);
+}
+
+.hero-cta-secondary:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+}
+
+.reviews-marquee-track {
+  animation: reviewsMarquee 30s linear infinite;
+}
+
+.reviews-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.testimonial-marquee-card {
+  width: 88vw;
+}
+
+@media (min-width: 640px) {
+  .testimonial-marquee-card {
+    width: 70vw;
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonial-marquee-card {
+    width: calc((72rem - 1.25rem) / 2);
+  }
+}
+
+@keyframes reviewsMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
