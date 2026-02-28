@@ -8,7 +8,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/pages/monthly-plan", label: "Monthly Plan" },
   { href: "/pages/nos-restaurants", label: "Locations" },
-  { href: "/pages/menu", label: "Menu" },
+  { href: "/pages/menu#menu-details", label: "Menu" },
   { href: "/pages/about-us", label: "About" },
   { href: "/pages/contact", label: "Contact" },
 ];
@@ -95,7 +95,8 @@ export default function Header() {
         <div className="hidden justify-center border-t border-white/10 px-6 py-3 lg:flex">
           <nav className="flex items-center gap-8 text-base font-medium text-white/85">
             {navLinks.map((item) => {
-              const isActive = pathname === item.href;
+              const linkPath = item.href.split("#")[0];
+              const isActive = pathname === linkPath;
               return (
                 <Link
                   key={item.href}
@@ -114,18 +115,22 @@ export default function Header() {
       {menuOpen && (
         <nav className="animate-fade-down   bg-black/80 px-4 py-4 text-white lg:hidden">
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-2">
-            {navLinks.map((item) => (
+            {navLinks.map((item) => {
+                const linkPath = item.href.split("#")[0];
+                const isActive = pathname === linkPath;
+                return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
                 className={`rounded-lg px-2 py-2 text-sm transition-colors hover:bg-white/10 ${
-                  pathname === item.href ? "bg-white/10 text-white" : "text-white/90"
+                  isActive ? "bg-white/10 text-white" : "text-white/90"
                 }`}
               >
                 {item.label}
               </Link>
-            ))}
+                );
+              })}
           </div>
         </nav>
       )}
