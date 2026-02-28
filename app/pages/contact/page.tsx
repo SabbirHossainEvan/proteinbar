@@ -1,29 +1,36 @@
 import ContactForm from "@/components/contact/ContactForm";
-import Card from "@/components/ui/Card";
-import Section from "@/components/ui/Section";
+import ContactHeroSection from "@/components/contact/ContactHeroSection";
 
 export default function ContactPage() {
   return (
-    <Section
-      title="Contact Us"
-      subtitle="Questions, catering requests, or partnership opportunities. Send us a message."
-    >
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <h2 className="text-lg font-semibold">Get in touch</h2>
-          <p className="mt-2 text-sm text-zinc-600">
-            We usually reply within one business day.
-          </p>
-          <div className="mt-4 space-y-2 text-sm text-zinc-700">
-            <p>Email: contact@proteinbar.ma</p>
-            <p>Phone: +212 522-000-111</p>
-            <p>Hours: Mon-Sun, 8:00 AM - 10:00 PM</p>
+    <>
+      <ContactHeroSection />
+      <section className=" py-14 sm:py-20 lg:py-24">
+        <div className="grid gap-10 lg:grid-cols-[1fr_minmax(0,600px)] lg:gap-16">
+          <div className="pt-2">
+            <h2 className="text-5xl font-semibold tracking-tight text-zinc-900 sm:text-6xl">
+              Contact Us
+            </h2>
+            <div className="mt-5 h-px w-52 bg-zinc-800/70" />
+
+            <div className="mt-10 space-y-4 text-base text-zinc-700 sm:text-lg">
+              <p>
+                <span className="font-semibold text-zinc-900">Bourgogne Phone:</span> 05 20 20 63 66
+              </p>
+              <p>
+                <span className="font-semibold text-zinc-900">Val Fleuri Phone:</span> 05 22 23 55 39
+              </p>
+              <p>
+                <span className="font-semibold text-zinc-900">Our Website:</span> Proteinbar.ma
+              </p>
+            </div>
           </div>
-        </Card>
-        <Card>
-          <ContactForm />
-        </Card>
-      </div>
-    </Section>
+
+          <div>
+            <ContactForm />
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
