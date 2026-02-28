@@ -1,0 +1,1121 @@
+        style="--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:44px;--pl:15px;--pb:88px;--pr:15px;--pt-mobile:44px;--pl-mobile:15px;--pb-mobile:44px;--pr-mobile:15px;--cg:32px;--pc:start;--gtc:minmax(0, 12fr);--w:100%;--w-tablet:100%;--w-mobile:100%;--bgc:#FFFFFF;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="g1fRa4Dv6b gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start"
+      class="gZS_xZW6pH gp-relative gp-flex gp-flex-col"
+    >
+      
+       
+      
+    <div
+      parentTag="Col" id="gxCpI6LTG0" data-id="gxCpI6LTG0"
+        style="--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--mb:8px;--mb-mobile:7px;--cg:30px;--cg-mobile:24px;--pc:start;--pc-mobile:center;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, auto);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gxCpI6LTG0 gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start"
+      class="gEfgvl4PqT gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gqPC-8OpEL">
+    <div
+      parentTag="Col"
+        class="gqPC-8OpEL "
+        style="--ta:left;--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mb-mobile:14px;--mb-tablet:16px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Aleo, 'Aleo'), var(--g-font-body, body);--ls:normal;--size:28px;--size-tablet:28px;--size-mobile:24px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--weight:bold;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Petits Déjeuners</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gqPC-8OpEL">
+        .gqPC-8OpEL {
+
+}
+.gqPC-8OpEL p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gkaoAFOYRm" data-id="gkaoAFOYRm"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gkaoAFOYRm gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="gxeQJCXqCF gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gPAabcZ7Rh">
+    <div
+      parentTag="Col"
+        class="gPAabcZ7Rh "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>L’EGGS DAY </strong>- 45 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gPAabcZ7Rh">
+        .gPAabcZ7Rh {
+
+}
+.gPAabcZ7Rh p {
+
+}
+      </style>
+    
+  <gp-text data-id="gk45bfhlJG">
+    <div
+      parentTag="Col"
+        class="gk45bfhlJG "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Omelette (min 2 - max 6) œufs complets aux épinards et tomates cerises, patate douce au four, mesclun de salade, 200ml jus d’orange frais.</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gk45bfhlJG">
+        .gk45bfhlJG {
+
+}
+.gk45bfhlJG p {
+
+}
+      </style>
+    
+  <gp-text data-id="gFJgDotLHX">
+    <div
+      parentTag="Col"
+        class="gFJgDotLHX "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>794 kcal &nbsp;I &nbsp;</strong>Proteins: <strong>48g &nbsp;I &nbsp;</strong>Glucides: <strong>52g &nbsp;I &nbsp;</strong>Lipides: <strong>38g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gFJgDotLHX">
+        .gFJgDotLHX {
+
+}
+.gFJgDotLHX p {
+
+}
+      </style>
+    
+  <gp-text data-id="gmxhuc0fn7">
+    <div
+      parentTag="Col"
+        class="gmxhuc0fn7 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>*Les macros ont été calculés pour une omelette de 6 œufs entiers.</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gmxhuc0fn7">
+        .gmxhuc0fn7 {
+
+}
+.gmxhuc0fn7 p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gRzw2K-PJx" data-id="gRzw2K-PJx"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gRzw2K-PJx gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="ghlnbxOG5l gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gqb-JD_f7i">
+    <div
+      parentTag="Col"
+        class="gqb-JD_f7i "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>GOOD MORNING</strong> - 65 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gqb-JD_f7i">
+        .gqb-JD_f7i {
+
+}
+.gqb-JD_f7i p {
+
+}
+      </style>
+    
+  <gp-text data-id="gDNw_kdZBP">
+    <div
+      parentTag="Col"
+        class="gDNw_kdZBP "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Bagel œuf-guacamole, bagel banane-beurre de cacahuète maison, 2 œufs au plat, mesclun de salade, 200ml jus d’orange frais.</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gDNw_kdZBP">
+        .gDNw_kdZBP {
+
+}
+.gDNw_kdZBP p {
+
+}
+      </style>
+    
+  <gp-text data-id="g7u7aOQL7K">
+    <div
+      parentTag="Col"
+        class="g7u7aOQL7K "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>756 kcal &nbsp;I &nbsp;</strong>Proteins: <strong>36g &nbsp;I &nbsp;</strong>Glucides: <strong>90g &nbsp;I &nbsp;</strong>Lipides: <strong>28g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-g7u7aOQL7K">
+        .g7u7aOQL7K {
+
+}
+.g7u7aOQL7K p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gjexUyLeMx" data-id="gjexUyLeMx"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gjexUyLeMx gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="gmH62Y_b6D gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gZTfymVtG0">
+    <div
+      parentTag="Col"
+        class="gZTfymVtG0 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>COLEMAN</strong> - 65 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gZTfymVtG0">
+        .gZTfymVtG0 {
+
+}
+.gZTfymVtG0 p {
+
+}
+      </style>
+    
+  <gp-text data-id="gXDnNK8ODY">
+    <div
+      parentTag="Col"
+        class="gXDnNK8ODY "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Pancakes salés, bresaola, œuf au plat, sirop d’érable, graine de sésame, jus d'orange 200ml.</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gXDnNK8ODY">
+        .gXDnNK8ODY {
+
+}
+.gXDnNK8ODY p {
+
+}
+      </style>
+    
+  <gp-text data-id="gHx1aCUOUm">
+    <div
+      parentTag="Col"
+        class="gHx1aCUOUm "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>528 kcal &nbsp;I &nbsp;</strong>Proteins: <strong>36g &nbsp;I &nbsp;</strong>Glucides: <strong>60g &nbsp;I &nbsp;</strong>Lipides: <strong>15g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gHx1aCUOUm">
+        .gHx1aCUOUm {
+
+}
+.gHx1aCUOUm p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="glalCq23nw" data-id="glalCq23nw"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="glalCq23nw gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="gCkByRrETr gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gN2Ffzq65q">
+    <div
+      parentTag="Col"
+        class="gN2Ffzq65q "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>OMEGA</strong> - 75 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gN2Ffzq65q">
+        .gN2Ffzq65q {
+
+}
+.gN2Ffzq65q p {
+
+}
+      </style>
+    
+  <gp-text data-id="gR27BMZGm_">
+    <div
+      parentTag="Col"
+        class="gR27BMZGm_ "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Pancakes salés, saumon fumé, avocat, sauce tzatziki maison. aneth, jus d'orange 200ml.</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gR27BMZGm_">
+        .gR27BMZGm_ {
+
+}
+.gR27BMZGm_ p {
+
+}
+      </style>
+    
+  <gp-text data-id="gaR-sZ-X4u">
+    <div
+      parentTag="Col"
+        class="gaR-sZ-X4u "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>581 kcal &nbsp;I &nbsp;</strong>Proteins: <strong>25g &nbsp;I &nbsp;</strong>Glucides: <strong>36g &nbsp;I &nbsp;</strong>Lipides: <strong>24g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gaR-sZ-X4u">
+        .gaR-sZ-X4u {
+
+}
+.gaR-sZ-X4u p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gxeXKJpRB1" data-id="gxeXKJpRB1"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gxeXKJpRB1 gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="ghj3WSRnnv gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="g5AT65vXUq">
+    <div
+      parentTag="Col"
+        class="g5AT65vXUq "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>LE BENCH</strong> - 95 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-g5AT65vXUq">
+        .g5AT65vXUq {
+
+}
+.g5AT65vXUq p {
+
+}
+      </style>
+    
+  <gp-text data-id="ge3uTZB3MJ">
+    <div
+      parentTag="Col"
+        class="ge3uTZB3MJ "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>100 gr saucisses, 100 gr patate douce au four, 2 oeufs brouillés, oignons et tomates cerises sautées, mini pancakes protéinés, overnight pudding chia,&nbsp;<br>200ml jus d’orange frais, pain complet, fromage blanc, huile&nbsp;d’olive,&nbsp;miel.</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-ge3uTZB3MJ">
+        .ge3uTZB3MJ {
+
+}
+.ge3uTZB3MJ p {
+
+}
+      </style>
+    
+  <gp-text data-id="gv_tSjG9k4">
+    <div
+      parentTag="Col"
+        class="gv_tSjG9k4 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>1062 kcal &nbsp;I &nbsp;</strong>Proteins: <strong>55g &nbsp;I &nbsp;</strong>Glucides: <strong>107g &nbsp;I &nbsp;</strong>Lipides: <strong>46g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gv_tSjG9k4">
+        .gv_tSjG9k4 {
+
+}
+.gv_tSjG9k4 p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="grvWPtjGtX" data-id="grvWPtjGtX"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="grvWPtjGtX gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="g1e1FTxtBD gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gBAfclYb9X">
+    <div
+      parentTag="Col"
+        class="gBAfclYb9X "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><i><strong>*NOS SUPPLEMENTS&nbsp;</strong></i></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gBAfclYb9X">
+        .gBAfclYb9X {
+
+}
+.gBAfclYb9X p {
+
+}
+      </style>
+    
+  <gp-text data-id="gNRlnfUdu9">
+    <div
+      parentTag="Col"
+        class="gNRlnfUdu9 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#242424;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>2 Blancs d'œuf: <strong>+8 DH &nbsp;I &nbsp;</strong>2 Œufs complets:<strong> +10 DH &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gNRlnfUdu9">
+        .gNRlnfUdu9 {
+
+}
+.gNRlnfUdu9 p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    <div
+    
+     data-id="gTNt8E7UVN"
+    role="presentation"
+    class="gp-group/image gTNt8E7UVN"
+    style="--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--ta:center"
+    >
+      <div
+        class="pointer-events-auto h-full"
+        
+        class="gp-h-full gp-w-full"
+        style="--shadow:none;border-radius:inherit;overflow:hidden;--ta:center"
+      ><picture style="border-radius: inherit" ><source media="(max-width: 767px)" data-srcSet="//proteinbar.ma/cdn/shop/files/gempages_526129018521519306-d9b58bf8-b2a8-482e-92a5-95014cd0933d_768x.jpg?v=1553" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" />
+      <source media="(max-width: 1023px)" data-srcSet="//proteinbar.ma/cdn/shop/files/gempages_526129018521519306-d9b58bf8-b2a8-482e-92a5-95014cd0933d_1024x.jpg?v=1553" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" />
+      <img
+        
+        class="!gp-inline gp-h-full gp-max-w-full gp-flex gp_lazyload"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+        data-src="//proteinbar.ma/cdn/shop/files/gempages_526129018521519306-d9b58bf8-b2a8-482e-92a5-95014cd0933d.jpg?v=9868059728368743480"
+        width="100%"
+        alt=""
+        style="--aspect:1/1;--aspect-tablet:1/1;--aspect-mobile:3/4;--objf:cover;--w:600px;--w-tablet:600px;--w-mobile:600px;--h:auto;--h-tablet:auto;--h-mobile:auto"
+      /></picture>
+      </div>
+  </div>
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gN5tsoTTvp" data-id="gN5tsoTTvp"
+        style="--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:88px;--pl:15px;--pb:88px;--pr:15px;--pt-mobile:44px;--pl-mobile:15px;--pb-mobile:44px;--pr-mobile:15px;--cg:32px;--pc:start;--gtc:minmax(0, 12fr);--w:100%;--w-tablet:100%;--w-mobile:100%;--bgc:#000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gN5tsoTTvp gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start"
+      class="gVZfmdl1tk gp-relative gp-flex gp-flex-col"
+    >
+      
+       
+      
+    <div
+      parentTag="Col" id="g251xrT05L" data-id="g251xrT05L"
+        style="--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--mb:8px;--mb-mobile:7px;--cg:30px;--cg-mobile:24px;--pc:start;--pc-mobile:center;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, auto);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="g251xrT05L gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start"
+      class="gwQ0eWaf5m gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gtpvwjiMqe">
+    <div
+      parentTag="Col"
+        class="gtpvwjiMqe "
+        style="--ta:left;--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mb-mobile:14px;--mb-tablet:16px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Aleo, 'Aleo'), var(--g-font-body, body);--ls:normal;--size:28px;--size-tablet:28px;--size-mobile:24px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--weight:bold;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Petits Plaisirs Healthy</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gtpvwjiMqe">
+        .gtpvwjiMqe {
+
+}
+.gtpvwjiMqe p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gA3rwQKjT-" data-id="gA3rwQKjT-"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gA3rwQKjT- gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="gKia5uRXob gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="g9f0iOe5Kb">
+    <div
+      parentTag="Col"
+        class="g9f0iOe5Kb "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>Pancakes Protéinés</strong> - 38 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-g9f0iOe5Kb">
+        .g9f0iOe5Kb {
+
+}
+.g9f0iOe5Kb p {
+
+}
+      </style>
+    
+  <gp-text data-id="gs9bi9Dmr1">
+    <div
+      parentTag="Col"
+        class="gs9bi9Dmr1 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>448 kcal &nbsp;I &nbsp;</strong>Proteins:<strong> 33g &nbsp;I &nbsp;</strong>Glucides: <strong>61g &nbsp;I &nbsp;</strong>Lipides: <strong>08g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gs9bi9Dmr1">
+        .gs9bi9Dmr1 {
+
+}
+.gs9bi9Dmr1 p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gv5Me0kupp" data-id="gv5Me0kupp"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gv5Me0kupp gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="gx7FQFgtfv gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="g9EYkuT3vI">
+    <div
+      parentTag="Col"
+        class="g9EYkuT3vI "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>Crêpe Protéinée</strong> - 38 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-g9EYkuT3vI">
+        .g9EYkuT3vI {
+
+}
+.g9EYkuT3vI p {
+
+}
+      </style>
+    
+  <gp-text data-id="gFMSPqLK9w">
+    <div
+      parentTag="Col"
+        class="gFMSPqLK9w "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>368kcal &nbsp;I &nbsp;</strong>Proteins: <strong>26g &nbsp;I &nbsp;</strong>Glucides: <strong>39g &nbsp;I &nbsp;</strong>Lipides: <strong>12g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gFMSPqLK9w">
+        .gFMSPqLK9w {
+
+}
+.gFMSPqLK9w p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gxDS9x8XIg" data-id="gxDS9x8XIg"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gxDS9x8XIg gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="gmjr2Ph1-K gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gqHodr_m76">
+    <div
+      parentTag="Col"
+        class="gqHodr_m76 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>Gaufre Protéinée </strong>- 38 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gqHodr_m76">
+        .gqHodr_m76 {
+
+}
+.gqHodr_m76 p {
+
+}
+      </style>
+    
+  <gp-text data-id="gi9Q2wLthW">
+    <div
+      parentTag="Col"
+        class="gi9Q2wLthW "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>378 kcal &nbsp;I &nbsp;</strong>Proteins: <strong>29g &nbsp;I &nbsp;</strong>Glucides: <strong>43g &nbsp;I &nbsp;</strong>Lipides: <strong>10g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gi9Q2wLthW">
+        .gi9Q2wLthW {
+
+}
+.gi9Q2wLthW p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gIk2n9Ww0_" data-id="gIk2n9Ww0_"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gIk2n9Ww0_ gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="g8_kiwZii8 gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="g6NNms2Sj3">
+    <div
+      parentTag="Col"
+        class="g6NNms2Sj3 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>Panflex Protéiné</strong> - 38 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-g6NNms2Sj3">
+        .g6NNms2Sj3 {
+
+}
+.g6NNms2Sj3 p {
+
+}
+      </style>
+    
+  <gp-text data-id="gRP7M8TOg2">
+    <div
+      parentTag="Col"
+        class="gRP7M8TOg2 "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><strong>(Mini pancakes façon cornflakes)</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gRP7M8TOg2">
+        .gRP7M8TOg2 {
+
+}
+.gRP7M8TOg2 p {
+
+}
+      </style>
+    
+  <gp-text data-id="g-Kkgdhn0y">
+    <div
+      parentTag="Col"
+        class="g-Kkgdhn0y "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%;--mt-mobile:14px"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:12px;--size-tablet:16px;--size-mobile:9px;--lh:140%;--lh-tablet:130%;--lh-mobile:130%;--c:#FFFFFF;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Calories: <strong>434 kcal &nbsp;I &nbsp;</strong>Proteins: <strong>29g &nbsp;I &nbsp;</strong>Glucides: <strong>41g &nbsp;I &nbsp;</strong>Lipides: <strong>06g</strong></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-g-Kkgdhn0y">
+        .g-Kkgdhn0y {
+
+}
+.g-Kkgdhn0y p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gPunhGMqlL" data-id="gPunhGMqlL"
+        style="--bs:solid;--bw:1px 0px 0px 0px;--bc:#4f4f4f;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:24px;--pl:10px;--pb:24px;--pr:10px;--pt-mobile:21px;--pl-mobile:10px;--pb-mobile:21px;--pr-mobile:10px;--cg:0px;--cg-mobile:12px;--pc:start;--gtc:minmax(0, 12fr);--gtc-mobile:minmax(0, 12fr);--w:var(--g-ct-w, 1200px);--w-tablet:var(--g-ct-w, 100%);--w-mobile:var(--g-ct-w, 100%);--bgc:#00000000;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gPunhGMqlL gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start;--o:0"
+      class="getSaKj0ZB gp-relative gp-flex gp-flex-col"
+    >
+      
+  <gp-text data-id="gcbAZPy_EN">
+    <div
+      parentTag="Col"
+        class="gcbAZPy_EN "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:400;--ls:normal;--size:16px;--size-tablet:16px;--size-mobile:16px;--lh:100%;--lh-tablet:130%;--lh-mobile:130%;--c:#ffffff;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p><i><strong>*Coulis au choix</strong></i></p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gcbAZPy_EN">
+        .gcbAZPy_EN {
+
+}
+.gcbAZPy_EN p {
+
+}
+      </style>
+    
+  <gp-text data-id="g0b19DftkZ">
+    <div
+      parentTag="Col"
+        class="g0b19DftkZ "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#ffffff;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Miel, caramel, fruits rouges: +05 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-g0b19DftkZ">
+        .g0b19DftkZ {
+
+}
+.g0b19DftkZ p {
+
+}
+      </style>
+    
+  <gp-text data-id="gjz_AaIjtd">
+    <div
+      parentTag="Col"
+        class="gjz_AaIjtd "
+        style="--ta:left;--bs:solid;--bw:0px;--bc:#121212;--shadow:none;--d:block;--d-mobile:block;--d-tablet:block;--op:100%"
+      >
+      <div class="gp-flex" style="--jc:left">
+        <div
+          
+          data-gp-text
+          class="[&_p]:gp-inline [&_p]:after:gp-whitespace-pre-wrap [&_p]:after:gp-content-['\A'] gp-text"
+          style="--w:100%;--w-tablet:100%;--w-mobile:100%;--ts:none;--ta:center;--ta-mobile:center;--line-clamp:unset;--line-clamp-tablet:unset;--line-clamp-mobile:unset;--fs:normal;--ff:var(--g-font-Montserrat, 'Montserrat'), var(--g-font-body, body);--weight:500;--ls:normal;--size:14px;--size-tablet:16px;--size-mobile:12px;--lh:130%;--lh-tablet:130%;--lh-mobile:130%;--c:#ffffff;word-break:break-word;--bgc:transparent;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll;overflow:hidden"
+        ><p>Beurre de cacahuète, chocolat protéiné: +07 DH</p></div>
+      </div>
+    </div>
+    </gp-text>
+    
+      <style id="custom-css-gjz_AaIjtd">
+        .gjz_AaIjtd {
+
+}
+.gjz_AaIjtd p {
+
+}
+      </style>
+    
+    </div>
+    </div>
+   
+    
+    </div>
+    </div>
+   
+    
+       
+      
+    <div
+      parentTag="Col" id="gujW_CEhs9" data-id="gujW_CEhs9"
+        style="--bs:none;--bw:1px 1px 1px 1px;--bc:#121212;--shadow:none;--d:grid;--d-mobile:grid;--d-tablet:grid;--op:100%;--pt:88px;--pl:15px;--pb:88px;--pr:15px;--pt-mobile:44px;--pl-mobile:15px;--pb-mobile:44px;--pr-mobile:15px;--cg:32px;--pc:start;--gtc:minmax(0, 12fr);--w:100%;--w-tablet:100%;--w-mobile:100%;--bgc:#FFFFFF;--bgi:url();--bgp:50% 50%;--bgs:cover;--bgr:no-repeat;--bga:scroll"
+        class="gujW_CEhs9 gp-mx-auto gp-mb-0 gp-grid gp-max-w-full gp-gap-y-0 gp-transition-colors gp-duration-200 gp-ease-in-out [&_*]:gp-max-w-full"
+    >
+    <div
+      label="Block" tag="Col" type="component"
+      style="--jc:start"
+      class="gCMJEWmAFi gp-relative gp-flex gp-flex-col"
+    >
+      
+       

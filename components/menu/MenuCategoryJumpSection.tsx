@@ -52,7 +52,7 @@ export default function MenuCategoryJumpSection({
     const target = document.getElementById(targetId);
 
     if (!target) {
-      window.location.hash = targetId;
+      window.history.replaceState(null, "", `#${targetId}`);
       return;
     }
 
