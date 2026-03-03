@@ -218,7 +218,7 @@ export default function MonthlyPlanStepTwoForm({
               <button
                 type="button"
                 onClick={goToShowMeals}
-                className="inline-flex h-11 min-w-32 items-center justify-center rounded-lg bg-black px-6 text-base font-medium text-white transition hover:bg-zinc-800"
+                className="inline-flex h-11 min-w-32 items-center justify-center rounded-lg bg-black px-6 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white"
               >
                 Apply
               </button>

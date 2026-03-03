@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default function CollectionsPage() {
-  return <h1>Collections</h1>;
+  redirect("/collections/all");
 }

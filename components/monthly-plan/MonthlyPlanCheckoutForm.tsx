@@ -81,7 +81,7 @@ export default function MonthlyPlanCheckoutForm({
             <button
               type="button"
               onClick={() => setGiftApplied(giftCode.trim().length > 0)}
-              className="h-12 rounded-lg bg-black px-6 text-sm font-medium text-white transition hover:bg-zinc-800"
+              className="h-12 rounded-lg bg-black px-6 text-sm font-medium !text-white transition hover:bg-zinc-800 hover:!text-white"
             >
               Apply
             </button>
@@ -186,7 +186,7 @@ export default function MonthlyPlanCheckoutForm({
             <button
               type="button"
               disabled={!acceptedTerms}
-              className="inline-flex h-12 min-w-44 items-center justify-center rounded-lg bg-black px-8 text-base font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-12 min-w-44 items-center justify-center rounded-lg bg-black px-8 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               Checkout
             </button>
