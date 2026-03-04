@@ -9,6 +9,7 @@ type ShowMealsSelection = {
   days: string;
   snacks: string;
   startDate: string;
+  planType?: string;
 };
 
 type MonthlyPlanShowMealsProps = {
@@ -81,6 +82,11 @@ export default function MonthlyPlanShowMeals({
         </p>
 
         <div className="mt-6 flex flex-wrap gap-2">
+          {selection.planType ? (
+            <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700">
+              Plan Type: {selection.planType}
+            </span>
+          ) : null}
           <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700">
             Meals: {selection.meals}
           </span>
@@ -147,6 +153,7 @@ export default function MonthlyPlanShowMeals({
                 days: selection.days,
                 snacks: selection.snacks,
                 startDate: selection.startDate,
+                planType: selection.planType,
               },
             }}
             className="inline-flex h-12 min-w-56 items-center justify-center rounded-lg bg-black px-8 text-xl font-medium !text-white transition hover:bg-zinc-800 hover:!text-white visited:!text-white"

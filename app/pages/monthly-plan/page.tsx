@@ -10,6 +10,25 @@ const flowSteps = [
   "Proceed to checkout",
 ];
 
+const frontofficeFlows = [
+  {
+    id: "custom-plan",
+    title: "Flow 1: Custom Plan",
+    description:
+      "Client configures number of meals, days, snacks, start date, delivery days, then picks meals.",
+    href: "/pages/monthly-plan/flow/custom",
+    cta: "Start Custom Plan",
+  },
+  {
+    id: "pre-made-plan",
+    title: "Flow 2: Pre-made Plan",
+    description:
+      "Client selects from pre-defined meal structure and confirms with limited customization.",
+    href: "/pages/monthly-plan/flow/pre-made",
+    cta: "Browse Pre-made Plans",
+  },
+];
+
 export default function MonthlyPlanPage() {
   return (
     <>
@@ -50,6 +69,48 @@ export default function MonthlyPlanPage() {
                 <p className="mt-1 text-sm font-medium text-zinc-900">{step}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-8">
+        <div className="grid gap-5 md:grid-cols-2">
+          {frontofficeFlows.map((flow) => (
+            <article
+              key={flow.id}
+              className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
+            >
+              <h2 className="text-2xl font-semibold text-zinc-900">{flow.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-600">{flow.description}</p>
+              <div className="mt-5">
+                <Link
+                  href={flow.href}
+                  className="inline-flex h-10 items-center justify-center rounded-lg bg-black px-5 text-sm font-medium !text-white transition hover:bg-zinc-800"
+                >
+                  {flow.cta}
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="pb-10">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="text-2xl font-semibold text-zinc-900">
+            Custom-made Meal Builder
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-600">
+            Build meals from protein, carbs, legumes, fruits, and portion sizes with live
+            macro totals. This client UI is powered by admin-managed catalog data.
+          </p>
+          <div className="mt-5">
+            <Link
+              href="/pages/monthly-plan/custom-builder"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-300 bg-zinc-100 px-5 text-sm font-medium text-zinc-900 transition hover:bg-zinc-200"
+            >
+              Open Meal Builder
+            </Link>
           </div>
         </div>
       </section>

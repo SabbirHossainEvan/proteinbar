@@ -11,6 +11,7 @@ type CheckoutPageProps = {
     days?: string;
     snacks?: string;
     startDate?: string;
+    planType?: string;
   }>;
 };
 
@@ -33,6 +34,7 @@ export default async function CheckoutPage({
     days: query.days ?? "7",
     snacks: query.snacks ?? "0",
     startDate: query.startDate ?? new Date().toISOString().split("T")[0],
+    planType: query.planType ?? "",
   };
 
   return (
@@ -73,4 +75,3 @@ export default async function CheckoutPage({
     </>
   );
 }
-

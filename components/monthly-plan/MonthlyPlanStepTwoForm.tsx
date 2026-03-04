@@ -36,6 +36,9 @@ export default function MonthlyPlanStepTwoForm({
   plan,
 }: MonthlyPlanStepTwoFormProps) {
   const router = useRouter();
+  const isCustomPlan = plan.id === "custom-plan";
+  const [planType, setPlanType] = useState("");
+  const [planTypeTouched, setPlanTypeTouched] = useState(false);
   const [meals, setMeals] = useState("1");
   const [days, setDays] = useState("7");
   const [snacks, setSnacks] = useState("0");
@@ -61,6 +64,11 @@ export default function MonthlyPlanStepTwoForm({
   };
 
   const goToShowMeals = () => {
+    if (isCustomPlan && !planType) {
+      setPlanTypeTouched(true);
+      return;
+    }
+
     const query = new URLSearchParams({
       meals,
       days,
@@ -68,6 +76,7 @@ export default function MonthlyPlanStepTwoForm({
       startDate,
       deliveryDays: selectedDays.join(","),
     });
+    if (isCustomPlan) query.set("planType", planType);
 
     router.push(`/pages/monthly-plan/${plan.id}/show-meals?${query.toString()}`);
   };
@@ -84,6 +93,34 @@ export default function MonthlyPlanStepTwoForm({
           </p>
 
           <form className="mt-8 space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-7">
+            {isCustomPlan ? (
+              <div>
+                <label
+                  htmlFor="planType"
+                  className="text-base font-semibold text-zinc-800"
+                >
+                  Plan Type <span className="text-black">*</span>
+                </label>
+                <select
+                  id="planType"
+                  value={planType}
+                  onChange={(event) => {
+                    setPlanType(event.target.value);
+                    setPlanTypeTouched(true);
+                  }}
+                  onBlur={() => setPlanTypeTouched(true)}
+                  className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
+                >
+                  <option value="">Choose Plan Type</option>
+                  <option value="lose-weight">Lose Weight</option>
+                  <option value="gain-weight">Gain Weight</option>
+                </select>
+                {planTypeTouched && !planType ? (
+                  <p className="mt-2 text-sm text-red-600">This field is required</p>
+                ) : null}
+              </div>
+            ) : null}
+
             <div>
               <label
                 htmlFor="meals"
@@ -218,7 +255,8 @@ export default function MonthlyPlanStepTwoForm({
               <button
                 type="button"
                 onClick={goToShowMeals}
-                className="inline-flex h-11 min-w-32 items-center justify-center rounded-lg bg-black px-6 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white"
+                disabled={isCustomPlan && !planType}
+                className="inline-flex h-11 min-w-32 items-center justify-center rounded-lg bg-black px-6 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Apply
               </button>

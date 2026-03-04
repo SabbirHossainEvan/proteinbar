@@ -9,6 +9,7 @@ type CheckoutSelection = {
   days: string;
   snacks: string;
   startDate: string;
+  planType?: string;
 };
 
 type MonthlyPlanCheckoutFormProps = {
@@ -61,6 +62,7 @@ export default function MonthlyPlanCheckoutForm({
             Selected Plan
           </p>
           <div className="mt-4 space-y-1 text-center text-sm text-zinc-700">
+            {selection.planType ? <p>Plan Type: {selection.planType}</p> : null}
             <p>Meals: {selection.meals}</p>
             <p>Days: {selection.days}</p>
             <p>Snacks: {selection.snacks}</p>
