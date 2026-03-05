@@ -68,16 +68,16 @@ export default function Header() {
                 <path d="M20 20L16.6 16.6" />
               </svg>
             </button>
-            <button
-              type="button"
+            <Link
+              href="/login"
               aria-label="Account"
-              className="hidden text-white/90 transition-colors hover:text-white md:inline-flex"
+              className="!text-white transition-colors hover:!text-white"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M5 20c1.5-3 4.2-4.5 7-4.5s5.5 1.5 7 4.5" />
               </svg>
-            </button>
+            </Link>
             <Link
               href="/cart"
               aria-label="Cart"
