@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
+import { useSendCodeMutation, useVerifyCodeMutation } from "@/redux/api/publicApi";
 
 const CODE_LENGTH = 6;
-
-function generateCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
 
 function maskEmail(email: string) {
   const [name, domain] = email.split("@");
@@ -19,13 +16,16 @@ function maskEmail(email: string) {
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "verify" | "success">("email");
-  const [sentCode, setSentCode] = useState("");
   const [inputCode, setInputCode] = useState("");
   const [error, setError] = useState("");
+  const [sentCode, setSentCode] = useState("");
+
+  const [sendCode, { isLoading: sending }] = useSendCodeMutation();
+  const [verifyCode, { isLoading: verifying }] = useVerifyCodeMutation();
 
   const maskedEmail = useMemo(() => maskEmail(email), [email]);
 
-  const handleSendCode = (event: FormEvent<HTMLFormElement>) => {
+  const handleSendCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
@@ -36,14 +36,18 @@ export default function LoginPage() {
       return;
     }
 
-    const generatedCode = generateCode();
-    setEmail(normalizedEmail);
-    setSentCode(generatedCode);
-    setInputCode("");
-    setStep("verify");
+    try {
+      const response = await sendCode({ email: normalizedEmail }).unwrap();
+      setEmail(normalizedEmail);
+      setSentCode(response.data?.code ?? "");
+      setInputCode("");
+      setStep("verify");
+    } catch {
+      setError("Failed to send verification code.");
+    }
   };
 
-  const handleVerifyCode = (event: FormEvent<HTMLFormElement>) => {
+  const handleVerifyCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
@@ -52,12 +56,12 @@ export default function LoginPage() {
       return;
     }
 
-    if (inputCode !== sentCode) {
-      setError("Incorrect verification code.");
-      return;
+    try {
+      await verifyCode({ email, code: inputCode }).unwrap();
+      setStep("success");
+    } catch {
+      setError("Incorrect or expired verification code.");
     }
-
-    setStep("success");
   };
 
   return (
@@ -79,9 +83,10 @@ export default function LoginPage() {
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
-              className="h-11 w-full rounded-xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-700"
+              disabled={sending}
+              className="h-11 w-full rounded-xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
             >
-              Continue
+              {sending ? "Sending..." : "Continue"}
             </button>
           </form>
         )}
@@ -102,9 +107,10 @@ export default function LoginPage() {
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
-              className="h-11 w-full rounded-xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-700"
+              disabled={verifying}
+              className="h-11 w-full rounded-xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
             >
-              Submit
+              {verifying ? "Verifying..." : "Submit"}
             </button>
             <button
               type="button"
@@ -116,7 +122,7 @@ export default function LoginPage() {
             >
               Log in with a different email address
             </button>
-            <p className="text-xs text-zinc-500">Demo code: {sentCode}</p>
+            {sentCode ? <p className="text-xs text-zinc-500">Demo code: {sentCode}</p> : null}
           </form>
         )}
 

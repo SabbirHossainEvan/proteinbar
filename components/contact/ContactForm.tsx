@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { useSendContactMutation } from "@/redux/api/publicApi";
 
 type FormState = {
   name: string;
@@ -16,7 +17,7 @@ const initialState: FormState = {
   name: "",
   phone: "",
   email: "",
-  message: "",
+  message: ""
 };
 
 function validate(values: FormState): FormErrors {
@@ -46,9 +47,10 @@ export default function ContactForm() {
   const [values, setValues] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sendContact, { isLoading }] = useSendContactMutation();
 
   const onChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -56,7 +58,7 @@ export default function ContactForm() {
     setSubmitted(false);
   };
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nextErrors = validate(values);
 
@@ -66,9 +68,15 @@ export default function ContactForm() {
       return;
     }
 
-    setErrors({});
-    setSubmitted(true);
-    setValues(initialState);
+    try {
+      await sendContact(values).unwrap();
+      setErrors({});
+      setSubmitted(true);
+      setValues(initialState);
+    } catch {
+      setSubmitted(false);
+      setErrors({ message: "Failed to submit message. Please try again." });
+    }
   };
 
   return (
@@ -82,9 +90,7 @@ export default function ContactForm() {
           className="h-14 w-full border border-zinc-300 bg-transparent px-5 text-base text-zinc-800 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 sm:text-lg"
           placeholder="Name"
         />
-        {errors.name && (
-          <p className="mt-1 text-xs text-red-600">{errors.name}</p>
-        )}
+        {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
       </div>
       <div>
         <input
@@ -95,9 +101,7 @@ export default function ContactForm() {
           className="h-14 w-full border border-zinc-300 bg-transparent px-5 text-base text-zinc-800 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 sm:text-lg"
           placeholder="Phone Number"
         />
-        {errors.phone && (
-          <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
-        )}
+        {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
       </div>
       <div>
         <input
@@ -109,9 +113,7 @@ export default function ContactForm() {
           className="h-14 w-full border border-zinc-300 bg-transparent px-5 text-base text-zinc-800 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 sm:text-lg"
           placeholder="Email"
         />
-        {errors.email && (
-          <p className="mt-1 text-xs text-red-600">{errors.email}</p>
-        )}
+        {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
       </div>
       <div>
         <textarea
@@ -123,17 +125,16 @@ export default function ContactForm() {
           className="w-full border border-zinc-300 bg-transparent px-5 py-4 text-base text-zinc-800 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 sm:text-lg"
           placeholder="Message"
         />
-        {errors.message && (
-          <p className="mt-1 text-xs text-red-600">{errors.message}</p>
-        )}
+        {errors.message && <p className="mt-1 text-xs text-red-600">{errors.message}</p>}
       </div>
 
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          className="h-14 min-w-32 bg-zinc-900 px-8 text-base font-medium text-white transition hover:bg-black sm:text-lg"
+          disabled={isLoading}
+          className="h-14 min-w-32 bg-zinc-900 px-8 text-base font-medium text-white transition hover:bg-black sm:text-lg disabled:opacity-60"
         >
-          Submit
+          {isLoading ? "Submitting..." : "Submit"}
         </button>
         {submitted && (
           <p className="text-sm text-emerald-700">

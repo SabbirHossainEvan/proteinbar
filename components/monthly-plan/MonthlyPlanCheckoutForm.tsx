@@ -3,12 +3,8 @@
 import Image from "next/image";
 import { useMemo, useState, type FormEvent } from "react";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
-import { locations } from "@/data/locations";
-import {
-  createMonthlyOrder,
-  createMonthlySubscription,
-  type DeliveryOptionId,
-} from "@/lib/monthlyPlanOrders";
+import { mapApiLocation } from "@/lib/api-mappers";
+import { useCheckoutMutation, useGetLocationsQuery } from "@/redux/api/publicApi";
 
 type CheckoutSelection = {
   meals: string;
@@ -23,6 +19,12 @@ type MonthlyPlanCheckoutFormProps = {
   selection: CheckoutSelection;
 };
 
+type DeliveryOptionId =
+  | "daily-delivery"
+  | "daily-pickup"
+  | "weekly-delivery"
+  | "weekly-pickup";
+
 type DeliveryOptionConfig = {
   id: DeliveryOptionId;
   label: string;
@@ -33,23 +35,23 @@ const deliveryOptions: DeliveryOptionConfig[] = [
   {
     id: "daily-delivery",
     label: "Daily Delivery",
-    details: "Meals are delivered daily to your address.",
+    details: "Meals are delivered daily to your address."
   },
   {
     id: "daily-pickup",
     label: "Daily Pickup",
-    details: "Meals are picked up daily from a selected pickup location.",
+    details: "Meals are picked up daily from a selected pickup location."
   },
   {
     id: "weekly-delivery",
     label: "One-Time Weekly Delivery",
-    details: "All meals for the week are delivered once to your address.",
+    details: "All meals for the week are delivered once to your address."
   },
   {
     id: "weekly-pickup",
     label: "One-Time Weekly Pickup",
-    details: "All meals for the week are picked up once from a selected pickup location.",
-  },
+    details: "All meals for the week are picked up once from a selected pickup location."
+  }
 ];
 
 function toNumber(value: string, fallback: number) {
@@ -74,7 +76,7 @@ function isPickupOption(option: DeliveryOptionId | "") {
 
 export default function MonthlyPlanCheckoutForm({
   plan,
-  selection,
+  selection
 }: MonthlyPlanCheckoutFormProps) {
   const [giftCode, setGiftCode] = useState("");
   const [giftApplied, setGiftApplied] = useState(false);
@@ -95,6 +97,11 @@ export default function MonthlyPlanCheckoutForm({
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
 
+  const { data: locationsResponse } = useGetLocationsQuery();
+  const [checkout, { isLoading }] = useCheckoutMutation();
+
+  const locations = (locationsResponse?.data ?? []).map(mapApiLocation);
+
   const subtotal = useMemo(() => computeBasePrice(selection), [selection]);
   const giftDiscount = giftApplied ? Math.round(subtotal * 0.1) : 0;
   const vat = Math.round((subtotal - giftDiscount) * 0.05);
@@ -104,7 +111,7 @@ export default function MonthlyPlanCheckoutForm({
   const needsAddress = isDeliveryOption(deliveryOption);
   const needsPickupLocation = isPickupOption(deliveryOption);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError("");
     setSubmitSuccess("");
@@ -148,44 +155,48 @@ export default function MonthlyPlanCheckoutForm({
         ? {
             id: pickupLocation.id,
             name: pickupLocation.name,
-            address: pickupLocation.address,
+            address: pickupLocation.address
           }
-        : undefined,
+        : undefined
     };
 
-    const subscription = createMonthlySubscription({
-      plan: {
-        id: plan.id,
-        title: plan.title,
-      },
-      selection,
-      delivery,
-    });
+    try {
+      const response = await checkout({
+        subscription: {
+          plan: {
+            id: plan.id,
+            title: plan.title
+          },
+          selection,
+          delivery
+        },
+        order: {
+          customer: {
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+            phone: phone.trim(),
+            emirate,
+            area: area.trim()
+          },
+          delivery,
+          totals: {
+            subtotal,
+            giftDiscount,
+            vat,
+            safetyBag,
+            grandTotal
+          }
+        }
+      }).unwrap();
 
-    const order = createMonthlyOrder({
-      subscriptionId: subscription.id,
-      customer: {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
-        emirate,
-        area: area.trim(),
-      },
-      delivery,
-      totals: {
-        subtotal,
-        giftDiscount,
-        vat,
-        safetyBag,
-        grandTotal,
-      },
-    });
+      const subscriptionId = response.data?.subscription?.subscriptionId ?? "created";
+      const orderId = response.data?.order?.orderId ?? "created";
 
-    setSubmitSuccess(
-      `Checkout completed. Subscription ${subscription.id} and order ${order.id} saved.`
-    );
-
+      setSubmitSuccess(`Checkout completed. Subscription ${subscriptionId} and order ${orderId} saved.`);
+    } catch {
+      setSubmitError("Failed to complete checkout.");
+    }
   }
 
   return (
@@ -435,9 +446,10 @@ export default function MonthlyPlanCheckoutForm({
           <div className="mt-6">
             <button
               type="submit"
-              className="inline-flex h-12 min-w-44 items-center justify-center rounded-lg bg-black px-8 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white"
+              disabled={isLoading}
+              className="inline-flex h-12 min-w-44 items-center justify-center rounded-lg bg-black px-8 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white disabled:opacity-60"
             >
-              Checkout
+              {isLoading ? "Processing..." : "Checkout"}
             </button>
           </div>
         </form>

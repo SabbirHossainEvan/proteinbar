@@ -1,18 +1,32 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 import ProductActions from "@/components/products/ProductActions";
-import { getProductByHandle } from "@/data/products";
+import { useGetProductByHandleQuery } from "@/redux/api/publicApi";
+import { mapApiProduct } from "@/lib/api-mappers";
 
-type ProductPageProps = {
-  params: Promise<{ handle: string }>;
-};
+export default function ProductPage() {
+  const params = useParams<{ handle: string }>();
+  const handle = typeof params?.handle === "string" ? params.handle : "";
+  const { data, isLoading } = useGetProductByHandleQuery(handle, { skip: !handle });
+  const product = data?.data ? mapApiProduct(data.data) : null;
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const { handle } = await params;
-  const product = getProductByHandle(handle);
+  if (isLoading) {
+    return <section className="pb-10 pt-24 sm:pb-14 sm:pt-28">Loading product...</section>;
+  }
 
-  if (!product) notFound();
+  if (!product) {
+    return (
+      <section className="pb-10 pt-24 sm:pb-14 sm:pt-28">
+        <p className="text-zinc-600">Product not found.</p>
+        <Link href="/collections/all" className="mt-4 inline-block text-sm text-zinc-600 hover:text-zinc-900">
+          Back to products
+        </Link>
+      </section>
+    );
+  }
 
   return (
     <section className="pb-10 pt-24 sm:pb-14 sm:pt-28">

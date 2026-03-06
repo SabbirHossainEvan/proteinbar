@@ -1,13 +1,20 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import Section from "@/components/ui/Section";
-import { storeProducts } from "@/data/products";
+import { useGetProductsQuery } from "@/redux/api/publicApi";
+import { mapApiProduct } from "@/lib/api-mappers";
 
 export default function AllCollectionsPage() {
+  const { data, isLoading } = useGetProductsQuery();
+  const products = (data?.data ?? []).map(mapApiProduct);
+
   return (
     <Section title="Our Products" className="pt-24 sm:pt-28">
+      {isLoading ? <p className="text-sm text-zinc-500">Loading products...</p> : null}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {storeProducts.map((product) => (
+        {products.map((product) => (
           <Link
             key={product.id}
             href={`/products/${product.handle}`}
