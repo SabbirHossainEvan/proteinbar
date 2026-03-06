@@ -1,77 +1,132 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { monthlyPlans } from "@/data/monthlyPlans";
-import {
-  builderCategories,
-  builderRules,
-  computeBuilderTotals,
-  getCatalogByCategory,
-  resolveSelection,
-  type BuilderCategoryId,
-  type SelectedBuilderOption,
-} from "@/data/builderCatalog";
+import { useEffect, useMemo, useState } from "react";
+import { mapApiPlan } from "@/lib/api-mappers";
+import { useGetBuilderIngredientsQuery, useGetMonthlyPlansQuery } from "@/redux/api/publicApi";
 
-type SelectionState = Record<BuilderCategoryId, string>;
+type SelectionState = Record<string, string>;
+
+type IngredientItem = {
+  _id?: string;
+  id?: string;
+  ingredientId: string;
+  category: string;
+  item: string;
+  quantityLabel: string;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
 
 const storageKeys = {
   savedMeals: "proteinbar_custom_meals",
-  planMeals: "proteinbar_plan_meal_slots",
+  planMeals: "proteinbar_plan_meal_slots"
 };
 
-function toMealName(selected: SelectedBuilderOption[]) {
-  const protein = selected.find((item) => item.categoryId === "protein");
-  const carb = selected.find((item) => item.categoryId === "carb");
-  if (protein && carb) return `${protein.ingredientName} + ${carb.ingredientName}`;
+function getIngredientDocId(item: IngredientItem) {
+  return String(item.id ?? item._id ?? "");
+}
+
+function toMealName(selected: IngredientItem[]) {
+  const protein = selected.find((item) => item.category.toLowerCase() === "protein");
+  const carb = selected.find((item) => item.category.toLowerCase() === "carb");
+  if (protein && carb) return `${protein.item} + ${carb.item}`;
   return `Custom Meal ${new Date().toLocaleTimeString()}`;
 }
 
 export default function CustomMealBuilder() {
-  const [selections, setSelections] = useState<SelectionState>({
-    protein: "",
-    carb: "",
-    legume: "",
-    fruit: "",
-  });
+  const { data: ingredientsResponse, isLoading, isError } = useGetBuilderIngredientsQuery();
+  const { data: plansResponse } = useGetMonthlyPlansQuery();
+
+  const ingredients = useMemo<IngredientItem[]>(() => {
+    return (ingredientsResponse?.data ?? []).map((item: any) => ({
+      _id: item._id,
+      id: item.id,
+      ingredientId: item.ingredientId ?? "",
+      category: item.category ?? "",
+      item: item.item ?? "",
+      quantityLabel: item.quantityLabel ?? "",
+      kcal: Number(item.kcal ?? 0),
+      protein: Number(item.protein ?? 0),
+      carbs: Number(item.carbs ?? 0),
+      fat: Number(item.fat ?? 0)
+    }));
+  }, [ingredientsResponse]);
+
+  const plans = useMemo(() => {
+    return (plansResponse?.data ?? []).map(mapApiPlan);
+  }, [plansResponse]);
+
+  const categories = useMemo(() => {
+    return Array.from(new Set(ingredients.map((item) => item.category).filter(Boolean)));
+  }, [ingredients]);
+
+  const [selections, setSelections] = useState<SelectionState>({});
   const [daySlot, setDaySlot] = useState("1");
-  const [planId, setPlanId] = useState(monthlyPlans[0]?.id ?? "");
+  const [planId, setPlanId] = useState("");
   const [lastSavedMealId, setLastSavedMealId] = useState("");
   const [message, setMessage] = useState("");
 
-  const selectedOptions = useMemo(() => {
-    return builderCategories
-      .map((category) => resolveSelection(category.id, selections[category.id]))
-      .filter((value): value is SelectedBuilderOption => Boolean(value));
-  }, [selections]);
+  useEffect(() => {
+    if (!plans.length) return;
+    setPlanId((prev) => prev || plans[0].id);
+  }, [plans]);
 
-  const totals = useMemo(
-    () => computeBuilderTotals(selectedOptions),
-    [selectedOptions]
-  );
+  useEffect(() => {
+    if (!categories.length) return;
 
-  const uniqueAllergens = useMemo(() => {
-    return Array.from(new Set(selectedOptions.flatMap((item) => item.allergens)));
-  }, [selectedOptions]);
+    setSelections((prev) => {
+      const next: SelectionState = {};
+      categories.forEach((category) => {
+        const current = prev[category];
+        const exists = ingredients.some((item) => item.category === category && getIngredientDocId(item) === current);
+        next[category] = exists ? current : "";
+      });
+      return next;
+    });
+  }, [categories, ingredients]);
 
-  const selectedCategoryCount = selectedOptions.length;
-  const missingRequired = builderRules.requiredCategories.filter(
-    (category) => !selections[category]
-  );
+  const selectedItems = useMemo(() => {
+    return categories
+      .map((category) => ingredients.find((item) => item.category === category && getIngredientDocId(item) === selections[category]))
+      .filter((item): item is IngredientItem => Boolean(item));
+  }, [categories, ingredients, selections]);
+
+  const totals = useMemo(() => {
+    return selectedItems.reduce(
+      (acc, item) => ({
+        kcal: acc.kcal + item.kcal,
+        protein: acc.protein + item.protein,
+        carbs: acc.carbs + item.carbs,
+        fat: acc.fat + item.fat,
+        priceAed: acc.priceAed + item.kcal * 0.03
+      }),
+      { kcal: 0, protein: 0, carbs: 0, fat: 0, priceAed: 0 }
+    );
+  }, [selectedItems]);
+
+  const requiredCategories = useMemo(() => {
+    return categories.filter((category) => ["protein", "carb"].includes(category.toLowerCase()));
+  }, [categories]);
+
+  const missingRequired = requiredCategories.filter((category) => !selections[category]);
+  const selectedCategoryCount = selectedItems.length;
 
   const validationError = useMemo(() => {
     if (missingRequired.length > 0) {
       return `Required categories missing: ${missingRequired.join(", ")}`;
     }
-    if (selectedCategoryCount < builderRules.minCategories) {
-      return `Select at least ${builderRules.minCategories} categories`;
+    if (selectedCategoryCount < Math.min(2, categories.length)) {
+      return `Select at least ${Math.min(2, categories.length)} categories`;
     }
-    if (selectedCategoryCount > builderRules.maxCategories) {
-      return `Select no more than ${builderRules.maxCategories} categories`;
+    if (selectedCategoryCount > categories.length) {
+      return `Select no more than ${categories.length} categories`;
     }
     return "";
-  }, [missingRequired, selectedCategoryCount]);
+  }, [categories.length, missingRequired, selectedCategoryCount]);
 
-  const canSave = !validationError && selectedOptions.length > 0;
+  const canSave = !validationError && selectedItems.length > 0;
 
   const saveCustomMeal = () => {
     if (!canSave) {
@@ -82,10 +137,10 @@ export default function CustomMealBuilder() {
     const id = `meal-${Date.now()}`;
     const payload = {
       id,
-      title: toMealName(selectedOptions),
+      title: toMealName(selectedItems),
       createdAt: new Date().toISOString(),
-      components: selectedOptions,
-      totals,
+      components: selectedItems,
+      totals
     };
 
     const previousRaw = localStorage.getItem(storageKeys.savedMeals);
@@ -111,7 +166,7 @@ export default function CustomMealBuilder() {
       mealId: lastSavedMealId,
       planId,
       day: Number(daySlot),
-      addedAt: new Date().toISOString(),
+      addedAt: new Date().toISOString()
     };
 
     const previousRaw = localStorage.getItem(storageKeys.planMeals);
@@ -136,37 +191,36 @@ export default function CustomMealBuilder() {
               Macros and price update instantly.
             </p>
             <p className="mt-2 text-xs text-zinc-500">
-              Catalog options, portion macros, allergen tags, and rules are admin-managed.
+              Catalog options, portion macros, and rules are admin-managed.
             </p>
           </div>
 
-          {builderCategories.map((category) => {
-            const options = getCatalogByCategory(category.id);
+          {isError ? <p className="text-sm text-red-600">Failed to load ingredient catalog.</p> : null}
+
+          {(isLoading ? [] : categories).map((category) => {
+            const options = ingredients.filter((item) => item.category === category);
             return (
               <article
-                key={category.id}
+                key={category}
                 className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6"
               >
-                <h3 className="text-2xl font-semibold text-zinc-900">{category.label}</h3>
+                <h3 className="text-2xl font-semibold text-zinc-900">{category}</h3>
                 <select
-                  value={selections[category.id]}
+                  value={selections[category] ?? ""}
                   onChange={(event) =>
-                    setSelections((prev) => ({ ...prev, [category.id]: event.target.value }))
+                    setSelections((prev) => ({ ...prev, [category]: event.target.value }))
                   }
                   className="mt-3 h-11 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm text-zinc-800 outline-none focus:border-zinc-500"
                 >
-                  <option value="">Select {category.label.toLowerCase()} option</option>
-                  {options.map((ingredient) =>
-                    ingredient.portions.map((portion) => (
-                      <option
-                        key={`${ingredient.id}-${portion.id}`}
-                        value={`${ingredient.id}::${portion.id}`}
-                      >
-                        {ingredient.name} - {portion.label} | {portion.macros.kcal} kcal | P{" "}
-                        {portion.macros.protein} C {portion.macros.carbs} F {portion.macros.fat}
+                  <option value="">Select {category.toLowerCase()} option</option>
+                  {options.map((ingredient) => {
+                    const docId = getIngredientDocId(ingredient);
+                    return (
+                      <option key={docId || ingredient.ingredientId} value={docId}>
+                        {ingredient.item} - {ingredient.quantityLabel} | {ingredient.kcal} kcal | P {ingredient.protein} C {ingredient.carbs} F {ingredient.fat}
                       </option>
-                    ))
-                  )}
+                    );
+                  })}
                 </select>
               </article>
             );
@@ -189,11 +243,6 @@ export default function CustomMealBuilder() {
             <p className="mt-3 text-sm font-medium text-zinc-800">
               Price: {totals.priceAed.toFixed(2)} AED
             </p>
-            {uniqueAllergens.length > 0 ? (
-              <p className="mt-2 text-xs text-amber-700">
-                Allergen alert: {uniqueAllergens.join(", ")}
-              </p>
-            ) : null}
             {validationError ? (
               <p className="mt-3 text-sm text-red-600">{validationError}</p>
             ) : (
@@ -204,12 +253,12 @@ export default function CustomMealBuilder() {
           <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <h3 className="text-2xl font-semibold text-zinc-900">Selected Components</h3>
             <ul className="mt-3 space-y-2 text-sm text-zinc-700">
-              {selectedOptions.length === 0 ? (
+              {selectedItems.length === 0 ? (
                 <li>No components selected yet.</li>
               ) : (
-                selectedOptions.map((item) => (
-                  <li key={`${item.categoryId}-${item.ingredientId}-${item.portionId}`}>
-                    {item.categoryId.toUpperCase()}: {item.ingredientName} ({item.portionLabel})
+                selectedItems.map((item) => (
+                  <li key={`${item.category}-${getIngredientDocId(item)}`}>
+                    {item.category.toUpperCase()}: {item.item} ({item.quantityLabel})
                   </li>
                 ))
               )}
@@ -234,7 +283,7 @@ export default function CustomMealBuilder() {
                   onChange={(event) => setPlanId(event.target.value)}
                   className="mt-2 h-11 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm text-zinc-800 outline-none focus:border-zinc-500"
                 >
-                  {monthlyPlans.map((plan) => (
+                  {plans.map((plan) => (
                     <option key={plan.id} value={plan.id}>
                       {plan.title}
                     </option>
