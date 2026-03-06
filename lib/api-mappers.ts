@@ -2,6 +2,23 @@ import type { MonthlyPlan } from "@/data/monthlyPlans";
 import type { StoreProduct } from "@/data/products";
 import type { Location } from "@/types";
 
+function toSlug(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function toNumberFromPrice(value: unknown) {
+  if (typeof value === "number") return value;
+  if (typeof value !== "string") return 0;
+
+  const normalized = value.replace(/[^0-9.]+/g, "");
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export function mapApiPlan(plan: any): MonthlyPlan {
   return {
     id: plan?.planId ?? plan?.id ?? "",
@@ -13,13 +30,16 @@ export function mapApiPlan(plan: any): MonthlyPlan {
 }
 
 export function mapApiProduct(product: any): StoreProduct {
+  const fallbackHandle = toSlug(product?.sku ?? product?.name ?? product?.title ?? "");
+  const fallbackDescription = [product?.description, product?.category].filter(Boolean).join(" | ");
+
   return {
-    id: product?.productId ?? product?.id ?? "",
-    handle: product?.handle ?? "",
-    title: product?.title ?? "",
-    description: product?.description ?? "",
-    priceMad: Number(product?.priceMad ?? 0),
-    image: product?.image ?? "/food/food.png"
+    id: product?.productId ?? product?.id ?? product?._id ?? product?.sku ?? "",
+    handle: product?.handle ?? fallbackHandle ?? "",
+    title: product?.title ?? product?.name ?? "",
+    description: fallbackDescription || "",
+    priceMad: toNumberFromPrice(product?.priceMad ?? product?.price),
+    image: product?.image ?? product?.imageUrl ?? "/food/food.png"
   };
 }
 

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
+const baseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -14,49 +16,55 @@ export const publicApi = createApi({
   tagTypes: ["Menu", "Plans", "Products", "Locations", "Builder"],
   endpoints: (builder) => ({
     getMenuCategories: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/public/menu-categories",
-      providesTags: ["Menu"]
+      query: () => "/menu-categories",
+      providesTags: ["Menu"],
     }),
     getMonthlyPlans: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/public/monthly-plans",
-      providesTags: ["Plans"]
+      query: () => "/monthly-plans",
+      providesTags: ["Plans"],
     }),
     getMonthlyPlanById: builder.query<ApiResponse<any>, string>({
-      query: (planId) => `/public/monthly-plans/${planId}`,
-      providesTags: ["Plans"]
+      query: (planId) => `/monthly-plans/${planId}`,
+      providesTags: ["Plans"],
     }),
     getProducts: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/public/products",
-      providesTags: ["Products"]
+      query: () => "/products",
+      providesTags: ["Products"],
     }),
     getProductByHandle: builder.query<ApiResponse<any>, string>({
-      query: (handle) => `/public/products/${handle}`,
-      providesTags: ["Products"]
+      query: (handle) => `/products/${handle}`,
+      providesTags: ["Products"],
     }),
     getLocations: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/public/locations",
-      providesTags: ["Locations"]
+      query: () => "/locations",
+      providesTags: ["Locations"],
     }),
     getBuilderIngredients: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/public/builder-ingredients",
-      providesTags: ["Builder"]
+      query: () => "/ingredients",
+      providesTags: ["Builder"],
     }),
     sendCode: builder.mutation<ApiResponse<any>, { email: string }>({
-      query: (body) => ({ url: "/auth/send-code", method: "POST", body })
+      query: (body) => ({ url: "/auth/send-code", method: "POST", body }),
     }),
-    verifyCode: builder.mutation<ApiResponse<any>, { email: string; code: string }>({
-      query: (body) => ({ url: "/auth/verify-code", method: "POST", body })
+    verifyCode: builder.mutation<
+      ApiResponse<any>,
+      { email: string; code: string }
+    >({
+      query: (body) => ({ url: "/auth/verify-code", method: "POST", body }),
     }),
-    sendContact: builder.mutation<ApiResponse<any>, { name: string; phone: string; email: string; message: string }>({
-      query: (body) => ({ url: "/public/contact", method: "POST", body })
+    sendContact: builder.mutation<
+      ApiResponse<any>,
+      { name: string; phone: string; email: string; message: string }
+    >({
+      query: (body) => ({ url: "/contact", method: "POST", body }),
     }),
     checkout: builder.mutation<ApiResponse<any>, any>({
-      query: (body) => ({ url: "/public/checkout", method: "POST", body })
+      query: (body) => ({ url: "/checkout", method: "POST", body }),
     }),
     createStoreOrder: builder.mutation<ApiResponse<any>, any>({
-      query: (body) => ({ url: "/public/store-orders", method: "POST", body })
-    })
-  })
+      query: (body) => ({ url: "/store-orders", method: "POST", body }),
+    }),
+  }),
 });
 
 export const {
@@ -71,5 +79,5 @@ export const {
   useVerifyCodeMutation,
   useSendContactMutation,
   useCheckoutMutation,
-  useCreateStoreOrderMutation
+  useCreateStoreOrderMutation,
 } = publicApi;
