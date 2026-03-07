@@ -17,7 +17,7 @@ export default function MonthlyPlanSection() {
           subscription flow.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/pages/monthly-plan">
+          <Link href="/plans">
             <Button className="bg-white text-zinc-900 hover:bg-zinc-100">
               Go To Monthly Plan
             </Button>

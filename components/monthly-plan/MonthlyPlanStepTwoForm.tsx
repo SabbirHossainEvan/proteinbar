@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
+import { getPlanKind } from "@/lib/monthlyPlanFlow";
 
 const weekDays = [
   "Saturday",
@@ -36,7 +37,8 @@ export default function MonthlyPlanStepTwoForm({
   plan,
 }: MonthlyPlanStepTwoFormProps) {
   const router = useRouter();
-  const isCustomPlan = plan.id === "custom-plan";
+  const planKind = getPlanKind(plan);
+  const isCustomPlan = planKind === "custom";
   const [planType, setPlanType] = useState("");
   const [planTypeTouched, setPlanTypeTouched] = useState(false);
   const [meals, setMeals] = useState("1");
@@ -78,7 +80,7 @@ export default function MonthlyPlanStepTwoForm({
     });
     if (isCustomPlan) query.set("planType", planType);
 
-    router.push(`/pages/monthly-plan/${plan.id}/show-meals?${query.toString()}`);
+    router.push(`/${planKind}/${plan.id}/select-meals?${query.toString()}`);
   };
 
   return (

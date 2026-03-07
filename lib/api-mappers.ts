@@ -20,8 +20,14 @@ function toNumberFromPrice(value: unknown) {
 }
 
 export function mapApiPlan(plan: any): MonthlyPlan {
+  const mappedType =
+    typeof plan?.type === "string" && plan.type.toLowerCase() === "custom"
+      ? "custom"
+      : "normal";
+
   return {
-    id: plan?.planId ?? plan?.id ?? "",
+    id: String(plan?.planId ?? plan?.id ?? ""),
+    planKind: mappedType,
     title: plan?.name ?? plan?.title ?? "",
     description: plan?.description ?? "",
     image: plan?.imageUrl ?? plan?.image ?? "/food/food.png",
