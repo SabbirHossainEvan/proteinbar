@@ -11,6 +11,7 @@ type CheckoutSelection = {
   days: string;
   snacks: string;
   startDate: string;
+  deliveryDays?: string;
   planType?: string;
 };
 
@@ -52,6 +53,21 @@ const deliveryOptions: DeliveryOptionConfig[] = [
     label: "One-Time Weekly Pickup",
     details: "All meals for the week are picked up once from a selected pickup location."
   }
+];
+
+const moroccoStates = [
+  "Casablanca-Settat",
+  "Rabat-Sale-Kenitra",
+  "Marrakesh-Safi",
+  "Fes-Meknes",
+  "Tangier-Tetouan-Al Hoceima",
+  "Souss-Massa",
+  "Oriental",
+  "Beni Mellal-Khenifra",
+  "Draa-Tafilalet",
+  "Guelmim-Oued Noun",
+  "Laayoune-Sakia El Hamra",
+  "Dakhla-Oued Ed-Dahab"
 ];
 
 function toNumber(value: string, fallback: number) {
@@ -200,20 +216,20 @@ export default function MonthlyPlanCheckoutForm({
   }
 
   return (
-    <section className="py-10 sm:py-14">
-      <h2 className="text-5xl font-semibold tracking-tight text-black sm:text-7xl">
+    <section className="bg-zinc-100 py-10 sm:py-14">
+      <h2 className="text-5xl font-bold tracking-tight text-zinc-900 sm:text-6xl">
         Checkout
       </h2>
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <aside className="rounded-sm border border-zinc-200 bg-white p-5 shadow-sm">
           <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-full border border-zinc-200">
             <Image src={plan.image} alt={plan.title} fill className="object-cover" />
           </div>
-          <h3 className="mt-4 text-center text-3xl font-semibold text-black">
+          <h3 className="mt-4 text-center text-2xl font-bold text-zinc-900">
             {plan.title}
           </h3>
-          <p className="mt-2 text-center text-sm text-zinc-500">Selected Plan</p>
+          <p className="mt-2 text-center text-sm text-zinc-600">Selected Plan</p>
           <div className="mt-4 space-y-1 text-center text-sm text-zinc-700">
             {selection.planType ? <p>Plan Type: {selection.planType}</p> : null}
             <p>Meals: {selection.meals}</p>
@@ -223,8 +239,8 @@ export default function MonthlyPlanCheckoutForm({
           </div>
         </aside>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-          <h3 className="text-3xl font-semibold text-black">Gift Code</h3>
+        <div className="rounded-sm border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+          <h3 className="text-3xl font-bold text-zinc-900">Gift Code</h3>
           <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
             <input
               type="text"
@@ -236,7 +252,7 @@ export default function MonthlyPlanCheckoutForm({
             <button
               type="button"
               onClick={() => setGiftApplied(giftCode.trim().length > 0)}
-              className="h-12 rounded-lg bg-black px-6 text-sm font-medium !text-white transition hover:bg-zinc-800 hover:!text-white"
+              className="h-12 rounded-sm bg-black px-6 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
               Apply
             </button>
@@ -245,29 +261,29 @@ export default function MonthlyPlanCheckoutForm({
           <div className="mt-5 border-t border-zinc-200 pt-4 text-sm">
             <div className="flex items-center justify-between py-2">
               <span>Total</span>
-              <span className="font-semibold">{subtotal.toFixed(2)} AED</span>
+              <span className="font-semibold">{subtotal.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span>Code</span>
-              <span className="font-semibold">-{giftDiscount.toFixed(2)} AED</span>
+              <span className="font-semibold">-{giftDiscount.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span>Vat</span>
-              <span className="font-semibold">{vat.toFixed(2)} AED</span>
+              <span className="font-semibold">{vat.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span>Safety Bag</span>
-              <span className="font-semibold">{safetyBag.toFixed(2)} AED</span>
+              <span className="font-semibold">{safetyBag.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-zinc-200 py-3 text-base">
               <span className="font-semibold">Grand Total</span>
-              <span className="font-bold text-black">{grandTotal.toFixed(2)} AED</span>
+              <span className="font-bold text-black">{grandTotal.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="mt-6 rounded-sm border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
         <h3 className="text-3xl font-semibold text-zinc-900">Checkout Form</h3>
 
         <form className="mt-5" onSubmit={handleSubmit}>
@@ -315,16 +331,18 @@ export default function MonthlyPlanCheckoutForm({
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-zinc-700">Emirates</label>
+              <label className="text-sm font-medium text-zinc-700">State</label>
               <select
                 value={emirate}
                 onChange={(event) => setEmirate(event.target.value)}
                 className="mt-2 h-11 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm outline-none focus:border-zinc-500"
               >
-                <option value="">Choose Emirates</option>
-                <option>Abu Dhabi</option>
-                <option>Dubai</option>
-                <option>Sharjah</option>
+                <option value="">Choose State</option>
+                {moroccoStates.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -434,7 +452,7 @@ export default function MonthlyPlanCheckoutForm({
                 checked={acceptedTerms}
                 onChange={(event) => setAcceptedTerms(event.target.checked)}
               />
-              I accepted the Terms and Conditions of the meals plan
+              I accepted the <span className="text-zinc-900">Terms and Conditions</span> of the meals plan
             </label>
           </div>
 
@@ -443,11 +461,11 @@ export default function MonthlyPlanCheckoutForm({
             <p className="mt-4 text-sm font-medium text-emerald-700">{submitSuccess}</p>
           ) : null}
 
-          <div className="mt-6">
+          <div className="mt-6 flex justify-center">
             <button
               type="submit"
               disabled={isLoading}
-              className="inline-flex h-12 min-w-44 items-center justify-center rounded-lg bg-black px-8 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white disabled:opacity-60"
+              className="inline-flex h-12 min-w-44 items-center justify-center rounded-sm bg-black px-8 text-base font-medium text-white transition hover:bg-zinc-800 disabled:opacity-60"
             >
               {isLoading ? "Processing..." : "Checkout"}
             </button>

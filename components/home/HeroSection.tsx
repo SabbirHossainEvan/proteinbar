@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 const heroContent = {
   title: "PROTEINBAR",
   subtitle: "Fuel Your Lifestyle With Premium Healthy Dining.",
-  ctaPrimary: { href: "/pages/monthly-plan", label: "Start Monthly Plan" },
+  ctaPrimary: { href: "/plans", label: "Start Monthly Plan" },
   ctaSecondary: { href: "/pages/menu", label: "View Menu" },
 };
 

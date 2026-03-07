@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useGetMonthlyPlansQuery } from "@/redux/api/publicApi";
 import { mapApiPlan } from "@/lib/api-mappers";
+import { getPlanKind, getSetPlanPath } from "@/lib/monthlyPlanFlow";
 
 export default function CustomPlanFlowPage() {
   const { data } = useGetMonthlyPlansQuery();
   const plans = (data?.data ?? []).map(mapApiPlan);
-  const customPlan = plans.find((plan) => plan.id === "custom-plan") ?? plans[0];
+  const customPlan = plans.find((plan) => getPlanKind(plan) === "custom") ?? plans[0];
 
   return (
     <section className="py-10 sm:py-14">
@@ -19,7 +20,7 @@ export default function CustomPlanFlowPage() {
         </p>
         <div className="mt-6">
           <Link
-            href={`/pages/monthly-plan/${customPlan?.id ?? "custom-plan"}`}
+            href={customPlan ? getSetPlanPath(customPlan) : "/custom/4/set-plan"}
             className="inline-flex h-11 items-center justify-center rounded-lg bg-black px-6 text-sm font-medium !text-white transition hover:bg-zinc-800"
           >
             Continue To Set Plan

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/pages/monthly-plan", label: "Monthly Plan" },
+  { href: "/plans", label: "Monthly Plan" },
   { href: "/pages/nos-restaurants", label: "Locations" },
   { href: "/pages/menu#menu-details", label: "Menu" },
   { href: "/pages/about-us", label: "About" },
@@ -29,7 +29,7 @@ export default function Header() {
               className="text-white transition-colors hover:text-white/80 lg:hidden"
               aria-label="Toggle menu"
             >
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             </button>
@@ -39,7 +39,7 @@ export default function Header() {
               onClick={() => setSearchOpen(true)}
               className="hidden text-white/90 transition-colors hover:text-white lg:inline-flex"
             >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20L16.6 16.6" />
               </svg>
@@ -63,7 +63,7 @@ export default function Header() {
               onClick={() => setSearchOpen(true)}
               className="text-white/90 transition-colors hover:text-white lg:hidden"
             >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20L16.6 16.6" />
               </svg>
@@ -73,7 +73,7 @@ export default function Header() {
               aria-label="Account"
               className="!text-white transition-colors hover:!text-white"
             >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M5 20c1.5-3 4.2-4.5 7-4.5s5.5 1.5 7 4.5" />
               </svg>
@@ -83,7 +83,7 @@ export default function Header() {
               aria-label="Cart"
               className="!text-white transition-colors hover:!text-white"
             >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="#ffffff" strokeWidth="1.8">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="#ffffff" strokeWidth="1.8">
                 <path d="M4 6h2l2 10h8l2-7H7.5" />
                 <circle cx="10" cy="19" r="1.5" />
                 <circle cx="17" cy="19" r="1.5" />
@@ -185,3 +185,4 @@ export default function Header() {
     </header>
   );
 }
+
