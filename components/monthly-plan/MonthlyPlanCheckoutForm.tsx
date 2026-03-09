@@ -1,10 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { mapApiLocation } from "@/lib/api-mappers";
-import { useCheckoutMutation, useGetLocationsQuery } from "@/redux/api/publicApi";
+import {
+  useCheckoutMutation,
+  useGetLocationsQuery,
+} from "@/redux/api/publicApi";
+import type {
+  DeliveryOptionId,
+  MonthlyPlanDetails,
+} from "@/types/monthlyPlanFlow";
 
 type CheckoutSelection = {
   meals: string;
@@ -18,13 +25,8 @@ type CheckoutSelection = {
 type MonthlyPlanCheckoutFormProps = {
   plan: MonthlyPlan;
   selection: CheckoutSelection;
+  planDetails?: MonthlyPlanDetails;
 };
-
-type DeliveryOptionId =
-  | "daily-delivery"
-  | "daily-pickup"
-  | "weekly-delivery"
-  | "weekly-pickup";
 
 type DeliveryOptionConfig = {
   id: DeliveryOptionId;
@@ -36,24 +38,34 @@ const deliveryOptions: DeliveryOptionConfig[] = [
   {
     id: "daily-delivery",
     label: "Daily Delivery",
-    details: "Meals are delivered daily to your address."
+    details: "Meals are delivered daily to your address.",
   },
   {
     id: "daily-pickup",
     label: "Daily Pickup",
-    details: "Meals are picked up daily from a selected pickup location."
+    details: "Meals are picked up daily from a selected pickup location.",
   },
   {
     id: "weekly-delivery",
     label: "One-Time Weekly Delivery",
-    details: "All meals for the week are delivered once to your address."
+    details: "All meals for the week are delivered once to your address.",
   },
   {
     id: "weekly-pickup",
     label: "One-Time Weekly Pickup",
-    details: "All meals for the week are picked up once from a selected pickup location."
-  }
+    details:
+      "All meals for the week are picked up once from a selected pickup location.",
+  },
 ];
+
+const deliveryOptionDescriptions: Record<DeliveryOptionId, string> = {
+  "daily-delivery": "Meals are delivered daily to your address.",
+  "daily-pickup": "Meals are picked up daily from a selected pickup location.",
+  "weekly-delivery":
+    "All meals for the week are delivered once to your address.",
+  "weekly-pickup":
+    "All meals for the week are picked up once from a selected pickup location.",
+};
 
 const moroccoStates = [
   "Casablanca-Settat",
@@ -67,7 +79,7 @@ const moroccoStates = [
   "Draa-Tafilalet",
   "Guelmim-Oued Noun",
   "Laayoune-Sakia El Hamra",
-  "Dakhla-Oued Ed-Dahab"
+  "Dakhla-Oued Ed-Dahab",
 ];
 
 function toNumber(value: string, fallback: number) {
@@ -75,11 +87,27 @@ function toNumber(value: string, fallback: number) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function computeBasePrice(selection: CheckoutSelection) {
+function computeBasePrice(
+  selection: CheckoutSelection,
+  planDetails?: MonthlyPlanDetails,
+) {
   const meals = toNumber(selection.meals, 1);
   const days = toNumber(selection.days, 7);
   const snacks = toNumber(selection.snacks, 0);
-  return meals * days * 18 + snacks * days * 8;
+  const baseFee = Number(planDetails?.pricing?.basePriceFormula?.baseFee ?? 0);
+  const pricePerMeal = Number(
+    planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 18,
+  );
+  const dayMultiplier = Number(
+    planDetails?.pricing?.basePriceFormula?.dayMultiplier ?? 1,
+  );
+  const snacksAddonPrice = Number(planDetails?.pricing?.snacksAddonPrice ?? 8);
+
+  return (
+    baseFee +
+    meals * days * pricePerMeal * dayMultiplier +
+    snacks * days * snacksAddonPrice
+  );
 }
 
 function isDeliveryOption(option: DeliveryOptionId | "") {
@@ -92,7 +120,8 @@ function isPickupOption(option: DeliveryOptionId | "") {
 
 export default function MonthlyPlanCheckoutForm({
   plan,
-  selection
+  selection,
+  planDetails,
 }: MonthlyPlanCheckoutFormProps) {
   const [giftCode, setGiftCode] = useState("");
   const [giftApplied, setGiftApplied] = useState(false);
@@ -107,7 +136,9 @@ export default function MonthlyPlanCheckoutForm({
   const [emirate, setEmirate] = useState("");
   const [area, setArea] = useState("");
   const [address, setAddress] = useState("");
-  const [deliveryOption, setDeliveryOption] = useState<DeliveryOptionId | "">("");
+  const [deliveryOption, setDeliveryOption] = useState<DeliveryOptionId | "">(
+    "",
+  );
   const [pickupLocationId, setPickupLocationId] = useState("");
 
   const [submitError, setSubmitError] = useState("");
@@ -117,11 +148,56 @@ export default function MonthlyPlanCheckoutForm({
   const [checkout, { isLoading }] = useCheckoutMutation();
 
   const locations = (locationsResponse?.data ?? []).map(mapApiLocation);
+  const pricing = planDetails?.pricing;
+  const rules = planDetails?.rules;
 
-  const subtotal = useMemo(() => computeBasePrice(selection), [selection]);
-  const giftDiscount = giftApplied ? Math.round(subtotal * 0.1) : 0;
-  const vat = Math.round((subtotal - giftDiscount) * 0.05);
-  const safetyBag = cutlery ? 5 : 0;
+  const enabledDeliveryOptions = useMemo(() => {
+    const fromRules =
+      rules?.deliveryOptionConfigs?.filter((option) => option.enabled) ?? [];
+    if (fromRules.length > 0) {
+      return fromRules.map((option) => ({
+        id: option.option,
+        label: option.label,
+        details: deliveryOptionDescriptions[option.option] ?? option.label,
+      }));
+    }
+
+    return deliveryOptions;
+  }, [rules]);
+
+  useEffect(() => {
+    if (!enabledDeliveryOptions.length) return;
+    if (
+      !deliveryOption ||
+      !enabledDeliveryOptions.some((item) => item.id === deliveryOption)
+    ) {
+      setDeliveryOption(enabledDeliveryOptions[0].id);
+    }
+  }, [deliveryOption, enabledDeliveryOptions]);
+
+  const subtotal = useMemo(
+    () => computeBasePrice(selection, planDetails),
+    [planDetails, selection],
+  );
+  const giftRule = pricing?.giftCodeRule;
+  const giftDiscount = useMemo(() => {
+    if (!giftApplied) return 0;
+    if (!giftCode.trim()) return 0;
+    if (giftRule && !giftRule.enabled) return 0;
+
+    const type = giftRule?.type ?? "percent";
+    const value = Number(giftRule?.value ?? 10);
+    const maxDiscount = Number(
+      giftRule?.maxDiscount ?? Number.MAX_SAFE_INTEGER,
+    );
+    const calculated = type === "fixed" ? value : (subtotal * value) / 100;
+
+    return Math.max(0, Math.min(calculated, maxDiscount));
+  }, [giftApplied, giftCode, giftRule, subtotal]);
+  const vatPercent = Number(pricing?.vatPercent ?? 5);
+  const vat = ((subtotal - giftDiscount) * vatPercent) / 100;
+  const safetyBagFee = Number(pricing?.safetyBagFee ?? 5);
+  const safetyBag = cutlery ? safetyBagFee : 0;
   const grandTotal = subtotal - giftDiscount + vat + safetyBag;
 
   const needsAddress = isDeliveryOption(deliveryOption);
@@ -132,7 +208,10 @@ export default function MonthlyPlanCheckoutForm({
     setSubmitError("");
     setSubmitSuccess("");
 
-    if (!deliveryOption) {
+    if (
+      !deliveryOption ||
+      !enabledDeliveryOptions.some((option) => option.id === deliveryOption)
+    ) {
       setSubmitError("Please select a delivery option.");
       return;
     }
@@ -157,7 +236,9 @@ export default function MonthlyPlanCheckoutForm({
       return;
     }
 
-    const pickupLocation = locations.find((location) => location.id === pickupLocationId);
+    const pickupLocation = locations.find(
+      (location) => location.id === pickupLocationId,
+    );
 
     if (needsPickupLocation && !pickupLocation) {
       setSubmitError("Please choose a valid pickup location.");
@@ -171,9 +252,9 @@ export default function MonthlyPlanCheckoutForm({
         ? {
             id: pickupLocation.id,
             name: pickupLocation.name,
-            address: pickupLocation.address
+            address: pickupLocation.address,
           }
-        : undefined
+        : undefined,
     };
 
     try {
@@ -181,10 +262,10 @@ export default function MonthlyPlanCheckoutForm({
         subscription: {
           plan: {
             id: plan.id,
-            title: plan.title
+            title: plan.title,
           },
           selection,
-          delivery
+          delivery,
         },
         order: {
           customer: {
@@ -193,7 +274,7 @@ export default function MonthlyPlanCheckoutForm({
             email: email.trim(),
             phone: phone.trim(),
             emirate,
-            area: area.trim()
+            area: area.trim(),
           },
           delivery,
           totals: {
@@ -201,15 +282,18 @@ export default function MonthlyPlanCheckoutForm({
             giftDiscount,
             vat,
             safetyBag,
-            grandTotal
-          }
-        }
+            grandTotal,
+          },
+        },
       }).unwrap();
 
-      const subscriptionId = response.data?.subscription?.subscriptionId ?? "created";
+      const subscriptionId =
+        response.data?.subscription?.subscriptionId ?? "created";
       const orderId = response.data?.order?.orderId ?? "created";
 
-      setSubmitSuccess(`Checkout completed. Subscription ${subscriptionId} and order ${orderId} saved.`);
+      setSubmitSuccess(
+        `Checkout completed. Subscription ${subscriptionId} and order ${orderId} saved.`,
+      );
     } catch {
       setSubmitError("Failed to complete checkout.");
     }
@@ -224,12 +308,21 @@ export default function MonthlyPlanCheckoutForm({
       <div className="mt-8 grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="rounded-sm border border-zinc-200 bg-white p-5 shadow-sm">
           <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-full border border-zinc-200">
-            <Image src={plan.image} alt={plan.title} fill className="object-cover" />
+            {plan.image && (
+              <Image
+                src={plan.image}
+                alt={plan.title}
+                fill
+                className="object-cover"
+              />
+            )}
           </div>
           <h3 className="mt-4 text-center text-2xl font-bold text-zinc-900">
             {plan.title}
           </h3>
-          <p className="mt-2 text-center text-sm text-zinc-600">Selected Plan</p>
+          <p className="mt-2 text-center text-sm text-zinc-600">
+            Selected Plan
+          </p>
           <div className="mt-4 space-y-1 text-center text-sm text-zinc-700">
             {selection.planType ? <p>Plan Type: {selection.planType}</p> : null}
             <p>Meals: {selection.meals}</p>
@@ -261,23 +354,38 @@ export default function MonthlyPlanCheckoutForm({
           <div className="mt-5 border-t border-zinc-200 pt-4 text-sm">
             <div className="flex items-center justify-between py-2">
               <span>Total</span>
-              <span className="font-semibold">{subtotal.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
+              <span className="font-semibold">
+                {subtotal.toFixed(2)}{" "}
+                <span className="text-xs text-zinc-500">MAD</span>
+              </span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span>Code</span>
-              <span className="font-semibold">-{giftDiscount.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
+              <span className="font-semibold">
+                -{giftDiscount.toFixed(2)}{" "}
+                <span className="text-xs text-zinc-500">MAD</span>
+              </span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span>Vat</span>
-              <span className="font-semibold">{vat.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
+              <span className="font-semibold">
+                {vat.toFixed(2)}{" "}
+                <span className="text-xs text-zinc-500">MAD</span>
+              </span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span>Safety Bag</span>
-              <span className="font-semibold">{safetyBag.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
+              <span className="font-semibold">
+                {safetyBag.toFixed(2)}{" "}
+                <span className="text-xs text-zinc-500">MAD</span>
+              </span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-zinc-200 py-3 text-base">
               <span className="font-semibold">Grand Total</span>
-              <span className="font-bold text-black">{grandTotal.toFixed(2)} <span className="text-xs text-zinc-500">MAD</span></span>
+              <span className="font-bold text-black">
+                {grandTotal.toFixed(2)}{" "}
+                <span className="text-xs text-zinc-500">MAD</span>
+              </span>
             </div>
           </div>
         </div>
@@ -289,7 +397,9 @@ export default function MonthlyPlanCheckoutForm({
         <form className="mt-5" onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-zinc-700">First Name</label>
+              <label className="text-sm font-medium text-zinc-700">
+                First Name
+              </label>
               <input
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
@@ -297,7 +407,9 @@ export default function MonthlyPlanCheckoutForm({
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-zinc-700">Last Name</label>
+              <label className="text-sm font-medium text-zinc-700">
+                Last Name
+              </label>
               <input
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
@@ -314,7 +426,9 @@ export default function MonthlyPlanCheckoutForm({
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-zinc-700">Phone Number</label>
+              <label className="text-sm font-medium text-zinc-700">
+                Phone Number
+              </label>
               <input
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
@@ -322,7 +436,9 @@ export default function MonthlyPlanCheckoutForm({
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-zinc-700">Password</label>
+              <label className="text-sm font-medium text-zinc-700">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -356,13 +472,15 @@ export default function MonthlyPlanCheckoutForm({
           </div>
 
           <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
-            <p className="text-base font-semibold text-zinc-900">Delivery Option</p>
+            <p className="text-base font-semibold text-zinc-900">
+              Delivery Option
+            </p>
             <p className="mt-1 text-sm text-zinc-600">
               Choose how you want to receive your meal plan.
             </p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {deliveryOptions.map((option) => {
+              {enabledDeliveryOptions.map((option) => {
                 const active = deliveryOption === option.id;
                 return (
                   <label
@@ -379,7 +497,8 @@ export default function MonthlyPlanCheckoutForm({
                       value={option.id}
                       checked={active}
                       onChange={(event) => {
-                        const nextOption = event.target.value as DeliveryOptionId;
+                        const nextOption = event.target
+                          .value as DeliveryOptionId;
                         setDeliveryOption(nextOption);
                         if (isDeliveryOption(nextOption)) {
                           setPickupLocationId("");
@@ -419,7 +538,9 @@ export default function MonthlyPlanCheckoutForm({
 
             {needsPickupLocation ? (
               <div className="mt-4">
-                <label className="text-sm font-medium text-zinc-700">Pickup Location</label>
+                <label className="text-sm font-medium text-zinc-700">
+                  Pickup Location
+                </label>
                 <select
                   value={pickupLocationId}
                   onChange={(event) => setPickupLocationId(event.target.value)}
@@ -452,13 +573,19 @@ export default function MonthlyPlanCheckoutForm({
                 checked={acceptedTerms}
                 onChange={(event) => setAcceptedTerms(event.target.checked)}
               />
-              I accepted the <span className="text-zinc-900">Terms and Conditions</span> of the meals plan
+              I accepted the{" "}
+              <span className="text-zinc-900">Terms and Conditions</span> of the
+              meals plan
             </label>
           </div>
 
-          {submitError ? <p className="mt-4 text-sm text-red-600">{submitError}</p> : null}
+          {submitError ? (
+            <p className="mt-4 text-sm text-red-600">{submitError}</p>
+          ) : null}
           {submitSuccess ? (
-            <p className="mt-4 text-sm font-medium text-emerald-700">{submitSuccess}</p>
+            <p className="mt-4 text-sm font-medium text-emerald-700">
+              {submitSuccess}
+            </p>
           ) : null}
 
           <div className="mt-6 flex justify-center">

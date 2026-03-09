@@ -5,31 +5,23 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import MonthlyPlanStepTwoForm from "@/components/monthly-plan/MonthlyPlanStepTwoForm";
 import { mapApiPlan } from "@/lib/api-mappers";
-import { useGetMonthlyPlansQuery } from "@/redux/api/publicApi";
-import type { MonthlyPlan } from "@/data/monthlyPlans";
+import { useGetMonthlyPlanByIdQuery } from "@/redux/api/publicApi";
+import type { MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
 export default function SetPlanPage() {
   const params = useParams<{ planId: string; planKind: string }>();
   const planKind = typeof params?.planKind === "string" ? params.planKind : "normal";
   const planId = typeof params?.planId === "string" ? params.planId : "";
-  const { data, isLoading } = useGetMonthlyPlansQuery();
-  const plans = (data?.data ?? []).map(mapApiPlan);
-  const matchedPlan = plans.find((item) => item.id === planId);
+  const { data, isLoading } = useGetMonthlyPlanByIdQuery(planId, { skip: !planId });
+  const details = (data?.data ?? null) as MonthlyPlanDetails | null;
+  const matchedPlan = details ? mapApiPlan(details.plan) : null;
   const isCustomPlan = planKind === "custom";
-  const fallbackPlan: MonthlyPlan = {
-    id: planId || (isCustomPlan ? "4" : "13"),
-    planKind: isCustomPlan ? "custom" : "normal",
-    title: isCustomPlan ? "Custom Plan" : "Monthly Plan",
-    description: isCustomPlan
-      ? "Build your own monthly subscription with meals and snacks aligned with your goals."
-      : "Configure your monthly subscription and continue to meal selection.",
-    image: "/food/food.png",
-  };
-  const plan = matchedPlan ?? fallbackPlan;
-  const heroTitle = isCustomPlan ? "Custom Plan" : "Monthly Plan";
-  const heroSubtitle = isCustomPlan
-    ? "Build your own plan: meals, snacks, delivery days and start date."
-    : "Configure your monthly subscription and continue to meal selection.";
+  const heroTitle = details?.plan?.content?.heroTitle ?? (isCustomPlan ? "Custom Plan" : "Monthly Plan");
+  const heroSubtitle =
+    details?.plan?.content?.heroSubtitle ??
+    (isCustomPlan
+      ? "Build your own plan: meals, snacks, delivery days and start date."
+      : "Configure your monthly subscription and continue to meal selection.");
 
   return (
     <>
@@ -58,7 +50,8 @@ export default function SetPlanPage() {
       </section>
 
       {isLoading ? <section className="py-10">Loading plan...</section> : null}
-      {!isLoading ? <MonthlyPlanStepTwoForm plan={plan} /> : null}
+      {!isLoading && matchedPlan ? <MonthlyPlanStepTwoForm plan={matchedPlan} planDetails={details ?? undefined} /> : null}
+      {!isLoading && !matchedPlan ? <section className="py-10">Plan not found.</section> : null}
     </>
   );
 }

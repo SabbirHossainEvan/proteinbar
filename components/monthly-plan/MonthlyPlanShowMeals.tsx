@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { getCheckoutPath } from "@/lib/monthlyPlanFlow";
+import type { MealLibraryItem, MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
 type ShowMealsSelection = {
   meals: string;
@@ -19,6 +20,7 @@ type ShowMealsSelection = {
 type MonthlyPlanShowMealsProps = {
   plan: MonthlyPlan;
   selection: ShowMealsSelection;
+  planDetails?: MonthlyPlanDetails;
 };
 
 type DayMeal = {
@@ -30,6 +32,12 @@ type DayMeal = {
   fat: number;
   protein: number;
   carb: number;
+};
+
+type CustomCard = {
+  id: string;
+  label: string;
+  mealLabel: string;
 };
 
 function toDateInputValue(value: string) {
@@ -46,84 +54,23 @@ function formatTabLabel(dateValue: string) {
   };
 }
 
-const sampleMeals: DayMeal[] = [
-  {
-    id: "almond-butter-chia",
-    title: "ALMOND BUTTER CHIA SEEDS PUDDING",
-    subtitle: "Freshly prepared and portion-balanced",
-    image: "/food/food11.webp",
-    calories: 255.3,
-    fat: 16.6,
-    protein: 9.3,
-    carb: 21.8,
-  },
-  {
-    id: "balalet-honey",
-    title: "BALALET WITH HONEY",
-    subtitle: "High-protein clean breakfast option",
-    image: "/food/food12.webp",
-    calories: 290.2,
-    fat: 12.4,
-    protein: 11.5,
-    carb: 30.6,
-  },
-  {
-    id: "beans-burrito",
-    title: "BEANS BURRITO / BREAD",
-    subtitle: "Balanced carbs and protein selection",
-    image: "/food/food13.webp",
-    calories: 310.4,
-    fat: 10.8,
-    protein: 14.2,
-    carb: 34.7,
-  },
-  {
-    id: "french-toast",
-    title: "FRENCH TOAST",
-    subtitle: "Light and sweet breakfast option",
-    image: "/food/food.webp",
-    calories: 240.5,
-    fat: 8.9,
-    protein: 7.6,
-    carb: 29.2,
-  },
-  {
-    id: "chicken-wrap",
-    title: "CHICKEN WRAP",
-    subtitle: "Lean protein and balanced carbs",
-    image: "/food/food4.webp",
-    calories: 330.8,
-    fat: 11.7,
-    protein: 23.5,
-    carb: 25.1,
-  },
-  {
-    id: "salmon-bowl",
-    title: "SALMON BOWL",
-    subtitle: "Healthy fats with quality protein",
-    image: "/food/food5.webp",
-    calories: 345.1,
-    fat: 14.9,
-    protein: 22.8,
-    carb: 20.4,
-  },
-  {
-    id: "beef-steak",
-    title: "BEEF STEAK",
-    subtitle: "High-protein premium meal",
-    image: "/food/food6.webp",
-    calories: 360.6,
-    fat: 17.2,
-    protein: 28.4,
-    carb: 18.2,
-  },
-];
-
-const customCategories = ["BREAKFAST", "CHICKEN", "STEAK BEEF", "MINCED BEEF"];
+function toDayMeal(item: MealLibraryItem): DayMeal {
+  return {
+    id: item.id,
+    title: item.name.toUpperCase(),
+    subtitle: item.tags.length ? item.tags.join(" • ") : `${item.mealType} option`,
+    image: item.image || "/food/food11.webp",
+    calories: Number(item.calories ?? 0),
+    fat: Number(item.fat ?? 0),
+    protein: Number(item.protein ?? 0),
+    carb: Number(item.carbs ?? 0),
+  };
+}
 
 export default function MonthlyPlanShowMeals({
   plan,
   selection,
+  planDetails,
 }: MonthlyPlanShowMealsProps) {
   const router = useRouter();
   const isCustom = plan.planKind === "custom" || plan.title.toLowerCase().includes("custom");
@@ -136,7 +83,58 @@ export default function MonthlyPlanShowMeals({
         .filter(Boolean),
     [selection.deliveryDays]
   );
+
+  const mealLibrary = useMemo(
+    () => (planDetails?.mealLibrary ?? []).filter((item) => item.status === "active"),
+    [planDetails]
+  );
+
+  const mealById = useMemo(() => {
+    return new Map(mealLibrary.map((item) => [item.id, item]));
+  }, [mealLibrary]);
+
+  const weekDates = useMemo(() => {
+    const dates = planDetails?.weekAssignments.flatMap((assignment) =>
+      Object.keys(assignment.mealsByDate ?? {})
+    ) ?? [];
+
+    return Array.from(new Set(dates)).sort((a, b) => a.localeCompare(b));
+  }, [planDetails]);
+
+  const customCategoryDefs = planDetails?.plan?.content?.customStepTwo?.categories ?? [];
+  const customCategories = useMemo(() => {
+    const fromCustomConfig = customCategoryDefs.map((item) => item.name.toUpperCase());
+    const fromLibrary = mealLibrary.flatMap((item) =>
+      item.tags.length > 0
+        ? item.tags.map((tag) => tag.toUpperCase())
+        : [item.mealType.toUpperCase()]
+    );
+
+    const merged = Array.from(new Set([...fromCustomConfig, ...fromLibrary]));
+    return merged.length > 0 ? merged : ["BREAKFAST", "CHICKEN", "STEAK BEEF", "MINCED BEEF"];
+  }, [customCategoryDefs, mealLibrary]);
+
   const customCards = useMemo(() => {
+    if (weekDates.length > 0) {
+      return weekDates.slice(0, 3).map((dateIso): CustomCard => {
+        const items = (planDetails?.weekAssignments ?? []).flatMap((assignment) => assignment.mealsByDate[dateIso] ?? []);
+        const mealCount = items.filter((item) => item.mealType !== "Snack").length;
+        const snackCount = items.filter((item) => item.mealType === "Snack").length;
+        const label = new Date(`${dateIso}T00:00:00`).toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+
+        return {
+          id: `card-${dateIso}`,
+          label,
+          mealLabel: `${mealCount} Meals / ${snackCount} Snacks`,
+        };
+      });
+    }
+
     const start = new Date(initialDate);
     return Array.from({ length: 3 }, (_, index) => {
       const date = new Date(start);
@@ -153,24 +151,94 @@ export default function MonthlyPlanShowMeals({
         mealLabel: deliveryDays[index] ?? "Meals",
       };
     });
-  }, [initialDate, deliveryDays]);
+  }, [deliveryDays, initialDate, planDetails, weekDates]);
+
   const tabs = useMemo(() => {
+    if (weekDates.length > 0) {
+      return weekDates.map((dateIso) => formatTabLabel(`${dateIso}T00:00:00`));
+    }
+
     const start = new Date(initialDate);
     return Array.from({ length: 5 }, (_, index) => {
       const date = new Date(start);
       date.setDate(start.getDate() + index * 7);
       return formatTabLabel(date.toISOString());
     });
-  }, [initialDate]);
+  }, [initialDate, weekDates]);
 
   const [activeTab, setActiveTab] = useState(0);
-  const [activeCategory, setActiveCategory] = useState(customCategories[0]);
+  const [activeCategory, setActiveCategory] = useState(customCategories[0] ?? "ALL");
   const [sliderPage, setSliderPage] = useState(0);
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
+
+  useEffect(() => {
+    if (!customCategories.includes(activeCategory)) {
+      setActiveCategory(customCategories[0]);
+    }
+  }, [activeCategory, customCategories]);
+
+  useEffect(() => {
+    setSliderPage(0);
+  }, [activeCategory]);
+
+  const allMeals = useMemo(() => mealLibrary.map(toDayMeal), [mealLibrary]);
+
+  const categoryMeals = useMemo(() => {
+    if (allMeals.length === 0) return [];
+    if (activeCategory === "ALL") return allMeals;
+
+    const customCategory = customCategoryDefs.find((item) => item.name.toUpperCase() === activeCategory);
+    if (customCategory) {
+      const customMeals = customCategory.mealIds
+        .map((mealId) => mealById.get(mealId))
+        .filter((item): item is MealLibraryItem => Boolean(item))
+        .map(toDayMeal);
+      if (customMeals.length > 0) return customMeals;
+    }
+
+    return mealLibrary
+      .filter(
+        (item) =>
+          item.mealType.toUpperCase() === activeCategory ||
+          item.tags.map((tag) => tag.toUpperCase()).includes(activeCategory)
+      )
+      .map(toDayMeal);
+  }, [activeCategory, allMeals, customCategoryDefs, mealById, mealLibrary]);
+
+  const activeDateIso = tabs[activeTab]?.date ?? "";
+  const assignedMealsForDate = useMemo(() => {
+    if (!activeDateIso) return [];
+
+    const assigned = (planDetails?.weekAssignments ?? []).flatMap((assignment) => assignment.mealsByDate[activeDateIso] ?? []);
+    return assigned.map((item) => {
+      const meal = mealById.get(item.mealId);
+      if (!meal) {
+        return {
+          id: item.id,
+          title: item.mealName.toUpperCase(),
+          subtitle: item.badges.join(" • ") || item.mealType,
+          image: "/food/food11.webp",
+          calories: 0,
+          fat: 0,
+          protein: 0,
+          carb: 0,
+        } as DayMeal;
+      }
+
+      const mapped = toDayMeal(meal);
+      return {
+        ...mapped,
+        id: item.id,
+        subtitle: item.badges.join(" • ") || mapped.subtitle,
+      };
+    });
+  }, [activeDateIso, mealById, planDetails]);
+
+  const normalMeals = assignedMealsForDate.length > 0 ? assignedMealsForDate : allMeals;
   const pageSize = 3;
-  const totalPages = Math.max(1, Math.ceil(sampleMeals.length / pageSize));
-  const visibleMeals = sampleMeals.slice(
+  const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
+  const visibleMeals = categoryMeals.slice(
     sliderPage * pageSize,
     sliderPage * pageSize + pageSize
   );
@@ -251,6 +319,9 @@ export default function MonthlyPlanShowMeals({
                 </div>
               </article>
             ))}
+            {!visibleMeals.length ? (
+              <p className="text-sm text-zinc-500">No meals available in this category.</p>
+            ) : null}
           </div>
 
           <div className="mt-5 flex items-center justify-center gap-2">
@@ -444,7 +515,7 @@ export default function MonthlyPlanShowMeals({
         </div>
 
         <div className="mt-8 max-w-4xl space-y-4">
-          {sampleMeals.map((meal) => (
+          {normalMeals.map((meal) => (
             <article
               key={`${tabs[activeTab]?.date}-${meal.id}`}
               className="grid gap-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-[100px_minmax(0,1fr)] sm:items-center sm:p-5"
@@ -461,6 +532,7 @@ export default function MonthlyPlanShowMeals({
               </div>
             </article>
           ))}
+          {!normalMeals.length ? <p className="text-sm text-zinc-500">No meals assigned for this date.</p> : null}
         </div>
 
         <div className="mt-8">
