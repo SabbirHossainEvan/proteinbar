@@ -115,9 +115,28 @@ export default function MonthlyPlanShowMeals({
 
   const weekDates = useMemo(() => {
     const dates =
-      planDetails?.weekAssignments.flatMap((assignment) =>
-        Object.keys(assignment.mealsByDate ?? {}),
-      ) ?? [];
+      planDetails?.weekAssignments.flatMap((assignment) => {
+        const fromMap = Object.keys(assignment.mealsByDate ?? {});
+        const fromRange: string[] = [];
+
+        if (assignment.startDate && assignment.endDate) {
+          const start = new Date(`${assignment.startDate}T00:00:00`);
+          const end = new Date(`${assignment.endDate}T00:00:00`);
+          if (
+            !Number.isNaN(start.getTime()) &&
+            !Number.isNaN(end.getTime()) &&
+            start <= end
+          ) {
+            const cursor = new Date(start);
+            while (cursor <= end) {
+              fromRange.push(cursor.toISOString().split("T")[0]);
+              cursor.setDate(cursor.getDate() + 1);
+            }
+          }
+        }
+
+        return [...fromRange, ...fromMap];
+      }) ?? [];
 
     return Array.from(new Set(dates)).sort((a, b) => a.localeCompare(b));
   }, [planDetails]);
@@ -222,6 +241,12 @@ export default function MonthlyPlanShowMeals({
     setSliderPage(0);
   }, [activeCategory]);
 
+  useEffect(() => {
+    if (activeTab >= tabs.length) {
+      setActiveTab(0);
+    }
+  }, [activeTab, tabs.length]);
+
   const mealSelectionKey = (mealId: string, date?: string) =>
     `${mealId}::${date ?? "custom"}`;
 
@@ -315,8 +340,10 @@ export default function MonthlyPlanShowMeals({
     });
   }, [activeDateIso, mealById, planDetails]);
 
-  const normalMeals =
-    assignedMealsForDate.length > 0 ? assignedMealsForDate : allMeals;
+  const hasNormalDateAssignments = !isCustom && weekDates.length > 0;
+  const normalMeals = hasNormalDateAssignments
+    ? assignedMealsForDate
+    : allMeals;
   const pageSize = 3;
   const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
   const visibleMeals = categoryMeals.slice(
