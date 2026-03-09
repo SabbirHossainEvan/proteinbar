@@ -20,18 +20,20 @@ function toNumberFromPrice(value: unknown) {
 }
 
 export function mapApiPlan(plan: any): MonthlyPlan {
+  const source = plan?.plan ? plan.plan : plan;
+  const rawKind = String(source?.planKind ?? source?.type ?? "").toLowerCase();
   const mappedType =
-    typeof plan?.type === "string" && plan.type.toLowerCase() === "custom"
+    rawKind === "custom"
       ? "custom"
       : "normal";
 
   return {
-    id: String(plan?.planId ?? plan?.id ?? ""),
+    id: String(source?.planId ?? source?.id ?? ""),
     planKind: mappedType,
-    title: plan?.name ?? plan?.title ?? "",
-    description: plan?.description ?? "",
-    image: plan?.imageUrl ?? plan?.image ?? "/food/food.png",
-    badge: plan?.isNew ? "NEW" : plan?.badge
+    title: source?.name ?? source?.title ?? "",
+    description: source?.description ?? "",
+    image: source?.imageUrl ?? source?.image ?? "/food/food.png",
+    badge: source?.isNew ? "NEW" : source?.badge
   };
 }
 

@@ -1,5 +1,6 @@
 export type MonthlyPlan = {
   id: string;
+  planKind?: "custom" | "normal";
   title: string;
   description: string;
   image: string;

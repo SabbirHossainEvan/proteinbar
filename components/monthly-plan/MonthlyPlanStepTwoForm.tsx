@@ -2,21 +2,24 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { getPlanKind } from "@/lib/monthlyPlanFlow";
+import type { MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
 const weekDays = [
-  "Saturday",
   "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",
+  "Friday",
+  "Saturday",
 ];
 
 type MonthlyPlanStepTwoFormProps = {
   plan: MonthlyPlan;
+  planDetails?: MonthlyPlanDetails;
 };
 
 function formatDateLabel(value: string) {
@@ -35,6 +38,7 @@ function formatDateLabel(value: string) {
 
 export default function MonthlyPlanStepTwoForm({
   plan,
+  planDetails,
 }: MonthlyPlanStepTwoFormProps) {
   const router = useRouter();
   const planKind = getPlanKind(plan);
@@ -51,7 +55,73 @@ export default function MonthlyPlanStepTwoForm({
   });
   const [selectedDays, setSelectedDays] = useState<string[]>(["Thursday"]);
 
+  const rules = planDetails?.rules;
+  const allowedMealsPerDay = useMemo(
+    () => (rules?.allowedMealsPerDay?.length ? rules.allowedMealsPerDay : [1, 2, 3, 4]),
+    [rules]
+  );
+  const allowedDays = useMemo(
+    () => (rules?.allowedDays?.length ? rules.allowedDays : [7, 14, 21, 30]),
+    [rules]
+  );
+  const allowedSnacks = useMemo(
+    () => (rules?.allowedSnacks?.length ? rules.allowedSnacks : [0, 1, 2]),
+    [rules]
+  );
+  const planTypeOptions = useMemo(
+    () =>
+      isCustomPlan
+        ? rules?.planTypeOptions?.length
+          ? rules.planTypeOptions
+          : ["lose-weight", "gain-weight"]
+        : [],
+    [isCustomPlan, rules]
+  );
+  const availableWeekDays = useMemo(() => {
+    const allowed = rules?.deliveryDaysRule?.allowedWeekDays;
+    if (!allowed?.length) return weekDays;
+
+    return allowed
+      .map((dayIndex) => weekDays[dayIndex])
+      .filter((label): label is string => Boolean(label));
+  }, [rules]);
+  const requiresPlanType = isCustomPlan && planTypeOptions.length > 0;
+
   const dateLabel = useMemo(() => formatDateLabel(startDate), [startDate]);
+
+  useEffect(() => {
+    const defaults = rules?.defaults;
+    if (!defaults) return;
+
+    if (allowedMealsPerDay.length) {
+      const nextMeals = defaults.meals ?? allowedMealsPerDay[0];
+      setMeals(String(nextMeals));
+    }
+
+    if (allowedDays.length) {
+      const nextDays = defaults.days ?? allowedDays[0];
+      setDays(String(nextDays));
+    }
+
+    if (allowedSnacks.length) {
+      const nextSnacks = defaults.snacks ?? allowedSnacks[0];
+      setSnacks(String(nextSnacks));
+    }
+
+    if (requiresPlanType) {
+      setPlanType(defaults.planType ?? planTypeOptions[0] ?? "");
+    }
+
+    const defaultDeliveryDays = (defaults.deliveryDays ?? [])
+      .map((dayIndex) => weekDays[dayIndex])
+      .filter((day): day is string => Boolean(day) && availableWeekDays.includes(day));
+
+    if (defaultDeliveryDays.length > 0) {
+      setSelectedDays(defaultDeliveryDays);
+    } else if (availableWeekDays.length > 0) {
+      setSelectedDays([availableWeekDays[0]]);
+    }
+  }, [allowedDays, allowedMealsPerDay, allowedSnacks, availableWeekDays, planTypeOptions, requiresPlanType, rules]);
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
@@ -61,12 +131,12 @@ export default function MonthlyPlanStepTwoForm({
 
   const setAllWeek = () => {
     setSelectedDays((prev) =>
-      prev.length === weekDays.length ? [] : [...weekDays]
+      prev.length === availableWeekDays.length ? [] : [...availableWeekDays]
     );
   };
 
   const goToShowMeals = () => {
-    if (isCustomPlan && !planType) {
+    if (requiresPlanType && !planType) {
       setPlanTypeTouched(true);
       return;
     }
@@ -78,7 +148,7 @@ export default function MonthlyPlanStepTwoForm({
       startDate,
       deliveryDays: selectedDays.join(","),
     });
-    if (isCustomPlan) query.set("planType", planType);
+    if (requiresPlanType) query.set("planType", planType);
 
     router.push(`/${planKind}/${plan.id}/select-meals?${query.toString()}`);
   };
@@ -114,10 +184,16 @@ export default function MonthlyPlanStepTwoForm({
                   className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
                 >
                   <option value="">Choose Plan Type</option>
-                  <option value="lose-weight">Lose Weight</option>
-                  <option value="gain-weight">Gain Weight</option>
+                  {planTypeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option
+                        .split("-")
+                        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                        .join(" ")}
+                    </option>
+                  ))}
                 </select>
-                {planTypeTouched && !planType ? (
+                {requiresPlanType && planTypeTouched && !planType ? (
                   <p className="mt-2 text-sm text-red-600">This field is required</p>
                 ) : null}
               </div>
@@ -136,10 +212,11 @@ export default function MonthlyPlanStepTwoForm({
                 onChange={(event) => setMeals(event.target.value)}
                 className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
               >
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
+                {allowedMealsPerDay.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -156,10 +233,11 @@ export default function MonthlyPlanStepTwoForm({
                 onChange={(event) => setDays(event.target.value)}
                 className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
               >
-                <option value="7">7</option>
-                <option value="14">14</option>
-                <option value="21">21</option>
-                <option value="30">30</option>
+                {allowedDays.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -176,9 +254,11 @@ export default function MonthlyPlanStepTwoForm({
                 onChange={(event) => setSnacks(event.target.value)}
                 className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
               >
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
+                {allowedSnacks.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -222,7 +302,7 @@ export default function MonthlyPlanStepTwoForm({
               </p>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {weekDays.map((day) => {
+                {availableWeekDays.map((day) => {
                   const active = selectedDays.includes(day);
                   return (
                     <button
@@ -257,7 +337,7 @@ export default function MonthlyPlanStepTwoForm({
               <button
                 type="button"
                 onClick={goToShowMeals}
-                disabled={isCustomPlan && !planType}
+                disabled={requiresPlanType && !planType}
                 className="inline-flex h-11 min-w-32 items-center justify-center rounded-lg bg-black px-6 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Apply

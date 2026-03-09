@@ -20,11 +20,11 @@ export const publicApi = createApi({
       providesTags: ["Menu"],
     }),
     getMonthlyPlans: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/monthly-plans",
+      query: () => "/public/monthly-plan/plans",
       providesTags: ["Plans"],
     }),
     getMonthlyPlanById: builder.query<ApiResponse<any>, string>({
-      query: (planId) => `/monthly-plans/${planId}`,
+      query: (planId) => `/public/monthly-plan/plans/${planId}`,
       providesTags: ["Plans"],
     }),
     getProducts: builder.query<ApiResponse<any[]>, void>({

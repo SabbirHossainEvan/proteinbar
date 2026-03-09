@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import MonthlyPlanCheckoutForm from "@/components/monthly-plan/MonthlyPlanCheckoutForm";
 import { mapApiPlan } from "@/lib/api-mappers";
-import { useGetMonthlyPlansQuery } from "@/redux/api/publicApi";
-import type { MonthlyPlan } from "@/data/monthlyPlans";
+import { useGetMonthlyPlanByIdQuery } from "@/redux/api/publicApi";
+import type { MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
 export default function PlanCheckoutPage() {
   const params = useParams<{ planId: string; planKind: string }>();
@@ -14,19 +14,9 @@ export default function PlanCheckoutPage() {
   const isCustomPlan = planKind === "custom";
   const searchParams = useSearchParams();
   const planId = typeof params?.planId === "string" ? params.planId : "";
-  const { data, isLoading } = useGetMonthlyPlansQuery();
-  const plans = (data?.data ?? []).map(mapApiPlan);
-  const matchedPlan = plans.find((item) => item.id === planId);
-  const fallbackPlan: MonthlyPlan = {
-    id: planId || (isCustomPlan ? "4" : "13"),
-    planKind: isCustomPlan ? "custom" : "normal",
-    title: isCustomPlan ? "Custom Plan" : "Monthly Plan",
-    description: isCustomPlan
-      ? "Build your own monthly subscription with meals and snacks aligned with your goals."
-      : "Configure your monthly subscription and continue to meal selection.",
-    image: "/food/food11.webp"
-  };
-  const plan = matchedPlan ?? fallbackPlan;
+  const { data, isLoading } = useGetMonthlyPlanByIdQuery(planId, { skip: !planId });
+  const details = (data?.data ?? null) as MonthlyPlanDetails | null;
+  const matchedPlan = details ? mapApiPlan(details.plan) : null;
 
   const selection = {
     meals: searchParams.get("meals") ?? "1",
@@ -34,7 +24,8 @@ export default function PlanCheckoutPage() {
     snacks: searchParams.get("snacks") ?? "0",
     startDate: searchParams.get("startDate") ?? new Date().toISOString().split("T")[0],
     deliveryDays: searchParams.get("deliveryDays") ?? "",
-    planType: searchParams.get("planType") ?? ""
+    planType: searchParams.get("planType") ?? "",
+    selectedMeals: searchParams.get("selectedMeals") ?? "[]"
   };
 
   return (
@@ -59,7 +50,10 @@ export default function PlanCheckoutPage() {
       </section>
 
       {isLoading ? <section className="py-10">Loading plan...</section> : null}
-      {!isLoading ? <MonthlyPlanCheckoutForm plan={plan} selection={selection} /> : null}
+      {!isLoading && matchedPlan ? (
+        <MonthlyPlanCheckoutForm plan={matchedPlan} selection={selection} planDetails={details ?? undefined} />
+      ) : null}
+      {!isLoading && !matchedPlan ? <section className="py-10">Plan not found.</section> : null}
     </>
   );
 }
