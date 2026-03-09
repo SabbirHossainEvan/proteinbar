@@ -24,7 +24,8 @@ export default function PlanCheckoutPage() {
     snacks: searchParams.get("snacks") ?? "0",
     startDate: searchParams.get("startDate") ?? new Date().toISOString().split("T")[0],
     deliveryDays: searchParams.get("deliveryDays") ?? "",
-    planType: searchParams.get("planType") ?? ""
+    planType: searchParams.get("planType") ?? "",
+    selectedMeals: searchParams.get("selectedMeals") ?? "[]"
   };
 
   return (

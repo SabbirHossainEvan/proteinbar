@@ -10,13 +10,11 @@ import type { MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
 export default function SelectMealsPage() {
   const params = useParams<{ planId: string; planKind: string }>();
-  const planKind = typeof params?.planKind === "string" ? params.planKind : "normal";
   const searchParams = useSearchParams();
   const planId = typeof params?.planId === "string" ? params.planId : "";
   const { data, isLoading } = useGetMonthlyPlanByIdQuery(planId, { skip: !planId });
   const details = (data?.data ?? null) as MonthlyPlanDetails | null;
   const matchedPlan = details ? mapApiPlan(details.plan) : null;
-  const isCustomPlan = planKind === "custom";
 
   const selection = {
     meals: searchParams.get("meals") ?? "1",

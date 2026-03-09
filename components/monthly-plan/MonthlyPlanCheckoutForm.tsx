@@ -20,6 +20,7 @@ type CheckoutSelection = {
   startDate: string;
   deliveryDays?: string;
   planType?: string;
+  selectedMeals?: string;
 };
 
 type MonthlyPlanCheckoutFormProps = {
@@ -32,6 +33,12 @@ type DeliveryOptionConfig = {
   id: DeliveryOptionId;
   label: string;
   details: string;
+};
+
+type SelectedMealOption = {
+  id: string;
+  title: string;
+  date?: string;
 };
 
 const deliveryOptions: DeliveryOptionConfig[] = [
@@ -118,6 +125,24 @@ function isPickupOption(option: DeliveryOptionId | "") {
   return option === "daily-pickup" || option === "weekly-pickup";
 }
 
+function parseSelectedMeals(value?: string): SelectedMealOption[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .map((item) => ({
+        id: String(item?.id ?? ""),
+        title: String(item?.title ?? ""),
+        date: item?.date ? String(item.date) : undefined
+      }))
+      .filter((item) => item.id && item.title);
+  } catch {
+    return [];
+  }
+}
+
 export default function MonthlyPlanCheckoutForm({
   plan,
   selection,
@@ -150,6 +175,10 @@ export default function MonthlyPlanCheckoutForm({
   const locations = (locationsResponse?.data ?? []).map(mapApiLocation);
   const pricing = planDetails?.pricing;
   const rules = planDetails?.rules;
+  const selectedMeals = useMemo(
+    () => parseSelectedMeals(selection.selectedMeals),
+    [selection.selectedMeals]
+  );
 
   const enabledDeliveryOptions = useMemo(() => {
     const fromRules =
@@ -264,7 +293,10 @@ export default function MonthlyPlanCheckoutForm({
             id: plan.id,
             title: plan.title,
           },
-          selection,
+          selection: {
+            ...selection,
+            selectedMeals,
+          },
           delivery,
         },
         order: {
@@ -276,6 +308,7 @@ export default function MonthlyPlanCheckoutForm({
             emirate,
             area: area.trim(),
           },
+          selectedMeals,
           delivery,
           totals: {
             subtotal,

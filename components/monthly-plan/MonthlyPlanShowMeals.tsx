@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { getCheckoutPath } from "@/lib/monthlyPlanFlow";
-import type { MealLibraryItem, MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
+import type {
+  MealLibraryItem,
+  MonthlyPlanDetails,
+} from "@/types/monthlyPlanFlow";
 
 type ShowMealsSelection = {
   meals: string;
@@ -38,11 +40,23 @@ type CustomCard = {
   id: string;
   label: string;
   mealLabel: string;
+  dateIso?: string;
+};
+
+type SelectedMealOption = {
+  id: string;
+  title: string;
+  date?: string;
+  calories: number;
+  protein: number;
+  carb: number;
+  fat: number;
 };
 
 function toDateInputValue(value: string) {
   const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return new Date().toISOString().split("T")[0];
+  if (Number.isNaN(parsed.getTime()))
+    return new Date().toISOString().split("T")[0];
   return parsed.toISOString().split("T")[0];
 }
 
@@ -58,7 +72,9 @@ function toDayMeal(item: MealLibraryItem): DayMeal {
   return {
     id: item.id,
     title: item.name.toUpperCase(),
-    subtitle: item.tags.length ? item.tags.join(" • ") : `${item.mealType} option`,
+    subtitle: item.tags.length
+      ? item.tags.join(" | ")
+      : `${item.mealType} option`,
     image: item.image || "/food/food11.webp",
     calories: Number(item.calories ?? 0),
     fat: Number(item.fat ?? 0),
@@ -73,7 +89,8 @@ export default function MonthlyPlanShowMeals({
   planDetails,
 }: MonthlyPlanShowMealsProps) {
   const router = useRouter();
-  const isCustom = plan.planKind === "custom" || plan.title.toLowerCase().includes("custom");
+  const isCustom =
+    plan.planKind === "custom" || plan.title.toLowerCase().includes("custom");
   const initialDate = toDateInputValue(selection.startDate);
   const deliveryDays = useMemo(
     () =>
@@ -81,12 +98,15 @@ export default function MonthlyPlanShowMeals({
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean),
-    [selection.deliveryDays]
+    [selection.deliveryDays],
   );
 
   const mealLibrary = useMemo(
-    () => (planDetails?.mealLibrary ?? []).filter((item) => item.status === "active"),
-    [planDetails]
+    () =>
+      (planDetails?.mealLibrary ?? []).filter(
+        (item) => item.status === "active",
+      ),
+    [planDetails],
   );
 
   const mealById = useMemo(() => {
@@ -94,43 +114,59 @@ export default function MonthlyPlanShowMeals({
   }, [mealLibrary]);
 
   const weekDates = useMemo(() => {
-    const dates = planDetails?.weekAssignments.flatMap((assignment) =>
-      Object.keys(assignment.mealsByDate ?? {})
-    ) ?? [];
+    const dates =
+      planDetails?.weekAssignments.flatMap((assignment) =>
+        Object.keys(assignment.mealsByDate ?? {}),
+      ) ?? [];
 
     return Array.from(new Set(dates)).sort((a, b) => a.localeCompare(b));
   }, [planDetails]);
 
-  const customCategoryDefs = planDetails?.plan?.content?.customStepTwo?.categories ?? [];
+  const customCategoryDefs =
+    planDetails?.plan?.content?.customStepTwo?.categories ?? [];
   const customCategories = useMemo(() => {
-    const fromCustomConfig = customCategoryDefs.map((item) => item.name.toUpperCase());
+    const fromCustomConfig = customCategoryDefs.map((item) =>
+      item.name.toUpperCase(),
+    );
     const fromLibrary = mealLibrary.flatMap((item) =>
       item.tags.length > 0
         ? item.tags.map((tag) => tag.toUpperCase())
-        : [item.mealType.toUpperCase()]
+        : [item.mealType.toUpperCase()],
     );
 
     const merged = Array.from(new Set([...fromCustomConfig, ...fromLibrary]));
-    return merged.length > 0 ? merged : ["BREAKFAST", "CHICKEN", "STEAK BEEF", "MINCED BEEF"];
+    return merged.length > 0
+      ? merged
+      : ["BREAKFAST", "CHICKEN", "STEAK BEEF", "MINCED BEEF"];
   }, [customCategoryDefs, mealLibrary]);
 
   const customCards = useMemo(() => {
     if (weekDates.length > 0) {
       return weekDates.slice(0, 3).map((dateIso): CustomCard => {
-        const items = (planDetails?.weekAssignments ?? []).flatMap((assignment) => assignment.mealsByDate[dateIso] ?? []);
-        const mealCount = items.filter((item) => item.mealType !== "Snack").length;
-        const snackCount = items.filter((item) => item.mealType === "Snack").length;
-        const label = new Date(`${dateIso}T00:00:00`).toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        });
+        const items = (planDetails?.weekAssignments ?? []).flatMap(
+          (assignment) => assignment.mealsByDate[dateIso] ?? [],
+        );
+        const mealCount = items.filter(
+          (item) => item.mealType !== "Snack",
+        ).length;
+        const snackCount = items.filter(
+          (item) => item.mealType === "Snack",
+        ).length;
+        const label = new Date(`${dateIso}T00:00:00`).toLocaleDateString(
+          "en-US",
+          {
+            weekday: "long",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          },
+        );
 
         return {
           id: `card-${dateIso}`,
           label,
           mealLabel: `${mealCount} Meals / ${snackCount} Snacks`,
+          dateIso,
         };
       });
     }
@@ -149,6 +185,7 @@ export default function MonthlyPlanShowMeals({
         id: `card-${index}`,
         label,
         mealLabel: deliveryDays[index] ?? "Meals",
+        dateIso: date.toISOString().split("T")[0],
       };
     });
   }, [deliveryDays, initialDate, planDetails, weekDates]);
@@ -167,10 +204,13 @@ export default function MonthlyPlanShowMeals({
   }, [initialDate, weekDates]);
 
   const [activeTab, setActiveTab] = useState(0);
-  const [activeCategory, setActiveCategory] = useState(customCategories[0] ?? "ALL");
+  const [activeCategory, setActiveCategory] = useState(
+    customCategories[0] ?? "ALL",
+  );
   const [sliderPage, setSliderPage] = useState(0);
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
+  const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>([]);
 
   useEffect(() => {
     if (!customCategories.includes(activeCategory)) {
@@ -182,13 +222,51 @@ export default function MonthlyPlanShowMeals({
     setSliderPage(0);
   }, [activeCategory]);
 
+  const mealSelectionKey = (mealId: string, date?: string) =>
+    `${mealId}::${date ?? "custom"}`;
+
+  const isMealSelected = (mealId: string, date?: string) =>
+    selectedMeals.some(
+      (item) =>
+        mealSelectionKey(item.id, item.date) === mealSelectionKey(mealId, date),
+    );
+
+  const toggleMealSelection = (meal: DayMeal, date?: string) => {
+    const key = mealSelectionKey(meal.id, date);
+    setSelectedMeals((prev) => {
+      const exists = prev.some(
+        (item) => mealSelectionKey(item.id, item.date) === key,
+      );
+      if (exists) {
+        return prev.filter(
+          (item) => mealSelectionKey(item.id, item.date) !== key,
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          id: meal.id,
+          title: meal.title,
+          date,
+          calories: meal.calories,
+          protein: meal.protein,
+          carb: meal.carb,
+          fat: meal.fat,
+        },
+      ];
+    });
+  };
+
   const allMeals = useMemo(() => mealLibrary.map(toDayMeal), [mealLibrary]);
 
   const categoryMeals = useMemo(() => {
     if (allMeals.length === 0) return [];
     if (activeCategory === "ALL") return allMeals;
 
-    const customCategory = customCategoryDefs.find((item) => item.name.toUpperCase() === activeCategory);
+    const customCategory = customCategoryDefs.find(
+      (item) => item.name.toUpperCase() === activeCategory,
+    );
     if (customCategory) {
       const customMeals = customCategory.mealIds
         .map((mealId) => mealById.get(mealId))
@@ -201,7 +279,7 @@ export default function MonthlyPlanShowMeals({
       .filter(
         (item) =>
           item.mealType.toUpperCase() === activeCategory ||
-          item.tags.map((tag) => tag.toUpperCase()).includes(activeCategory)
+          item.tags.map((tag) => tag.toUpperCase()).includes(activeCategory),
       )
       .map(toDayMeal);
   }, [activeCategory, allMeals, customCategoryDefs, mealById, mealLibrary]);
@@ -210,14 +288,16 @@ export default function MonthlyPlanShowMeals({
   const assignedMealsForDate = useMemo(() => {
     if (!activeDateIso) return [];
 
-    const assigned = (planDetails?.weekAssignments ?? []).flatMap((assignment) => assignment.mealsByDate[activeDateIso] ?? []);
+    const assigned = (planDetails?.weekAssignments ?? []).flatMap(
+      (assignment) => assignment.mealsByDate[activeDateIso] ?? [],
+    );
     return assigned.map((item) => {
       const meal = mealById.get(item.mealId);
       if (!meal) {
         return {
           id: item.id,
           title: item.mealName.toUpperCase(),
-          subtitle: item.badges.join(" • ") || item.mealType,
+          subtitle: item.badges.join(" | ") || item.mealType,
           image: "/food/food11.webp",
           calories: 0,
           fat: 0,
@@ -230,18 +310,68 @@ export default function MonthlyPlanShowMeals({
       return {
         ...mapped,
         id: item.id,
-        subtitle: item.badges.join(" • ") || mapped.subtitle,
+        subtitle: item.badges.join(" | ") || mapped.subtitle,
       };
     });
   }, [activeDateIso, mealById, planDetails]);
 
-  const normalMeals = assignedMealsForDate.length > 0 ? assignedMealsForDate : allMeals;
+  const normalMeals =
+    assignedMealsForDate.length > 0 ? assignedMealsForDate : allMeals;
   const pageSize = 3;
   const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
   const visibleMeals = categoryMeals.slice(
     sliderPage * pageSize,
-    sliderPage * pageSize + pageSize
+    sliderPage * pageSize + pageSize,
   );
+
+  const selectedMealSummary = useMemo(() => {
+    const totals = selectedMeals.reduce(
+      (acc, meal) => ({
+        calories: acc.calories + meal.calories,
+        protein: acc.protein + meal.protein,
+        carb: acc.carb + meal.carb,
+        fat: acc.fat + meal.fat,
+      }),
+      { calories: 0, protein: 0, carb: 0, fat: 0 },
+    );
+
+    return {
+      count: selectedMeals.length,
+      uniqueCount: new Set(selectedMeals.map((item) => item.id)).size,
+      ...totals,
+    };
+  }, [selectedMeals]);
+
+  const customCardStats = useMemo(() => {
+    const undatedSelections = selectedMeals.filter((item) => !item.date);
+
+    return customCards.map((card, index) => {
+      const dateSelections = card.dateIso
+        ? selectedMeals.filter((item) => item.date === card.dateIso)
+        : selectedMeals;
+      const items =
+        dateSelections.length > 0
+          ? dateSelections
+          : undatedSelections.length > 0 && index === 0
+            ? undatedSelections
+            : [];
+
+      const totals = items.reduce(
+        (acc, meal) => ({
+          calories: acc.calories + meal.calories,
+          protein: acc.protein + meal.protein,
+          carb: acc.carb + meal.carb,
+          fat: acc.fat + meal.fat,
+        }),
+        { calories: 0, protein: 0, carb: 0, fat: 0 },
+      );
+
+      return {
+        count: items.length,
+        ...totals,
+      };
+    });
+  }, [customCards, selectedMeals]);
 
   const goToCheckout = () => {
     const query = new URLSearchParams({
@@ -251,8 +381,21 @@ export default function MonthlyPlanShowMeals({
       startDate: selection.startDate,
     });
 
-    if (selection.deliveryDays) query.set("deliveryDays", selection.deliveryDays);
+    if (selection.deliveryDays)
+      query.set("deliveryDays", selection.deliveryDays);
     if (selection.planType) query.set("planType", selection.planType);
+    if (selectedMeals.length) {
+      query.set(
+        "selectedMeals",
+        JSON.stringify(
+          selectedMeals.map((item) => ({
+            id: item.id,
+            title: item.title,
+            date: item.date,
+          })),
+        ),
+      );
+    }
 
     router.push(`${getCheckoutPath(plan)}?${query.toString()}`);
   };
@@ -261,9 +404,12 @@ export default function MonthlyPlanShowMeals({
     return (
       <section className="py-10 sm:py-14">
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-8">
-          <h2 className="text-5xl font-bold tracking-tight text-zinc-900 sm:text-6xl">CUSTOM PLAN</h2>
+          <h2 className="text-5xl font-bold tracking-tight text-zinc-900 sm:text-6xl">
+            CUSTOM PLAN
+          </h2>
           <p className="mt-2 text-sm text-zinc-600">
-            You can make your meal plan according to your specific schedule to achieve your own goals.
+            You can make your meal plan according to your specific schedule to
+            achieve your own goals.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -294,11 +440,20 @@ export default function MonthlyPlanShowMeals({
               >
                 <div className="flex justify-center">
                   <div className="relative h-36 w-36 overflow-hidden rounded-full border border-zinc-200">
-                    <Image src={meal.image} alt={meal.title} fill className="object-cover" />
+                    <Image
+                      src={meal.image}
+                      alt={meal.title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 </div>
-                <h3 className="mt-4 text-center text-2xl font-bold leading-tight text-zinc-900">{meal.title}</h3>
-                <p className="mt-2 text-center text-sm text-zinc-500">{meal.subtitle}</p>
+                <h3 className="mt-4 text-center text-2xl font-bold leading-tight text-zinc-900">
+                  {meal.title}
+                </h3>
+                <p className="mt-2 text-center text-sm text-zinc-500">
+                  {meal.subtitle}
+                </p>
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -312,15 +467,18 @@ export default function MonthlyPlanShowMeals({
                   </button>
                   <button
                     type="button"
+                    onClick={() => toggleMealSelection(meal)}
                     className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
                   >
-                    Select
+                    {isMealSelected(meal.id) ? "Selected" : "Select"}
                   </button>
                 </div>
               </article>
             ))}
             {!visibleMeals.length ? (
-              <p className="text-sm text-zinc-500">No meals available in this category.</p>
+              <p className="text-sm text-zinc-500">
+                No meals available in this category.
+              </p>
             ) : null}
           </div>
 
@@ -341,7 +499,9 @@ export default function MonthlyPlanShowMeals({
             ))}
             <button
               type="button"
-              onClick={() => setSliderPage((prev) => Math.min(totalPages - 1, prev + 1))}
+              onClick={() =>
+                setSliderPage((prev) => Math.min(totalPages - 1, prev + 1))
+              }
               disabled={sliderPage === totalPages - 1}
               className="h-8 rounded-md border border-zinc-300 px-3 text-xs font-semibold text-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -351,14 +511,103 @@ export default function MonthlyPlanShowMeals({
 
           <div className="mt-6 rounded-xl bg-zinc-50 p-4 sm:p-5">
             <h4 className="text-3xl font-semibold text-zinc-900">Your Cards</h4>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
+                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
+                  Selected Meals
+                </p>
+                <p className="mt-1 text-lg font-semibold text-zinc-900">
+                  {selectedMealSummary.count}
+                </p>
+              </div>
+              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
+                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
+                  Unique Items
+                </p>
+                <p className="mt-1 text-lg font-semibold text-zinc-900">
+                  {selectedMealSummary.uniqueCount}
+                </p>
+              </div>
+              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
+                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
+                  Total Calories
+                </p>
+                <p className="mt-1 text-lg font-semibold text-zinc-900">
+                  {selectedMealSummary.calories.toFixed(0)}
+                </p>
+              </div>
+              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
+                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
+                  Total Protein
+                </p>
+                <p className="mt-1 text-lg font-semibold text-zinc-900">
+                  {selectedMealSummary.protein.toFixed(1)}g
+                </p>
+              </div>
+            </div>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
-              {customCards.map((card) => (
-                <article key={card.id} className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{card.label}</p>
-                  <p className="mt-2 text-xl font-semibold text-zinc-900">{card.mealLabel}</p>
+              {customCards.map((card, index) => (
+                <article
+                  key={card.id}
+                  className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    {card.label}
+                  </p>
+                  {/* <p className="mt-2 text-xl font-semibold text-zinc-900">{card.mealLabel}</p> */}
+                  <p className="mt-2 text-sm font-medium text-zinc-700">
+                    {customCardStats[index]?.count ?? 0} selected
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-zinc-600">
+                    <p className="rounded-md bg-zinc-100 px-2 py-1">
+                      Kcal: {customCardStats[index]?.calories.toFixed(0) ?? "0"}
+                    </p>
+                    <p className="rounded-md bg-zinc-100 px-2 py-1">
+                      Protein:{" "}
+                      {customCardStats[index]?.protein.toFixed(1) ?? "0"}g
+                    </p>
+                    <p className="rounded-md bg-zinc-100 px-2 py-1">
+                      Carb: {customCardStats[index]?.carb.toFixed(1) ?? "0"}g
+                    </p>
+                    <p className="rounded-md bg-zinc-100 px-2 py-1">
+                      Fat: {customCardStats[index]?.fat.toFixed(1) ?? "0"}g
+                    </p>
+                  </div>
                 </article>
               ))}
             </div>
+          </div>
+
+          <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
+            <h4 className="text-2xl font-semibold text-zinc-900">
+              Selected Options
+            </h4>
+            {selectedMeals.length ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {selectedMeals.map((item) => (
+                  <button
+                    key={mealSelectionKey(item.id, item.date)}
+                    type="button"
+                    onClick={() =>
+                      setSelectedMeals((prev) =>
+                        prev.filter(
+                          (selected) =>
+                            mealSelectionKey(selected.id, selected.date) !==
+                            mealSelectionKey(item.id, item.date),
+                        ),
+                      )
+                    }
+                    className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-zinc-500">
+                No option selected yet.
+              </p>
+            )}
           </div>
 
           <div className="mt-6 flex justify-center">
@@ -392,7 +641,12 @@ export default function MonthlyPlanShowMeals({
               </div>
               <div className="flex justify-center">
                 <div className="relative h-64 w-64 overflow-hidden rounded-full border border-zinc-200">
-                  <Image src={detailMeal.image} alt={detailMeal.title} fill className="object-cover" />
+                  <Image
+                    src={detailMeal.image}
+                    alt={detailMeal.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </div>
 
@@ -402,11 +656,15 @@ export default function MonthlyPlanShowMeals({
 
               <div className="mt-5 border-t border-zinc-300 pt-5">
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
-                  <p className="text-2xl font-semibold text-zinc-900">{detailMeal.title}</p>
+                  <p className="text-2xl font-semibold text-zinc-900">
+                    {detailMeal.title}
+                  </p>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setDetailQty((prev) => Math.max(1, prev - 1))}
+                      onClick={() =>
+                        setDetailQty((prev) => Math.max(1, prev - 1))
+                      }
                       className="h-10 w-10 rounded-sm bg-zinc-900 text-2xl font-bold text-white"
                     >
                       -
@@ -428,30 +686,49 @@ export default function MonthlyPlanShowMeals({
 
               <div className="mt-6 grid gap-3 md:grid-cols-4">
                 <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">Calories</p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">{(detailMeal.calories * detailQty).toFixed(2)}</p>
+                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                    Calories
+                  </p>
+                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
+                    {(detailMeal.calories * detailQty).toFixed(2)}
+                  </p>
                 </div>
                 <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">Fat</p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">{(detailMeal.fat * detailQty).toFixed(2)}</p>
+                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                    Fat
+                  </p>
+                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
+                    {(detailMeal.fat * detailQty).toFixed(2)}
+                  </p>
                 </div>
                 <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">Protein</p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">{(detailMeal.protein * detailQty).toFixed(2)}</p>
+                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                    Protein
+                  </p>
+                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
+                    {(detailMeal.protein * detailQty).toFixed(2)}
+                  </p>
                 </div>
                 <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">Carb</p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">{(detailMeal.carb * detailQty).toFixed(2)}</p>
+                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                    Carb
+                  </p>
+                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
+                    {(detailMeal.carb * detailQty).toFixed(2)}
+                  </p>
                 </div>
               </div>
 
               <div className="mt-8 flex justify-center">
                 <button
                   type="button"
-                  onClick={() => setDetailMeal(null)}
+                  onClick={() => {
+                    toggleMealSelection(detailMeal);
+                    setDetailMeal(null);
+                  }}
                   className="inline-flex h-11 min-w-40 items-center justify-center rounded-full bg-zinc-800 px-6 text-lg font-semibold text-white transition hover:bg-zinc-900"
                 >
-                  Select
+                  {isMealSelected(detailMeal.id) ? "Selected" : "Select"}
                 </button>
               </div>
             </div>
@@ -529,29 +806,65 @@ export default function MonthlyPlanShowMeals({
                   {meal.title}
                 </h3>
                 <p className="mt-2 text-sm text-zinc-500">{meal.subtitle}</p>
+                <button
+                  type="button"
+                  onClick={() => toggleMealSelection(meal, activeDateIso)}
+                  className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-black px-4 text-xs font-semibold text-white transition hover:bg-zinc-800"
+                >
+                  {isMealSelected(meal.id, activeDateIso)
+                    ? "Selected"
+                    : "Select"}
+                </button>
               </div>
             </article>
           ))}
-          {!normalMeals.length ? <p className="text-sm text-zinc-500">No meals assigned for this date.</p> : null}
+          {!normalMeals.length ? (
+            <p className="text-sm text-zinc-500">
+              No meals assigned for this date.
+            </p>
+          ) : null}
+        </div>
+
+        <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
+          <h4 className="text-2xl font-semibold text-zinc-900">
+            Selected Options
+          </h4>
+          {selectedMeals.length ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {selectedMeals.map((item) => (
+                <button
+                  key={mealSelectionKey(item.id, item.date)}
+                  type="button"
+                  onClick={() =>
+                    setSelectedMeals((prev) =>
+                      prev.filter(
+                        (selected) =>
+                          mealSelectionKey(selected.id, selected.date) !==
+                          mealSelectionKey(item.id, item.date),
+                      ),
+                    )
+                  }
+                  className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
+                >
+                  {item.title} {item.date ? `(${item.date})` : ""}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-zinc-500">
+              No option selected yet.
+            </p>
+          )}
         </div>
 
         <div className="mt-8">
-          <Link
-            href={{
-              pathname: getCheckoutPath(plan),
-              query: {
-                meals: selection.meals,
-                days: selection.days,
-                snacks: selection.snacks,
-                startDate: selection.startDate,
-                deliveryDays: selection.deliveryDays,
-                planType: selection.planType,
-              },
-            }}
+          <button
+            type="button"
+            onClick={goToCheckout}
             className="inline-flex h-12 min-w-56 items-center justify-center rounded-lg bg-black px-8 text-xl font-medium !text-white transition hover:bg-zinc-800 hover:!text-white visited:!text-white"
           >
             Proceed to checkout
-          </Link>
+          </button>
         </div>
       </div>
     </section>
