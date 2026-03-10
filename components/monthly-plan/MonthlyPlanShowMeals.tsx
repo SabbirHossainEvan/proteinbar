@@ -68,6 +68,25 @@ function formatTabLabel(dateValue: string) {
   };
 }
 
+function normalizeMealImage(value?: string) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "/food/food11.webp";
+
+  if (
+    raw.startsWith("data:image/") &&
+    raw.includes(";base64") &&
+    !raw.includes(";base64,")
+  ) {
+    return raw.replace(/^([^,]*;base64)(.*)$/, "$1,$2");
+  }
+
+  return raw;
+}
+
+function isDataImageUrl(value: string) {
+  return value.toLowerCase().startsWith("data:image/");
+}
+
 function toDayMeal(item: MealLibraryItem): DayMeal {
   return {
     id: item.id,
@@ -75,7 +94,7 @@ function toDayMeal(item: MealLibraryItem): DayMeal {
     subtitle: item.tags.length
       ? item.tags.join(" | ")
       : `${item.mealType} option`,
-    image: item.image || "/food/food11.webp",
+    image: normalizeMealImage(item.image),
     calories: Number(item.calories ?? 0),
     fat: Number(item.fat ?? 0),
     protein: Number(item.protein ?? 0),
@@ -88,6 +107,7 @@ export default function MonthlyPlanShowMeals({
   selection,
   planDetails,
 }: MonthlyPlanShowMealsProps) {
+  console.log(planDetails, "planDetails");
   const router = useRouter();
   const isCustom =
     plan.planKind === "custom" || plan.title.toLowerCase().includes("custom");
@@ -284,7 +304,7 @@ export default function MonthlyPlanShowMeals({
   };
 
   const allMeals = useMemo(() => mealLibrary.map(toDayMeal), [mealLibrary]);
-
+  console.log(mealLibrary, "mealLibrary");
   const categoryMeals = useMemo(() => {
     if (allMeals.length === 0) return [];
     if (activeCategory === "ALL") return allMeals;
@@ -345,6 +365,7 @@ export default function MonthlyPlanShowMeals({
     ? assignedMealsForDate
     : allMeals;
   const pageSize = 3;
+  console.log(categoryMeals, "categoryMeals");
   const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
   const visibleMeals = categoryMeals.slice(
     sliderPage * pageSize,
@@ -462,17 +483,27 @@ export default function MonthlyPlanShowMeals({
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {visibleMeals.map((meal) => (
               <article
+                style={{ border: "1px solid red" }}
+                onClick={() => console.log(meal)}
                 key={`${meal.id}-${activeCategory}`}
                 className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
               >
                 <div className="flex justify-center">
                   <div className="relative h-36 w-36 overflow-hidden rounded-full border border-zinc-200">
-                    <Image
-                      src={meal.image}
-                      alt={meal.title}
-                      fill
-                      className="object-cover"
-                    />
+                    {isDataImageUrl(meal.image) ? (
+                      <img
+                        src={meal.image}
+                        alt={meal.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={meal.image}
+                        alt={meal.title}
+                        fill
+                        className="object-cover"
+                      />
+                    )}
                   </div>
                 </div>
                 <h3 className="mt-4 text-center text-2xl font-bold leading-tight text-zinc-900">
@@ -668,12 +699,20 @@ export default function MonthlyPlanShowMeals({
               </div>
               <div className="flex justify-center">
                 <div className="relative h-64 w-64 overflow-hidden rounded-full border border-zinc-200">
-                  <Image
-                    src={detailMeal.image}
-                    alt={detailMeal.title}
-                    fill
-                    className="object-cover"
-                  />
+                  {isDataImageUrl(detailMeal.image) ? (
+                    <img
+                      src={detailMeal.image}
+                      alt={detailMeal.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={detailMeal.image}
+                      alt={detailMeal.title}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
                 </div>
               </div>
 
