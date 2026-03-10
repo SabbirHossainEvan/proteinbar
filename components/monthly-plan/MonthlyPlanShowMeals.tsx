@@ -844,10 +844,7 @@ export default function MonthlyPlanShowMeals({
                 </div>
               </div>
 
-              <div
-                className="mt-8 flex justify-center"
-                style={{ border: "1px solid red" }}
-              >
+              <div className="mt-8 flex justify-center">
                 <button
                   type="button"
                   onClick={() => {
