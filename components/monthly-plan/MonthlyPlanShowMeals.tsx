@@ -107,7 +107,6 @@ export default function MonthlyPlanShowMeals({
   selection,
   planDetails,
 }: MonthlyPlanShowMealsProps) {
-  console.log(planDetails, "planDetails");
   const router = useRouter();
   const isCustom =
     plan.planKind === "custom" || plan.title.toLowerCase().includes("custom");
@@ -304,7 +303,7 @@ export default function MonthlyPlanShowMeals({
   };
 
   const allMeals = useMemo(() => mealLibrary.map(toDayMeal), [mealLibrary]);
-  console.log(mealLibrary, "mealLibrary");
+
   const categoryMeals = useMemo(() => {
     if (allMeals.length === 0) return [];
     if (activeCategory === "ALL") return allMeals;
@@ -365,7 +364,7 @@ export default function MonthlyPlanShowMeals({
     ? assignedMealsForDate
     : allMeals;
   const pageSize = 3;
-  console.log(categoryMeals, "categoryMeals");
+
   const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
   const visibleMeals = categoryMeals.slice(
     sliderPage * pageSize,
@@ -484,7 +483,6 @@ export default function MonthlyPlanShowMeals({
             {visibleMeals.map((meal) => (
               <article
                 style={{ border: "1px solid red" }}
-                onClick={() => console.log(meal)}
                 key={`${meal.id}-${activeCategory}`}
                 className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
               >
