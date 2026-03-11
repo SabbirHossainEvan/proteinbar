@@ -46,6 +46,15 @@ export default function MenuPage() {
                 className={`scroll-mt-28 rounded-2xl px-3 py-8 sm:scroll-mt-32 sm:px-6 sm:py-10 ${isDark ? "bg-black" : "bg-white"}`}
               >
                 <div className="mx-auto max-w-6xl">
+                  {category.image ? (
+                    <div className="mb-6 overflow-hidden rounded-2xl">
+                      <img
+                        src={category.image}
+                        alt={category.name || category.description || "Menu category"}
+                        className="h-44 w-full object-cover sm:h-56"
+                      />
+                    </div>
+                  ) : null}
                   <h2 className={`text-center text-3xl font-semibold sm:text-4xl ${isDark ? "text-white" : "text-zinc-900"}`}>
                     {category.description || category.name}
                   </h2>
@@ -59,6 +68,11 @@ export default function MenuPage() {
                     const hasNutrition = item.calories > 0 || Boolean(details.macros);
                     return (
                       <div key={item.id} className={`border-b px-4 py-5 text-center sm:px-8 sm:py-6 ${isDark ? "border-white/25" : "border-zinc-400"}`}>
+                        {item.image ? (
+                          <div className="mx-auto mb-4 h-28 w-28 overflow-hidden rounded-xl border border-zinc-300/50">
+                            <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                          </div>
+                        ) : null}
                         <p className={`text-2xl font-semibold tracking-tight sm:text-3xl ${isDark ? "text-white" : "text-zinc-900"}`}>
                           {item.name}
                           {hasPrice ? <span className="font-normal"> - {item.priceMad} DH</span> : null}
