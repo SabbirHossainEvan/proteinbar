@@ -115,10 +115,7 @@ export default function MenuCategoryJumpSection({
         matin. Les calories sont approximatives et a titre indicatif.
       </p>
 
-      <div
-        className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 xl:grid-cols-4"
-        style={{ border: "1px solid red" }}
-      >
+      <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 xl:grid-cols-4">
         {categories.map((category) => {
           const image = category.image ? category.image : "/food/food2.png";
           const title =
