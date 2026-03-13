@@ -45,29 +45,14 @@ export default function MonthlyPlanStepTwoForm({
   const isCustomPlan = planKind === "custom";
   const [planType, setPlanType] = useState("");
   const [planTypeTouched, setPlanTypeTouched] = useState(false);
-  const [meals, setMeals] = useState("1");
-  const [days, setDays] = useState("7");
-  const [snacks, setSnacks] = useState("0");
-  const [startDate, setStartDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 2);
-    return d.toISOString().split("T")[0];
-  });
-  const [selectedDays, setSelectedDays] = useState<string[]>(["Thursday"]);
+  const [meals, setMeals] = useState("");
+  const [days, setDays] = useState("");
+  const [snacks, setSnacks] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const rules = planDetails?.rules;
-  const allowedMealsPerDay = useMemo(
-    () => (rules?.allowedMealsPerDay?.length ? rules.allowedMealsPerDay : [1, 2, 3, 4]),
-    [rules]
-  );
-  const allowedDays = useMemo(
-    () => (rules?.allowedDays?.length ? rules.allowedDays : [7, 14, 21, 30]),
-    [rules]
-  );
-  const allowedSnacks = useMemo(
-    () => (rules?.allowedSnacks?.length ? rules.allowedSnacks : [0, 1, 2]),
-    [rules]
-  );
   const planTypeOptions = useMemo(
     () =>
       isCustomPlan
@@ -75,7 +60,7 @@ export default function MonthlyPlanStepTwoForm({
           ? rules.planTypeOptions
           : ["lose-weight", "gain-weight"]
         : [],
-    [isCustomPlan, rules]
+    [isCustomPlan, rules],
   );
   const availableWeekDays = useMemo(() => {
     const allowed = rules?.deliveryDaysRule?.allowedWeekDays;
@@ -90,54 +75,54 @@ export default function MonthlyPlanStepTwoForm({
   const dateLabel = useMemo(() => formatDateLabel(startDate), [startDate]);
 
   useEffect(() => {
-    const defaults = rules?.defaults;
-    if (!defaults) return;
+    setSelectedDays((prev) =>
+      prev.filter((day) => availableWeekDays.includes(day)),
+    );
+  }, [availableWeekDays]);
 
-    if (allowedMealsPerDay.length) {
-      const nextMeals = defaults.meals ?? allowedMealsPerDay[0];
-      setMeals(String(nextMeals));
+  useEffect(() => {
+    if (!requiresPlanType) {
+      setPlanType("");
+      return;
     }
-
-    if (allowedDays.length) {
-      const nextDays = defaults.days ?? allowedDays[0];
-      setDays(String(nextDays));
+    if (planType && !planTypeOptions.includes(planType)) {
+      setPlanType("");
     }
-
-    if (allowedSnacks.length) {
-      const nextSnacks = defaults.snacks ?? allowedSnacks[0];
-      setSnacks(String(nextSnacks));
-    }
-
-    if (requiresPlanType) {
-      setPlanType(defaults.planType ?? planTypeOptions[0] ?? "");
-    }
-
-    const defaultDeliveryDays = (defaults.deliveryDays ?? [])
-      .map((dayIndex) => weekDays[dayIndex])
-      .filter((day): day is string => Boolean(day) && availableWeekDays.includes(day));
-
-    if (defaultDeliveryDays.length > 0) {
-      setSelectedDays(defaultDeliveryDays);
-    } else if (availableWeekDays.length > 0) {
-      setSelectedDays([availableWeekDays[0]]);
-    }
-  }, [allowedDays, allowedMealsPerDay, allowedSnacks, availableWeekDays, planTypeOptions, requiresPlanType, rules]);
+  }, [planType, planTypeOptions, requiresPlanType]);
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((item) => item !== day) : [...prev, day]
+      prev.includes(day) ? prev.filter((item) => item !== day) : [...prev, day],
     );
   };
 
   const setAllWeek = () => {
     setSelectedDays((prev) =>
-      prev.length === availableWeekDays.length ? [] : [...availableWeekDays]
+      prev.length === availableWeekDays.length ? [] : [...availableWeekDays],
     );
   };
 
   const goToShowMeals = () => {
+    setSubmitAttempted(true);
+    const mealsValue = Number(meals);
+    const daysValue = Number(days);
+    const snacksValue = Number(snacks);
+
     if (requiresPlanType && !planType) {
       setPlanTypeTouched(true);
+      return;
+    }
+    if (!meals || !days || !snacks || !startDate || selectedDays.length === 0) {
+      return;
+    }
+    if (
+      !Number.isFinite(mealsValue) ||
+      !Number.isFinite(daysValue) ||
+      !Number.isFinite(snacksValue) ||
+      mealsValue < 1 ||
+      daysValue < 1 ||
+      snacksValue < 0
+    ) {
       return;
     }
 
@@ -188,13 +173,18 @@ export default function MonthlyPlanStepTwoForm({
                     <option key={option} value={option}>
                       {option
                         .split("-")
-                        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                        .map(
+                          (part) =>
+                            part.charAt(0).toUpperCase() + part.slice(1),
+                        )
                         .join(" ")}
                     </option>
                   ))}
                 </select>
                 {requiresPlanType && planTypeTouched && !planType ? (
-                  <p className="mt-2 text-sm text-red-600">This field is required</p>
+                  <p className="mt-2 text-sm text-red-600">
+                    This field is required
+                  </p>
                 ) : null}
               </div>
             ) : null}
@@ -206,18 +196,21 @@ export default function MonthlyPlanStepTwoForm({
               >
                 Number Of Meals <span className="text-black">*</span>
               </label>
-              <select
+              <input
                 id="meals"
+                type="number"
+                min={1}
+                step={1}
                 value={meals}
                 onChange={(event) => setMeals(event.target.value)}
+                placeholder="Enter number of meals"
                 className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
-              >
-                {allowedMealsPerDay.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              />
+              {submitAttempted && !meals ? (
+                <p className="mt-2 text-sm text-red-600">
+                  Please enter number of meals
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -227,18 +220,21 @@ export default function MonthlyPlanStepTwoForm({
               >
                 Number Of Days <span className="text-black">*</span>
               </label>
-              <select
+              <input
                 id="days"
+                type="number"
+                min={1}
+                step={1}
                 value={days}
                 onChange={(event) => setDays(event.target.value)}
+                placeholder="Enter number of days"
                 className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
-              >
-                {allowedDays.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              />
+              {submitAttempted && !days ? (
+                <p className="mt-2 text-sm text-red-600">
+                  Please enter number of days
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -248,18 +244,21 @@ export default function MonthlyPlanStepTwoForm({
               >
                 Number Of Snacks
               </label>
-              <select
+              <input
                 id="snacks"
+                type="number"
+                min={0}
+                step={1}
                 value={snacks}
                 onChange={(event) => setSnacks(event.target.value)}
+                placeholder="Enter number of snacks"
                 className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
-              >
-                {allowedSnacks.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              />
+              {submitAttempted && !snacks ? (
+                <p className="mt-2 text-sm text-red-600">
+                  Please enter number of snacks
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -291,6 +290,11 @@ export default function MonthlyPlanStepTwoForm({
                 </div>
               </div>
               <p className="mt-2 text-sm text-zinc-500">{dateLabel}</p>
+              {submitAttempted && !startDate ? (
+                <p className="mt-2 text-sm text-red-600">
+                  Please select a start date
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -323,7 +327,7 @@ export default function MonthlyPlanStepTwoForm({
                   type="button"
                   onClick={setAllWeek}
                   className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${
-                    selectedDays.length === weekDays.length
+                    selectedDays.length === availableWeekDays.length
                       ? "border-black bg-black text-white"
                       : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
                   }`}
@@ -331,13 +335,17 @@ export default function MonthlyPlanStepTwoForm({
                   ALL WEEK
                 </button>
               </div>
+              {submitAttempted && selectedDays.length === 0 ? (
+                <p className="mt-2 text-sm text-red-600">
+                  Please select at least one delivery day
+                </p>
+              ) : null}
             </div>
 
             <div className="pt-3">
               <button
                 type="button"
                 onClick={goToShowMeals}
-                disabled={requiresPlanType && !planType}
                 className="inline-flex h-11 min-w-32 items-center justify-center rounded-lg bg-black px-6 text-base font-medium !text-white transition hover:bg-zinc-800 hover:!text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Apply

@@ -11,6 +11,7 @@ export type MenuCategory = {
   name: string;
   description: string;
   items: MenuItem[];
+  image: string;
 };
 
 export type Location = {

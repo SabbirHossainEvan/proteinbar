@@ -45,7 +45,10 @@ const categoryLabels: Record<string, string> = {
 export default function MenuCategoryJumpSection({
   categories,
 }: MenuCategoryJumpSectionProps) {
-  const handleJump = (event: MouseEvent<HTMLAnchorElement>, categoryId: string) => {
+  const handleJump = (
+    event: MouseEvent<HTMLAnchorElement>,
+    categoryId: string,
+  ) => {
     event.preventDefault();
 
     const targetId = `menu-category-${categoryId}`;
@@ -57,7 +60,8 @@ export default function MenuCategoryJumpSection({
     }
 
     const headerOffset = window.innerWidth >= 640 ? 120 : 98;
-    const top = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+    const top =
+      target.getBoundingClientRect().top + window.scrollY - headerOffset;
 
     window.history.replaceState(null, "", `#${targetId}`);
     window.scrollTo({ top, behavior: "smooth" });
@@ -72,16 +76,30 @@ export default function MenuCategoryJumpSection({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="text-center sm:text-left">
-            <svg viewBox="0 0 24 24" className="mx-auto h-10 w-10 text-zinc-900 sm:mx-0" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <svg
+              viewBox="0 0 24 24"
+              className="mx-auto h-10 w-10 text-zinc-900 sm:mx-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
               <rect x="4" y="5" width="16" height="15" rx="2" />
               <path d="M8 3v4M16 3v4M4 10h16" />
             </svg>
             <p className="mt-3 text-2xl text-zinc-500">Ouvert tous les jours</p>
-            <p className="text-3xl font-semibold text-zinc-900">Lundi - Dimanche</p>
+            <p className="text-3xl font-semibold text-zinc-900">
+              Lundi - Dimanche
+            </p>
           </div>
 
           <div className="text-center sm:text-left">
-            <svg viewBox="0 0 24 24" className="mx-auto h-10 w-10 text-zinc-900 sm:mx-0" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <svg
+              viewBox="0 0 24 24"
+              className="mx-auto h-10 w-10 text-zinc-900 sm:mx-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
               <circle cx="12" cy="12" r="8" />
               <path d="M12 8v5l3 2M9 2h6" />
             </svg>
@@ -92,15 +110,16 @@ export default function MenuCategoryJumpSection({
       </div>
 
       <p className="mx-auto mt-10 max-w-4xl text-center text-base text-zinc-800 sm:mt-12 sm:text-lg">
-        <span className="font-semibold">Important:</span>{" "}
-        Nous travaillons qu&apos;avec des produits frais que nos fournisseurs nous livrent chaque matin.
-        Les calories sont approximatives et a titre indicatif.
+        <span className="font-semibold">Important:</span> Nous travaillons
+        qu&apos;avec des produits frais que nos fournisseurs nous livrent chaque
+        matin. Les calories sont approximatives et a titre indicatif.
       </p>
 
       <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 xl:grid-cols-4">
         {categories.map((category) => {
-          const image = categoryVisuals[category.id] ?? "/food/food2.png";
-          const title = categoryLabels[category.id] ?? category.name.toUpperCase();
+          const image = category.image ? category.image : "/food/food2.png";
+          const title =
+            categoryLabels[category.id] ?? category.name.toUpperCase();
           return (
             <a
               key={category.id}
@@ -117,7 +136,9 @@ export default function MenuCategoryJumpSection({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/5" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <h3 className="text-center text-[23px] font-semibold leading-tight tracking-wide">{title}</h3>
+                  <h3 className="text-center text-[23px] font-semibold leading-tight tracking-wide">
+                    {title}
+                  </h3>
                 </div>
               </div>
             </a>
