@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -68,6 +69,25 @@ function formatTabLabel(dateValue: string) {
   };
 }
 
+function normalizeMealImage(value?: string) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "/food/food11.webp";
+
+  if (
+    raw.startsWith("data:image/") &&
+    raw.includes(";base64") &&
+    !raw.includes(";base64,")
+  ) {
+    return raw.replace(/^([^,]*;base64)(.*)$/, "$1,$2");
+  }
+
+  return raw;
+}
+
+function isDataImageUrl(value: string) {
+  return value.toLowerCase().startsWith("data:image/");
+}
+
 function toDayMeal(item: MealLibraryItem): DayMeal {
   return {
     id: item.id,
@@ -75,7 +95,7 @@ function toDayMeal(item: MealLibraryItem): DayMeal {
     subtitle: item.tags.length
       ? item.tags.join(" | ")
       : `${item.mealType} option`,
-    image: item.image || "/food/food11.webp",
+    image: normalizeMealImage(item.image),
     calories: Number(item.calories ?? 0),
     fat: Number(item.fat ?? 0),
     protein: Number(item.protein ?? 0),
@@ -91,6 +111,7 @@ export default function MonthlyPlanShowMeals({
   const router = useRouter();
   const isCustom =
     plan.planKind === "custom" || plan.title.toLowerCase().includes("custom");
+  const isNormalPlan = plan.planKind === "normal" && !isCustom;
   const initialDate = toDateInputValue(selection.startDate);
   const deliveryDays = useMemo(
     () =>
@@ -251,6 +272,7 @@ export default function MonthlyPlanShowMeals({
     `${mealId}::${date ?? "custom"}`;
 
   const isMealSelected = (mealId: string, date?: string) =>
+    isNormalPlan ||
     selectedMeals.some(
       (item) =>
         mealSelectionKey(item.id, item.date) === mealSelectionKey(mealId, date),
@@ -344,7 +366,67 @@ export default function MonthlyPlanShowMeals({
   const normalMeals = hasNormalDateAssignments
     ? assignedMealsForDate
     : allMeals;
+  const normalAutoSelectedMeals = useMemo(() => {
+    if (!isNormalPlan) return [] as SelectedMealOption[];
+
+    if (hasNormalDateAssignments) {
+      const seen = new Set<string>();
+      const items: SelectedMealOption[] = [];
+
+      for (const assignment of planDetails?.weekAssignments ?? []) {
+        for (const [dateIso, assignedMeals] of Object.entries(
+          assignment.mealsByDate ?? {},
+        )) {
+          for (const assignedMeal of assignedMeals) {
+            const linkedMeal = mealById.get(assignedMeal.mealId);
+            const mappedMeal = linkedMeal ? toDayMeal(linkedMeal) : null;
+            const id = String(assignedMeal.id ?? assignedMeal.mealId ?? "");
+            if (!id) continue;
+
+            const selectionItem: SelectedMealOption = {
+              id,
+              title:
+                mappedMeal?.title ??
+                String(assignedMeal.mealName ?? "").toUpperCase(),
+              date: dateIso,
+              calories: mappedMeal?.calories ?? 0,
+              protein: mappedMeal?.protein ?? 0,
+              carb: mappedMeal?.carb ?? 0,
+              fat: mappedMeal?.fat ?? 0,
+            };
+
+            const key = `${selectionItem.id}::${selectionItem.date ?? "custom"}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            items.push(selectionItem);
+          }
+        }
+      }
+
+      return items;
+    }
+
+    return normalMeals.map((meal) => ({
+      id: meal.id,
+      title: meal.title,
+      date: undefined,
+      calories: meal.calories,
+      protein: meal.protein,
+      carb: meal.carb,
+      fat: meal.fat,
+    }));
+  }, [
+    hasNormalDateAssignments,
+    isNormalPlan,
+    mealById,
+    normalMeals,
+    planDetails,
+  ]);
+  const selectedMealsForCheckout = isNormalPlan
+    ? normalAutoSelectedMeals
+    : selectedMeals;
   const pageSize = 3;
+
   const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
   const visibleMeals = categoryMeals.slice(
     sliderPage * pageSize,
@@ -411,11 +493,11 @@ export default function MonthlyPlanShowMeals({
     if (selection.deliveryDays)
       query.set("deliveryDays", selection.deliveryDays);
     if (selection.planType) query.set("planType", selection.planType);
-    if (selectedMeals.length) {
+    if (selectedMealsForCheckout.length) {
       query.set(
         "selectedMeals",
         JSON.stringify(
-          selectedMeals.map((item) => ({
+          selectedMealsForCheckout.map((item) => ({
             id: item.id,
             title: item.title,
             date: item.date,
@@ -467,12 +549,20 @@ export default function MonthlyPlanShowMeals({
               >
                 <div className="flex justify-center">
                   <div className="relative h-36 w-36 overflow-hidden rounded-full border border-zinc-200">
-                    <Image
-                      src={meal.image}
-                      alt={meal.title}
-                      fill
-                      className="object-cover"
-                    />
+                    {isDataImageUrl(meal.image) ? (
+                      <img
+                        src={meal.image}
+                        alt={meal.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={meal.image}
+                        alt={meal.title}
+                        fill
+                        className="object-cover"
+                      />
+                    )}
                   </div>
                 </div>
                 <h3 className="mt-4 text-center text-2xl font-bold leading-tight text-zinc-900">
@@ -668,12 +758,20 @@ export default function MonthlyPlanShowMeals({
               </div>
               <div className="flex justify-center">
                 <div className="relative h-64 w-64 overflow-hidden rounded-full border border-zinc-200">
-                  <Image
-                    src={detailMeal.image}
-                    alt={detailMeal.title}
-                    fill
-                    className="object-cover"
-                  />
+                  {isDataImageUrl(detailMeal.image) ? (
+                    <img
+                      src={detailMeal.image}
+                      alt={detailMeal.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={detailMeal.image}
+                      alt={detailMeal.title}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
                 </div>
               </div>
 
@@ -833,15 +931,20 @@ export default function MonthlyPlanShowMeals({
                   {meal.title}
                 </h3>
                 <p className="mt-2 text-sm text-zinc-500">{meal.subtitle}</p>
-                <button
+                {/* <button
                   type="button"
-                  onClick={() => toggleMealSelection(meal, activeDateIso)}
-                  className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-black px-4 text-xs font-semibold text-white transition hover:bg-zinc-800"
+                  onClick={() => {
+                    if (!isNormalPlan) {
+                      toggleMealSelection(meal, activeDateIso);
+                    }
+                  }}
+                  disabled={isNormalPlan}
+                  className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-black px-4 text-xs font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-80"
                 >
-                  {isMealSelected(meal.id, activeDateIso)
+                  {isNormalPlan || isMealSelected(meal.id, activeDateIso)
                     ? "Selected"
                     : "Select"}
-                </button>
+                </button> */}
               </div>
             </article>
           ))}
@@ -856,26 +959,35 @@ export default function MonthlyPlanShowMeals({
           <h4 className="text-2xl font-semibold text-zinc-900">
             Selected Options
           </h4>
-          {selectedMeals.length ? (
+          {selectedMealsForCheckout.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              {selectedMeals.map((item) => (
-                <button
-                  key={mealSelectionKey(item.id, item.date)}
-                  type="button"
-                  onClick={() =>
-                    setSelectedMeals((prev) =>
-                      prev.filter(
-                        (selected) =>
-                          mealSelectionKey(selected.id, selected.date) !==
-                          mealSelectionKey(item.id, item.date),
-                      ),
-                    )
-                  }
-                  className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
-                >
-                  {item.title} {item.date ? `(${item.date})` : ""}
-                </button>
-              ))}
+              {selectedMealsForCheckout.map((item) =>
+                isNormalPlan ? (
+                  <span
+                    key={mealSelectionKey(item.id, item.date)}
+                    className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
+                  >
+                    {item.title} {item.date ? `(${item.date})` : ""}
+                  </span>
+                ) : (
+                  <button
+                    key={mealSelectionKey(item.id, item.date)}
+                    type="button"
+                    onClick={() =>
+                      setSelectedMeals((prev) =>
+                        prev.filter(
+                          (selected) =>
+                            mealSelectionKey(selected.id, selected.date) !==
+                            mealSelectionKey(item.id, item.date),
+                        ),
+                      )
+                    }
+                    className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
+                  >
+                    {item.title} {item.date ? `(${item.date})` : ""}
+                  </button>
+                ),
+              )}
             </div>
           ) : (
             <p className="mt-3 text-sm text-zinc-500">
