@@ -158,7 +158,6 @@ export default function MonthlyPlanCheckoutForm({
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
   const [emirate, setEmirate] = useState("");
   const [area, setArea] = useState("");
   const [address, setAddress] = useState("");
@@ -467,17 +466,6 @@ export default function MonthlyPlanCheckoutForm({
               <input
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
-                className="mt-2 h-11 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm outline-none focus:border-zinc-500"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-zinc-700">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
                 className="mt-2 h-11 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm outline-none focus:border-zinc-500"
               />
             </div>
