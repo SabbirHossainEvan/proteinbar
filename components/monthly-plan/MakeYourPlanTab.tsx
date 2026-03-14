@@ -27,6 +27,7 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
   const [isOpen, setIsOpen] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
   const [savedMeals, setSavedMeals] = useState<SavedCustomMeal[]>(() => getSavedMeals());
+  const [selectedCounts, setSelectedCounts] = useState<Record<string, number>>({});
 
   const handleDeleteSavedMeal = (mealId: string) => {
     setSavedMeals((prev) => {
@@ -36,7 +37,20 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
       }
       return next;
     });
+    setSelectedCounts((prev) => {
+      const next = { ...prev };
+      delete next[mealId];
+      return next;
+    });
     setSavedMessage("Saved plan deleted");
+  };
+
+  const handleSelectSavedMeal = (mealId: string, mealTitle: string) => {
+    setSelectedCounts((prev) => ({
+      ...prev,
+      [mealId]: (prev[mealId] ?? 0) + 1,
+    }));
+    setSavedMessage(`${mealTitle} selected`);
   };
 
   return (
@@ -47,6 +61,10 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
             <h3 className="mt-2 text-center text-[2.2rem] font-bold leading-none text-zinc-900">
               Make Your Own Plan
             </h3>
+            <p className="mx-auto mt-4 max-w-[280px] text-center text-base leading-8 text-zinc-500">
+              Create a personalized meal plan by choosing your own ingredients,
+              macros, and meal combination.
+            </p>
 
             <div className="mt-auto pt-5">
               <button
@@ -87,11 +105,20 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
                   </button>
                   <button
                     type="button"
+                    onClick={() => handleSelectSavedMeal(savedMeal.id, savedMeal.title)}
                     className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
                   >
-                    Select
+                    {selectedCounts[savedMeal.id]
+                      ? `Select x${selectedCounts[savedMeal.id]}`
+                      : "Select"}
                   </button>
                 </div>
+
+                {selectedCounts[savedMeal.id] ? (
+                  <p className="mt-3 text-center text-xs font-medium text-zinc-600">
+                    Selected {selectedCounts[savedMeal.id]} times
+                  </p>
+                ) : null}
 
                 <div className="mt-3 grid gap-2 text-sm text-zinc-700 sm:grid-cols-2">
                   <p className="rounded-md bg-zinc-50 px-3 py-2.5">

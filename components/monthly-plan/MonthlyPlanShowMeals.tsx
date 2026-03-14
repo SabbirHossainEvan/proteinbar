@@ -47,6 +47,7 @@ type CustomCard = {
 };
 
 type SelectedMealOption = {
+  instanceId?: string;
   id: string;
   title: string;
   date?: string;
@@ -257,6 +258,9 @@ export default function MonthlyPlanShowMeals({
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
   const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>([]);
+  const [selectionPopupMeal, setSelectionPopupMeal] = useState<DayMeal | null>(null);
+  const [selectionPopupQty, setSelectionPopupQty] = useState(1);
+  const [selectionPopupDate, setSelectionPopupDate] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!customTabs.includes(activeCategory)) {
@@ -277,28 +281,18 @@ export default function MonthlyPlanShowMeals({
   const mealSelectionKey = (mealId: string, date?: string) =>
     `${mealId}::${date ?? "custom"}`;
 
-  const isMealSelected = (mealId: string, date?: string) =>
-    isNormalPlan ||
-    selectedMeals.some(
+  const selectedMealCount = (mealId: string, date?: string) =>
+    selectedMeals.filter(
       (item) =>
         mealSelectionKey(item.id, item.date) === mealSelectionKey(mealId, date),
-    );
+    ).length;
 
-  const toggleMealSelection = (meal: DayMeal, date?: string) => {
-    const key = mealSelectionKey(meal.id, date);
+  const addMealSelection = (meal: DayMeal, quantity: number, date?: string) => {
     setSelectedMeals((prev) => {
-      const exists = prev.some(
-        (item) => mealSelectionKey(item.id, item.date) === key,
-      );
-      if (exists) {
-        return prev.filter(
-          (item) => mealSelectionKey(item.id, item.date) !== key,
-        );
-      }
-
-      return [
-        ...prev,
-        {
+      const additions = Array.from(
+        { length: Math.max(1, quantity) },
+        (_, index) => ({
+          instanceId: `${meal.id}-${date ?? "custom"}-${Date.now()}-${index}`,
           id: meal.id,
           title: meal.title,
           date,
@@ -306,9 +300,23 @@ export default function MonthlyPlanShowMeals({
           protein: meal.protein,
           carb: meal.carb,
           fat: meal.fat,
-        },
-      ];
+        }),
+      );
+
+      return [...prev, ...additions];
     });
+  };
+
+  const openSelectionPopup = (meal: DayMeal, date?: string) => {
+    setSelectionPopupMeal(meal);
+    setSelectionPopupQty(1);
+    setSelectionPopupDate(date);
+  };
+
+  const closeSelectionPopup = () => {
+    setSelectionPopupMeal(null);
+    setSelectionPopupQty(1);
+    setSelectionPopupDate(undefined);
   };
 
   const allMeals = useMemo(() => mealLibrary.map(toDayMeal), [mealLibrary]);
@@ -528,24 +536,26 @@ export default function MonthlyPlanShowMeals({
             achieve your own goals.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {customTabs.map((category) => {
-              const active = activeCategory === category;
-              return (
-                <button
-                  key={category}
-                  type="button"
-                  onClick={() => setActiveCategory(category)}
-                  className={`h-12 rounded-md text-sm font-semibold transition ${
-                    active
-                      ? "bg-black text-white"
-                      : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
-                  }`}
-                >
-                  {category === makeYourPlanTabId ? "Make Your Plan" : category}
-                </button>
-              );
-            })}
+          <div className="mt-6 overflow-x-auto pb-2">
+            <div className="flex min-w-max gap-3">
+              {customTabs.map((category) => {
+                const active = activeCategory === category;
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setActiveCategory(category)}
+                    className={`h-12 min-w-[220px] rounded-md px-5 text-sm font-semibold transition ${
+                      active
+                        ? "bg-black text-white"
+                        : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                    }`}
+                  >
+                    {category === makeYourPlanTabId ? "Make Your Plan" : category}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {activeCategory === makeYourPlanTabId ? (
@@ -595,10 +605,12 @@ export default function MonthlyPlanShowMeals({
                       </button>
                       <button
                         type="button"
-                        onClick={() => toggleMealSelection(meal)}
+                        onClick={() => openSelectionPopup(meal)}
                         className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
                       >
-                        {isMealSelected(meal.id) ? "Selected" : "Select"}
+                        {selectedMealCount(meal.id)
+                          ? `Selected x${selectedMealCount(meal.id)}`
+                          : "Select"}
                       </button>
                     </div>
                   </article>
@@ -675,31 +687,65 @@ export default function MonthlyPlanShowMeals({
                 </p>
               </div>
             </div>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {customCards.map((card, index) => (
                 <article
                   key={card.id}
-                  className="rounded-lg border border-zinc-200 bg-white p-3 shadow-sm"
+                  className="rounded-xl border border-zinc-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.10)]"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                    {card.label}
+                  <div className="flex items-start gap-2">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-[#ff5a36]"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1h3V2Zm12 8H5v10h14V10ZM7 12h2v2H7v-2Zm4 0h2v2h-2v-2Zm4 0h2v2h-2v-2ZM7 16h2v2H7v-2Zm4 0h2v2h-2v-2Z" />
+                    </svg>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-900">
+                      {card.label}
+                    </p>
+                  </div>
+
+                  <p className="mt-4 text-3xl font-semibold leading-none text-zinc-900">
+                    Meals
                   </p>
-                  {/* <p className="mt-2 text-xl font-semibold text-zinc-900">{card.mealLabel}</p> */}
-                  <p className="mt-2 text-sm font-medium text-zinc-700">
-                    {customCardStats[index]?.count ?? 0} selected
-                  </p>
-                  <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-zinc-600">
-                    <p className="rounded-md bg-zinc-100 px-2 py-1">
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {Array.from({
+                      length: Math.max(1, customCardStats[index]?.count ?? 0),
+                    }).map((_, itemIndex) => (
+                      <span
+                        key={`${card.id}-meal-${itemIndex}`}
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-600 text-white"
+                      >
+                        <svg
+                          viewBox="0 0 20 20"
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="m5 10 3 3 7-7" />
+                        </svg>
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-zinc-600">
+                    <p className="rounded-md bg-zinc-50 px-2.5 py-1.5">
                       Kcal: {customCardStats[index]?.calories.toFixed(0) ?? "0"}
                     </p>
-                    <p className="rounded-md bg-zinc-100 px-2 py-1">
-                      Protein:{" "}
-                      {customCardStats[index]?.protein.toFixed(1) ?? "0"}g
+                    <p className="rounded-md bg-zinc-50 px-2.5 py-1.5">
+                      Protein: {customCardStats[index]?.protein.toFixed(1) ?? "0"}g
                     </p>
-                    <p className="rounded-md bg-zinc-100 px-2 py-1">
+                    <p className="rounded-md bg-zinc-50 px-2.5 py-1.5">
                       Carb: {customCardStats[index]?.carb.toFixed(1) ?? "0"}g
                     </p>
-                    <p className="rounded-md bg-zinc-100 px-2 py-1">
+                    <p className="rounded-md bg-zinc-50 px-2.5 py-1.5">
                       Fat: {customCardStats[index]?.fat.toFixed(1) ?? "0"}g
                     </p>
                   </div>
@@ -716,14 +762,14 @@ export default function MonthlyPlanShowMeals({
               <div className="mt-3 flex flex-wrap gap-2">
                 {selectedMeals.map((item) => (
                   <button
-                    key={mealSelectionKey(item.id, item.date)}
+                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
                     type="button"
                     onClick={() =>
                       setSelectedMeals((prev) =>
                         prev.filter(
                           (selected) =>
-                            mealSelectionKey(selected.id, selected.date) !==
-                            mealSelectionKey(item.id, item.date),
+                            (selected.instanceId ?? mealSelectionKey(selected.id, selected.date)) !==
+                            (item.instanceId ?? mealSelectionKey(item.id, item.date)),
                         ),
                       )
                     }
@@ -861,12 +907,90 @@ export default function MonthlyPlanShowMeals({
                 <button
                   type="button"
                   onClick={() => {
-                    toggleMealSelection(detailMeal);
+                    openSelectionPopup(detailMeal);
                     setDetailMeal(null);
                   }}
                   className="inline-flex h-11 min-w-40 items-center justify-center rounded-full bg-zinc-800 px-6 text-lg font-semibold text-white transition hover:bg-zinc-900"
                 >
-                  {isMealSelected(detailMeal.id) ? "Selected" : "Select"}
+                  {selectedMealCount(detailMeal.id)
+                    ? `Selected x${selectedMealCount(detailMeal.id)}`
+                    : "Select"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {selectionPopupMeal ? (
+          <div
+            className="fixed inset-0 z-[125] flex items-center justify-center bg-black/60 p-4"
+            onClick={closeSelectionPopup}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                    Select Meal
+                  </p>
+                  <h4 className="mt-2 text-2xl font-semibold text-zinc-900">
+                    {selectionPopupMeal.title}
+                  </h4>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Add this meal multiple times to your custom plan.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeSelectionPopup}
+                  className="text-3xl leading-none text-zinc-500 transition hover:text-zinc-700"
+                >
+                  &times;
+                </button>
+              </div>
+
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectionPopupQty((prev) => Math.max(1, prev - 1))}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 text-2xl text-zinc-900"
+                >
+                  -
+                </button>
+                <div className="flex h-12 min-w-24 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-xl font-semibold text-zinc-900">
+                  {selectionPopupQty}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectionPopupQty((prev) => prev + 1)}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 text-2xl text-zinc-900"
+                >
+                  +
+                </button>
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={closeSelectionPopup}
+                  className="h-11 rounded-md border border-zinc-300 bg-white text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addMealSelection(
+                      selectionPopupMeal,
+                      selectionPopupQty,
+                      selectionPopupDate,
+                    );
+                    closeSelectionPopup();
+                  }}
+                  className="h-11 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
+                >
+                  Add To Plan
                 </button>
               </div>
             </div>
