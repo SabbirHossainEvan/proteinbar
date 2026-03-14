@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { getCheckoutPath } from "@/lib/monthlyPlanFlow";
+import MakeYourPlanTab from "@/components/monthly-plan/MakeYourPlanTab";
 import type {
   MealLibraryItem,
   MonthlyPlanDetails,
@@ -54,6 +55,8 @@ type SelectedMealOption = {
   carb: number;
   fat: number;
 };
+
+const makeYourPlanTabId = "MAKE_YOUR_PLAN";
 
 function toDateInputValue(value: string) {
   const parsed = new Date(value);
@@ -245,19 +248,21 @@ export default function MonthlyPlanShowMeals({
   }, [initialDate, weekDates]);
 
   const [activeTab, setActiveTab] = useState(0);
-  const [activeCategory, setActiveCategory] = useState(
-    customCategories[0] ?? "ALL",
+  const customTabs = useMemo(
+    () => [makeYourPlanTabId, ...customCategories],
+    [customCategories],
   );
+  const [activeCategory, setActiveCategory] = useState(makeYourPlanTabId);
   const [sliderPage, setSliderPage] = useState(0);
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
   const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>([]);
 
   useEffect(() => {
-    if (!customCategories.includes(activeCategory)) {
-      setActiveCategory(customCategories[0]);
+    if (!customTabs.includes(activeCategory)) {
+      setActiveCategory(customTabs[0] ?? makeYourPlanTabId);
     }
-  }, [activeCategory, customCategories]);
+  }, [activeCategory, customTabs]);
 
   useEffect(() => {
     setSliderPage(0);
@@ -524,7 +529,7 @@ export default function MonthlyPlanShowMeals({
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {customCategories.map((category) => {
+            {customTabs.map((category) => {
               const active = activeCategory === category;
               return (
                 <button
@@ -537,96 +542,102 @@ export default function MonthlyPlanShowMeals({
                       : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
                   }`}
                 >
-                  {category}
+                  {category === makeYourPlanTabId ? "Make Your Plan" : category}
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {visibleMeals.map((meal) => (
-              <article
-                key={`${meal.id}-${activeCategory}`}
-                className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
-              >
-                <div className="flex justify-center">
-                  <div className="relative h-36 w-36 overflow-hidden rounded-full border border-zinc-200">
-                    {isDataImageUrl(meal.image) ? (
-                      <img
-                        src={meal.image}
-                        alt={meal.title}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <Image
-                        src={meal.image}
-                        alt={meal.title}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                </div>
-                <h3 className="mt-4 text-center text-2xl font-bold leading-tight text-zinc-900">
-                  {meal.title}
-                </h3>
-                <p className="mt-2 text-center text-sm text-zinc-500">
-                  {meal.subtitle}
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDetailMeal(meal);
-                      setDetailQty(1);
-                    }}
-                    className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
+          {activeCategory === makeYourPlanTabId ? (
+            <MakeYourPlanTab className="mt-6" />
+          ) : (
+            <>
+              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {visibleMeals.map((meal) => (
+                  <article
+                    key={`${meal.id}-${activeCategory}`}
+                    className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
                   >
-                    Details
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleMealSelection(meal)}
-                    className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
-                  >
-                    {isMealSelected(meal.id) ? "Selected" : "Select"}
-                  </button>
-                </div>
-              </article>
-            ))}
-            {!visibleMeals.length ? (
-              <p className="text-sm text-zinc-500">
-                No meals available in this category.
-              </p>
-            ) : null}
-          </div>
+                    <div className="flex justify-center">
+                      <div className="relative h-36 w-36 overflow-hidden rounded-full border border-zinc-200">
+                        {isDataImageUrl(meal.image) ? (
+                          <img
+                            src={meal.image}
+                            alt={meal.title}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Image
+                            src={meal.image}
+                            alt={meal.title}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <h3 className="mt-4 text-center text-2xl font-bold leading-tight text-zinc-900">
+                      {meal.title}
+                    </h3>
+                    <p className="mt-2 text-center text-sm text-zinc-500">
+                      {meal.subtitle}
+                    </p>
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDetailMeal(meal);
+                          setDetailQty(1);
+                        }}
+                        className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
+                      >
+                        Details
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleMealSelection(meal)}
+                        className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
+                      >
+                        {isMealSelected(meal.id) ? "Selected" : "Select"}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+                {!visibleMeals.length ? (
+                  <p className="text-sm text-zinc-500">
+                    No meals available in this category.
+                  </p>
+                ) : null}
+              </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => setSliderPage((prev) => Math.max(0, prev - 1))}
-              disabled={sliderPage === 0}
-              className="h-8 rounded-md border border-zinc-300 px-3 text-xs font-semibold text-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Prev
-            </button>
-            {Array.from({ length: totalPages }, (_, dot) => (
-              <span
-                key={dot}
-                className={`h-2.5 w-2.5 rounded-full ${dot === sliderPage ? "bg-black" : "bg-zinc-400"}`}
-              />
-            ))}
-            <button
-              type="button"
-              onClick={() =>
-                setSliderPage((prev) => Math.min(totalPages - 1, prev + 1))
-              }
-              disabled={sliderPage === totalPages - 1}
-              className="h-8 rounded-md border border-zinc-300 px-3 text-xs font-semibold text-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
+              <div className="mt-5 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSliderPage((prev) => Math.max(0, prev - 1))}
+                  disabled={sliderPage === 0}
+                  className="h-8 rounded-md border border-zinc-300 px-3 text-xs font-semibold text-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, dot) => (
+                  <span
+                    key={dot}
+                    className={`h-2.5 w-2.5 rounded-full ${dot === sliderPage ? "bg-black" : "bg-zinc-400"}`}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSliderPage((prev) => Math.min(totalPages - 1, prev + 1))
+                  }
+                  disabled={sliderPage === totalPages - 1}
+                  className="h-8 rounded-md border border-zinc-300 px-3 text-xs font-semibold text-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            </>
+          )}
 
           <div className="mt-6 rounded-xl bg-zinc-50 p-4 sm:p-5">
             <h4 className="text-3xl font-semibold text-zinc-900">Your Cards</h4>
