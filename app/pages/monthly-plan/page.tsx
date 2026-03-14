@@ -11,7 +11,7 @@ const frontofficeFlows = [
     id: "custom-plan",
     title: "Flow 1: Custom Plan",
     description:
-      "Client configures number of meals, days, snacks, start date, delivery days, then picks meals.",
+      "Client configures number of meals, days, start date, delivery days, then picks meals.",
     href: "/pages/monthly-plan/flow/custom",
     cta: "Start Custom Plan",
   },

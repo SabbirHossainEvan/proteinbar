@@ -14,6 +14,7 @@ import type {
 type ShowMealsSelection = {
   meals: string;
   days: string;
+  weeks?: string;
   snacks: string;
   startDate: string;
   deliveryDays?: string;
@@ -490,6 +491,7 @@ export default function MonthlyPlanShowMeals({
       startDate: selection.startDate,
     });
 
+    if (selection.weeks) query.set("weeks", selection.weeks);
     if (selection.deliveryDays)
       query.set("deliveryDays", selection.deliveryDays);
     if (selection.planType) query.set("planType", selection.planType);
@@ -882,9 +884,16 @@ export default function MonthlyPlanShowMeals({
           <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700">
             Meals: {selection.meals}
           </span>
-          <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700">
-            Days: {selection.days}
-          </span>
+          {!selection.weeks ? (
+            <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700">
+              Days: {selection.days}
+            </span>
+          ) : null}
+          {selection.weeks ? (
+            <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700">
+              Weeks: {selection.weeks}
+            </span>
+          ) : null}
           <span className="rounded-md bg-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700">
             Snacks: {selection.snacks}
           </span>

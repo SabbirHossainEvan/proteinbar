@@ -16,7 +16,7 @@ export default function CustomPlanFlowPage() {
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">Flow 1</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">Custom Plan Builder</h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600 sm:text-base">
-          Client chooses meals, days, snacks, start date, delivery days, then selects meals for each cycle before checkout.
+          Client chooses meals, days, start date, delivery days, then selects meals for each cycle before checkout.
         </p>
         <div className="mt-6">
           <Link

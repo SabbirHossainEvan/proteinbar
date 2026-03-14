@@ -16,6 +16,7 @@ import type {
 type CheckoutSelection = {
   meals: string;
   days: string;
+  weeks?: string;
   snacks: string;
   startDate: string;
   deliveryDays?: string;
@@ -359,7 +360,8 @@ export default function MonthlyPlanCheckoutForm({
           <div className="mt-4 space-y-1 text-center text-sm text-zinc-700">
             {selection.planType ? <p>Plan Type: {selection.planType}</p> : null}
             <p>Meals: {selection.meals}</p>
-            <p>Days: {selection.days}</p>
+            {!selection.weeks ? <p>Days: {selection.days}</p> : null}
+            {selection.weeks ? <p>Weeks: {selection.weeks}</p> : null}
             <p>Snacks: {selection.snacks}</p>
             <p>Start: {selection.startDate}</p>
           </div>
