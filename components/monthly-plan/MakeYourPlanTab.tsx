@@ -29,22 +29,6 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
   const [savedMeals, setSavedMeals] = useState<SavedCustomMeal[]>(() => getSavedMeals());
   const [selectedCounts, setSelectedCounts] = useState<Record<string, number>>({});
 
-  const handleDeleteSavedMeal = (mealId: string) => {
-    setSavedMeals((prev) => {
-      const next = prev.filter((meal) => meal.id !== mealId);
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(storageKey, JSON.stringify(next));
-      }
-      return next;
-    });
-    setSelectedCounts((prev) => {
-      const next = { ...prev };
-      delete next[mealId];
-      return next;
-    });
-    setSavedMessage("Saved plan deleted");
-  };
-
   const handleSelectSavedMeal = (mealId: string, mealTitle: string) => {
     setSelectedCounts((prev) => ({
       ...prev,
@@ -95,24 +79,15 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
                 {savedMeal.selections.protein?.label ?? "Custom meal"} + {savedMeal.selections.carbs?.label ?? "selection"}
               </p>
               <div className="mt-auto pt-5">
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteSavedMeal(savedMeal.id)}
-                    className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectSavedMeal(savedMeal.id, savedMeal.title)}
-                    className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
-                  >
-                    {selectedCounts[savedMeal.id]
-                      ? `Select x${selectedCounts[savedMeal.id]}`
-                      : "Select"}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSelectSavedMeal(savedMeal.id, savedMeal.title)}
+                  className="h-10 w-full rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
+                >
+                  {selectedCounts[savedMeal.id]
+                    ? `Select x${selectedCounts[savedMeal.id]}`
+                    : "Select"}
+                </button>
 
                 {selectedCounts[savedMeal.id] ? (
                   <p className="mt-3 text-center text-xs font-medium text-zinc-600">
