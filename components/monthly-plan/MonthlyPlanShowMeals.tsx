@@ -570,20 +570,13 @@ export default function MonthlyPlanShowMeals({
                   >
                     <div className="flex justify-center">
                       <div className="relative h-36 w-36 overflow-hidden rounded-full border border-zinc-200">
-                        {isDataImageUrl(meal.image) ? (
-                          <img
-                            src={meal.image}
-                            alt={meal.title}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <Image
-                            src={meal.image}
-                            alt={meal.title}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
+                        <Image
+                          src={meal.image}
+                          alt={meal.title}
+                          fill
+                          unoptimized={isDataImageUrl(meal.image)}
+                          className="object-cover"
+                        />
                       </div>
                     </div>
                     <h3 className="mt-4 text-center text-2xl font-bold leading-tight text-zinc-900">
@@ -803,7 +796,7 @@ export default function MonthlyPlanShowMeals({
             onClick={() => setDetailMeal(null)}
           >
             <div
-              className="w-full max-w-5xl rounded-lg bg-white p-6 shadow-xl sm:p-8"
+              className="w-full max-w-5xl rounded-[20px] bg-white p-6 shadow-xl sm:p-8"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex items-start justify-end">
@@ -815,107 +808,155 @@ export default function MonthlyPlanShowMeals({
                   &times;
                 </button>
               </div>
-              <div className="flex justify-center">
-                <div className="relative h-64 w-64 overflow-hidden rounded-full border border-zinc-200">
-                  {isDataImageUrl(detailMeal.image) ? (
-                    <img
-                      src={detailMeal.image}
-                      alt={detailMeal.title}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <Image
-                      src={detailMeal.image}
-                      alt={detailMeal.title}
-                      fill
-                      className="object-cover"
-                    />
-                  )}
+              <div className="grid gap-6 lg:grid-cols-[334px_minmax(0,1fr)] lg:items-start">
+                <div className="relative aspect-[1/1] overflow-hidden rounded-md bg-zinc-100">
+                  <Image
+                    src={detailMeal.image}
+                    alt={detailMeal.title}
+                    fill
+                    unoptimized={isDataImageUrl(detailMeal.image)}
+                    className="object-cover"
+                  />
                 </div>
-              </div>
 
-              <h6 className="mt-6 text-center text-3xl font-bold text-zinc-900">
-                {detailMeal.title}
-              </h6>
+                <div>
+                  <div className="border-b border-zinc-200 pb-5">
+                    <h6 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 sm:text-[2.45rem]">
+                      {detailMeal.title} - Meal Details
+                    </h6>
+                  </div>
 
-              <div className="mt-5 border-t border-zinc-300 pt-5">
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
-                  <p className="text-2xl font-semibold text-zinc-900">
-                    {detailMeal.title}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setDetailQty((prev) => Math.max(1, prev - 1))
-                      }
-                      className="h-10 w-10 rounded-sm bg-zinc-900 text-2xl font-bold text-white"
-                    >
-                      -
-                    </button>
-                    <div className="flex h-10 min-w-16 items-center justify-center border border-zinc-300 bg-zinc-100 px-3 text-xl font-semibold text-zinc-900">
-                      {detailQty}
+                  <div className="border-b border-zinc-200 py-4">
+                    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_224px] sm:items-center">
+                      <div>
+                        <p className="text-lg font-bold uppercase tracking-tight text-zinc-900">
+                          {detailMeal.title}
+                        </p>
+                        <p className="mt-1.5 text-xs text-zinc-500 sm:text-sm">
+                          {detailMeal.subtitle}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-start gap-3 sm:justify-end">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDetailQty((prev) => Math.max(1, prev - 1))
+                          }
+                          className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-zinc-900 text-2xl font-semibold text-white transition hover:bg-zinc-800"
+                        >
+                          -
+                        </button>
+                        <div className="inline-flex h-12 min-w-[108px] items-center justify-center rounded-md border border-zinc-200 bg-zinc-50 px-4 text-2xl font-bold text-zinc-900">
+                          {detailQty}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setDetailQty((prev) => prev + 1)}
+                          className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-zinc-900 text-2xl font-semibold text-white transition hover:bg-zinc-800"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setDetailQty((prev) => prev + 1)}
-                      className="h-10 w-10 rounded-sm bg-zinc-900 text-2xl font-bold text-white"
-                    >
-                      +
-                    </button>
-                    <span className="text-lg text-zinc-600">PCS</span>
+                  </div>
+
+                  <div className="border-b border-zinc-200 py-4">
+                    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_224px] sm:items-center">
+                      <div>
+                        <p className="text-lg font-bold uppercase tracking-tight text-zinc-900">
+                          Portion Size
+                        </p>
+                        <p className="mt-1.5 text-xs text-zinc-500 sm:text-sm">
+                          Adjust how many portions of this meal you want to add.
+                        </p>
+                      </div>
+                      <div className="flex justify-start sm:justify-end">
+                        <div className="rounded-md border border-zinc-200 bg-zinc-50 px-5 py-3 text-xl font-bold text-zinc-900">
+                          {detailQty} PCS
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 grid gap-3 md:grid-cols-4">
-                <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
                     Calories
                   </p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
-                    {(detailMeal.calories * detailQty).toFixed(2)}
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {(detailMeal.calories * detailQty).toFixed(1)}
                   </p>
                 </div>
-                <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
                     Fat
                   </p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
-                    {(detailMeal.fat * detailQty).toFixed(2)}
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {(detailMeal.fat * detailQty).toFixed(1)}
                   </p>
                 </div>
-                <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
                     Protein
                   </p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
-                    {(detailMeal.protein * detailQty).toFixed(2)}
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {(detailMeal.protein * detailQty).toFixed(1)}
                   </p>
                 </div>
-                <div className="overflow-hidden rounded-sm border border-zinc-200">
-                  <p className="bg-zinc-900 py-2 text-center text-lg font-semibold text-white">
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
                     Carb
                   </p>
-                  <p className="bg-zinc-100 py-3 text-center text-xl text-zinc-700">
-                    {(detailMeal.carb * detailQty).toFixed(2)}
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {(detailMeal.carb * detailQty).toFixed(1)}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-8 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    openSelectionPopup(detailMeal);
-                    setDetailMeal(null);
-                  }}
-                  className="inline-flex h-11 min-w-40 items-center justify-center rounded-full bg-zinc-800 px-6 text-lg font-semibold text-white transition hover:bg-zinc-900"
-                >
-                  {selectedMealCount(detailMeal.id)
-                    ? `Selected x${selectedMealCount(detailMeal.id)}`
-                    : "Select"}
-                </button>
+              <div className="mt-5 flex flex-col gap-5 border-t border-zinc-200 pt-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="space-y-2 text-zinc-900">
+                  <div className="flex items-center gap-4 text-xl">
+                    <span className="font-medium uppercase">Base Price</span>
+                    <span className="font-medium">
+                      ${((planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0) * detailQty).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xl">
+                    <span className="font-medium uppercase">Extras/Add-ons</span>
+                    <span className="font-medium">$0.00</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-[2rem] font-bold uppercase sm:text-[1.7rem]">
+                    <span>Total Meal Price</span>
+                    <span>
+                      ${((planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0) * detailQty).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="inline-flex h-11 items-center justify-center rounded-full bg-zinc-900 px-5 text-sm font-semibold text-white">
+                    Selected x{selectedMealCount(detailMeal.id)}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setDetailMeal(null)}
+                    className="inline-flex h-11 items-center justify-center rounded-full border-2 border-zinc-300 bg-white px-7 text-sm font-medium text-zinc-900 transition hover:bg-zinc-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addMealSelection(detailMeal, detailQty);
+                      setDetailMeal(null);
+                    }}
+                    className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-7 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
             </div>
           </div>
