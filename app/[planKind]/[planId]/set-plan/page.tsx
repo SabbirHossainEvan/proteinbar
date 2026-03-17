@@ -20,7 +20,7 @@ export default function SetPlanPage() {
   const heroSubtitle =
     details?.plan?.content?.heroSubtitle ??
     (isCustomPlan
-      ? "Build your own plan: meals, snacks, delivery days and start date."
+      ? "Build your own plan: meals, delivery days and start date."
       : "Configure your monthly subscription and continue to meal selection.");
 
   return (

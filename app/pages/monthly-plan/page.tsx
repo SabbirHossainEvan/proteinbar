@@ -4,33 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useGetMonthlyPlansQuery } from "@/redux/api/publicApi";
 import { mapApiPlan } from "@/lib/api-mappers";
-import { getPlanKind, getSetPlanPath } from "@/lib/monthlyPlanFlow";
-
-const frontofficeFlows = [
-  {
-    id: "custom-plan",
-    title: "Flow 1: Custom Plan",
-    description:
-      "Client configures number of meals, days, snacks, start date, delivery days, then picks meals.",
-    href: "/pages/monthly-plan/flow/custom",
-    cta: "Start Custom Plan",
-  },
-  {
-    id: "pre-made-plan",
-    title: "Flow 2: Pre-made Plan",
-    description:
-      "Client selects from pre-defined meal structure and confirms with limited customization.",
-    href: "/pages/monthly-plan/flow/pre-made",
-    cta: "Browse Pre-made Plans",
-  },
-];
+import { getSetPlanPath } from "@/lib/monthlyPlanFlow";
 
 export default function MonthlyPlanPage() {
   const { data, isLoading } = useGetMonthlyPlansQuery();
   const monthlyPlans = (data?.data ?? []).map(mapApiPlan);
-  const customPlan = monthlyPlans.find(
-    (plan) => getPlanKind(plan) === "custom",
-  );
 
   return (
     <>
@@ -59,39 +37,7 @@ export default function MonthlyPlanPage() {
         </div>
       </section>
 
-      <section className="mt-8 pb-8 sm:mt-10">
-        <div className="grid gap-5 md:grid-cols-2">
-          {frontofficeFlows.map((flow) => (
-            <article
-              key={flow.id}
-              className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
-            >
-              <h2 className="text-2xl font-semibold text-zinc-900">
-                {flow.title}
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-zinc-600">
-                {flow.description}
-              </p>
-              <div className="mt-5">
-                <Link
-                  href={
-                    flow.id === "custom-plan"
-                      ? customPlan
-                        ? getSetPlanPath(customPlan)
-                        : "/custom/4/set-plan"
-                      : flow.href
-                  }
-                  className="inline-flex h-10 items-center justify-center rounded-lg bg-black px-5 text-sm font-medium !text-white transition hover:bg-zinc-800"
-                >
-                  {flow.cta}
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="pb-8 sm:pb-12">
+      <section className="mt-8 pb-8 sm:mt-10 sm:pb-12">
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading plans...</p>
         ) : null}
@@ -99,36 +45,36 @@ export default function MonthlyPlanPage() {
           {monthlyPlans.map((plan) => (
             <article
               key={plan.id}
-              className="group relative flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className="group relative flex min-h-[720px] flex-col overflow-hidden rounded-md bg-white px-8 pb-14 pt-6 shadow-[0_20px_45px_rgba(0,0,0,0.12)] transition hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)]"
             >
               {plan.badge ? (
-                <span className="absolute right-0 top-0 rounded-bl-xl rounded-tr-2xl bg-[#f04b23] px-3 py-1 text-xs font-semibold tracking-wide text-white">
+                <span className="absolute right-[-36px] top-[18px] z-10 rotate-45 bg-[#e73345] px-10 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white">
                   {plan.badge}
                 </span>
               ) : null}
 
-              <div className="relative mx-auto h-44 w-44 overflow-hidden rounded-full bg-zinc-100">
+              <div className="relative mx-auto h-[250px] w-full max-w-[320px] overflow-hidden">
                 {plan.image && (
                   <Image
                     src={plan.image}
                     alt={plan.title}
                     fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
+                    className="object-contain transition duration-500 group-hover:scale-105"
                   />
                 )}
               </div>
 
-              <h2 className="mt-6 text-center text-3xl font-semibold leading-[1.05] tracking-tight text-zinc-900">
+              <h2 className="mt-6 text-center text-5xl font-extrabold uppercase leading-[0.95] tracking-tight text-zinc-900">
                 {plan.title}
               </h2>
-              <p className="mt-3 text-center text-sm leading-6 text-zinc-600">
+              <p className="mx-auto mt-4 max-w-[320px] text-center text-[15px] leading-9 text-zinc-400">
                 {plan.description}
               </p>
 
-              <div className="mt-6 flex justify-center pt-1">
+              <div className="mt-auto flex justify-center pt-12">
                 <Link
                   href={getSetPlanPath(plan)}
-                  className="inline-flex h-10 items-center justify-center rounded-lg bg-black px-5 text-sm font-medium !text-white transition hover:bg-zinc-800 hover:!text-white visited:!text-white"
+                  className="inline-flex h-10 min-w-[152px] items-center justify-center rounded bg-black px-6 text-sm font-medium !text-white transition hover:bg-zinc-800 hover:!text-white visited:!text-white"
                 >
                   Subscribe Now
                 </Link>

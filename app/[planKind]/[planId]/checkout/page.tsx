@@ -21,6 +21,7 @@ export default function PlanCheckoutPage() {
   const selection = {
     meals: searchParams.get("meals") ?? "1",
     days: searchParams.get("days") ?? "7",
+    weeks: searchParams.get("weeks") ?? "",
     snacks: searchParams.get("snacks") ?? "0",
     startDate: searchParams.get("startDate") ?? new Date().toISOString().split("T")[0],
     deliveryDays: searchParams.get("deliveryDays") ?? "",

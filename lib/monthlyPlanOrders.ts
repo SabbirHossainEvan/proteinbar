@@ -16,6 +16,7 @@ export type DeliverySelection = {
 export type MonthlyPlanSelection = {
   meals: string;
   days: string;
+  weeks?: string;
   snacks: string;
   startDate: string;
   planType?: string;
