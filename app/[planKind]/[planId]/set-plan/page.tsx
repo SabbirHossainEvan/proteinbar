@@ -16,13 +16,11 @@ export default function SetPlanPage() {
   const details = (data?.data ?? null) as MonthlyPlanDetails | null;
   const matchedPlan = details ? mapApiPlan(details.plan) : null;
   const isCustomPlan = planKind === "custom";
-  const heroTitle = details?.plan?.content?.heroTitle ?? (isCustomPlan ? "Custom Plan" : "Monthly Plan");
-  const heroSubtitle =
-    details?.plan?.content?.heroSubtitle ??
-    (isCustomPlan
-      ? "Build your own plan: meals, delivery days and start date."
-      : "Configure your monthly subscription and continue to meal selection.");
-
+  const heroTitle =
+    matchedPlan?.title ??
+    details?.plan?.title ??
+    details?.plan?.content?.heroTitle ??
+    (isCustomPlan ? "Custom Plan" : "Monthly Plan");
   return (
     <>
       <section className="relative left-1/2 right-1/2 -mx-[50vw] -mt-8 w-screen overflow-hidden sm:-mt-10">
@@ -39,7 +37,6 @@ export default function SetPlanPage() {
               <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl lg:text-7xl">
                 {heroTitle.toUpperCase()}
               </h1>
-              <p className="mt-3 text-sm text-white/85 sm:text-base">{heroSubtitle}</p>
               <p className="mt-8 text-sm text-white/90">
                 <Link href="/" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
                 <Link href="/plans" className="hover:text-white">Monthly Plans</Link>
