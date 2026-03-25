@@ -34,7 +34,7 @@ export default function LocationsShowcaseSection() {
                 <a href={location.mapUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-base font-semibold underline underline-offset-4 sm:text-3xl">
                   See on Google Maps
                 </a>
-                <div className="mt-4 h-1 w-28 bg-white/60" />
+                <div className="mt-2 h-1 w-48 bg-white/60 sm:w-72" />
               </div>
             </div>
           </article>

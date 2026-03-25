@@ -84,7 +84,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={sending}
-              className="h-11 w-full rounded-xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+              className="h-11 w-full rounded-xl bg-black text-base font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-60"
             >
               {sending ? "Sending..." : "Continue"}
             </button>
@@ -108,7 +108,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={verifying}
-              className="h-11 w-full rounded-xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+              className="h-11 w-full rounded-xl bg-black text-base font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-60"
             >
               {verifying ? "Verifying..." : "Submit"}
             </button>
@@ -118,7 +118,7 @@ export default function LoginPage() {
                 setStep("email");
                 setError("");
               }}
-              className="text-sm font-medium text-blue-700 underline"
+              className="text-sm font-medium text-black underline"
             >
               Log in with a different email address
             </button>

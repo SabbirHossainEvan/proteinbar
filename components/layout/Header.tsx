@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <header className="fixed left-0 top-0 z-50 w-full px-3 pt-2 sm:px-5">
-      <div className="mx-auto max-w-[1500px]  bg-black/10 backdrop-blur-sm rounded-3xl">
+      <div className="mx-auto max-w-[1500px] rounded-3xl bg-black/15 backdrop-blur-xl">
         <div className="flex h-14 items-center justify-between px-4 sm:px-8">
           <div className="flex w-24 items-center gap-3">
             <button
