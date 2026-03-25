@@ -133,7 +133,7 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
                     Carbs: <span className="font-semibold text-zinc-900">{savedMeal.totals.carbs.toFixed(1)}g</span>
                   </p>
                   <p className="rounded-md bg-zinc-50 px-3 py-2.5">
-                    Fat: <span className="font-semibold text-zinc-900">{savedMeal.totals.fat.toFixed(1)}g</span>
+                    Fatt: <span className="font-semibold text-zinc-900">{savedMeal.totals.fat.toFixed(1)}g</span>
                   </p>
                 </div>
               </div>
