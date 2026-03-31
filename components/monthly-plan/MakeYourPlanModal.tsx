@@ -597,7 +597,6 @@ export default function MakeYourPlanModal({
   onClose,
   onSave,
 }: MakeYourPlanModalProps) {
-  const [planName, setPlanName] = useState("");
   const [categorySelections, setCategorySelections] = useState<Record<string, string>>({});
 
   const selectedCounts = useMemo(() => {
@@ -639,16 +638,13 @@ export default function MakeYourPlanModal({
     [selectedOptions],
   );
 
-  const canSave = categories.every((category) =>
-    category.options.some((option) => (selectedCounts[option.id] ?? 0) > 0),
-  );
+  const canSave = Object.values(selectedCounts).some((count) => count > 0);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setPlanName("");
         setCategorySelections({});
         onClose();
       }
@@ -661,7 +657,6 @@ export default function MakeYourPlanModal({
   if (!isOpen) return null;
 
   const handleModalClose = () => {
-    setPlanName("");
     setCategorySelections({});
     onClose();
   };
@@ -671,7 +666,7 @@ export default function MakeYourPlanModal({
 
     const payload: SavedCustomMeal = {
       id: `custom-meal-${Date.now()}`,
-      title: planName.trim() || "Make Your Own Plan",
+      title: "Make Your Own Plan",
       createdAt: new Date().toISOString(),
       selections: categories.reduce<Record<string, BuilderOption>>((acc, category) => {
         const firstSelected = category.options.find(
@@ -721,19 +716,6 @@ export default function MakeYourPlanModal({
         <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
           <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_330px]">
             <div className="space-y-4">
-              <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
-                <label className="text-sm font-semibold uppercase tracking-wide text-zinc-700">
-                  Plan Name
-                </label>
-                <input
-                  type="text"
-                  value={planName}
-                  onChange={(event) => setPlanName(event.target.value)}
-                  placeholder="Enter your plan name"
-                  className="mt-3 h-12 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-500"
-                />
-              </section>
-
               {categories.map((category) => (
                 <CategorySection
                   key={category.id}
