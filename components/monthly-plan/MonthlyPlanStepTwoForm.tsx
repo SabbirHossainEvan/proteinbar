@@ -97,6 +97,7 @@ export default function MonthlyPlanStepTwoForm({
   const datePickerRef = useRef<HTMLDivElement>(null);
   const planKind = getPlanKind(plan);
   const isCustomPlan = planKind === "custom";
+
   const [meals, setMeals] = useState("");
   const [days, setDays] = useState("");
   const [weeks, setWeeks] = useState("");
@@ -107,6 +108,7 @@ export default function MonthlyPlanStepTwoForm({
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const rules = planDetails?.rules;
+
   const availableWeekDays = useMemo(() => {
     const allowed = rules?.deliveryDaysRule?.allowedWeekDays;
     if (!allowed?.length) return weekDays;
@@ -132,6 +134,7 @@ export default function MonthlyPlanStepTwoForm({
   const weekOptions = useMemo(() => {
     return Array.from(new Set(defaultWeekOptions));
   }, []);
+
   const requiresWeeks = isCustomPlan;
 
   const dateLabel = useMemo(() => formatDateLabel(startDate), [startDate]);
@@ -150,6 +153,8 @@ export default function MonthlyPlanStepTwoForm({
       prev.filter((day) => availableWeekDays.includes(day)),
     );
   }, [availableWeekDays]);
+
+
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -244,6 +249,7 @@ export default function MonthlyPlanStepTwoForm({
     const daysValue = Number(derivedDays);
     const snacks = "0";
 
+
     if (
       !meals ||
       (!requiresWeeks && !days) ||
@@ -270,6 +276,7 @@ export default function MonthlyPlanStepTwoForm({
       startDate,
       deliveryDays: selectedDays.join(","),
     });
+
     if (requiresWeeks) query.set("weeks", weeks);
 
     router.push(`/${planKind}/${plan.id}/select-meals?${query.toString()}`);
@@ -287,6 +294,8 @@ export default function MonthlyPlanStepTwoForm({
           </p>
 
           <form className="mt-8 space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-7">
+
+
             <div>
               <label
                 htmlFor="meals"
@@ -455,13 +464,12 @@ export default function MonthlyPlanStepTwoForm({
                             key={date.toISOString()}
                             type="button"
                             onClick={() => selectCalendarDate(date)}
-                            className={`flex h-12 items-center justify-center rounded-xl text-base font-medium transition sm:h-14 sm:text-lg ${
-                              selected
-                                ? "bg-[#f04b23] text-white shadow-md"
-                                : inMonth
-                                  ? "bg-zinc-50 text-zinc-900 hover:bg-zinc-100"
-                                  : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
-                            } ${today && !selected ? "ring-2 ring-zinc-300" : ""}`}
+                            className={`flex h-12 items-center justify-center rounded-xl text-base font-medium transition sm:h-14 sm:text-lg ${selected
+                              ? "bg-[#f04b23] text-white shadow-md"
+                              : inMonth
+                                ? "bg-zinc-50 text-zinc-900 hover:bg-zinc-100"
+                                : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
+                              } ${today && !selected ? "ring-2 ring-zinc-300" : ""}`}
                           >
                             {date.getDate()}
                           </button>
@@ -512,11 +520,10 @@ export default function MonthlyPlanStepTwoForm({
                       key={day}
                       type="button"
                       onClick={() => toggleDay(day)}
-                      className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${
-                        active
-                          ? "border-black bg-black text-white"
-                          : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
-                      }`}
+                      className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${active
+                        ? "border-black bg-black text-white"
+                        : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
+                        }`}
                     >
                       {day.toUpperCase()}
                     </button>
@@ -525,11 +532,10 @@ export default function MonthlyPlanStepTwoForm({
                 <button
                   type="button"
                   onClick={setAllWeek}
-                  className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${
-                    selectedDays.length === availableWeekDays.length
-                      ? "border-black bg-black text-white"
-                      : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
-                  }`}
+                  className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${selectedDays.length === availableWeekDays.length
+                    ? "border-black bg-black text-white"
+                    : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
+                    }`}
                 >
                   ALL WEEK
                 </button>
