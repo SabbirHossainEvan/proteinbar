@@ -97,8 +97,7 @@ export default function MonthlyPlanStepTwoForm({
   const datePickerRef = useRef<HTMLDivElement>(null);
   const planKind = getPlanKind(plan);
   const isCustomPlan = planKind === "custom";
-  const [planType, setPlanType] = useState("");
-  const [planTypeTouched, setPlanTypeTouched] = useState(false);
+
   const [meals, setMeals] = useState("");
   const [days, setDays] = useState("");
   const [weeks, setWeeks] = useState("");
@@ -109,15 +108,7 @@ export default function MonthlyPlanStepTwoForm({
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const rules = planDetails?.rules;
-  const planTypeOptions = useMemo(
-    () =>
-      isCustomPlan
-        ? rules?.planTypeOptions?.length
-          ? rules.planTypeOptions
-          : ["lose-weight", "gain-weight"]
-        : [],
-    [isCustomPlan, rules],
-  );
+
   const availableWeekDays = useMemo(() => {
     const allowed = rules?.deliveryDaysRule?.allowedWeekDays;
     if (!allowed?.length) return weekDays;
@@ -143,7 +134,7 @@ export default function MonthlyPlanStepTwoForm({
   const weekOptions = useMemo(() => {
     return Array.from(new Set(defaultWeekOptions));
   }, []);
-  const requiresPlanType = isCustomPlan && planTypeOptions.length > 0;
+
   const requiresWeeks = isCustomPlan;
 
   const dateLabel = useMemo(() => formatDateLabel(startDate), [startDate]);
@@ -163,15 +154,7 @@ export default function MonthlyPlanStepTwoForm({
     );
   }, [availableWeekDays]);
 
-  useEffect(() => {
-    if (!requiresPlanType) {
-      setPlanType("");
-      return;
-    }
-    if (planType && !planTypeOptions.includes(planType)) {
-      setPlanType("");
-    }
-  }, [planType, planTypeOptions, requiresPlanType]);
+
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -266,10 +249,7 @@ export default function MonthlyPlanStepTwoForm({
     const daysValue = Number(derivedDays);
     const snacks = "0";
 
-    if (requiresPlanType && !planType) {
-      setPlanTypeTouched(true);
-      return;
-    }
+
     if (
       !meals ||
       (!requiresWeeks && !days) ||
@@ -296,7 +276,7 @@ export default function MonthlyPlanStepTwoForm({
       startDate,
       deliveryDays: selectedDays.join(","),
     });
-    if (requiresPlanType) query.set("planType", planType);
+
     if (requiresWeeks) query.set("weeks", weeks);
 
     router.push(`/${planKind}/${plan.id}/select-meals?${query.toString()}`);
@@ -314,44 +294,7 @@ export default function MonthlyPlanStepTwoForm({
           </p>
 
           <form className="mt-8 space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-7">
-            {isCustomPlan ? (
-              <div>
-                <label
-                  htmlFor="planType"
-                  className="text-base font-semibold text-zinc-800"
-                >
-                  Plan Type <span className="text-black">*</span>
-                </label>
-                <select
-                  id="planType"
-                  value={planType}
-                  onChange={(event) => {
-                    setPlanType(event.target.value);
-                    setPlanTypeTouched(true);
-                  }}
-                  onBlur={() => setPlanTypeTouched(true)}
-                  className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
-                >
-                  <option value="">Choose Plan Type</option>
-                  {planTypeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option
-                        .split("-")
-                        .map(
-                          (part) =>
-                            part.charAt(0).toUpperCase() + part.slice(1),
-                        )
-                        .join(" ")}
-                    </option>
-                  ))}
-                </select>
-                {requiresPlanType && planTypeTouched && !planType ? (
-                  <p className="mt-2 text-sm text-red-600">
-                    This field is required
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
+
 
             <div>
               <label
@@ -521,13 +464,12 @@ export default function MonthlyPlanStepTwoForm({
                             key={date.toISOString()}
                             type="button"
                             onClick={() => selectCalendarDate(date)}
-                            className={`flex h-12 items-center justify-center rounded-xl text-base font-medium transition sm:h-14 sm:text-lg ${
-                              selected
-                                ? "bg-[#f04b23] text-white shadow-md"
-                                : inMonth
-                                  ? "bg-zinc-50 text-zinc-900 hover:bg-zinc-100"
-                                  : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
-                            } ${today && !selected ? "ring-2 ring-zinc-300" : ""}`}
+                            className={`flex h-12 items-center justify-center rounded-xl text-base font-medium transition sm:h-14 sm:text-lg ${selected
+                              ? "bg-[#f04b23] text-white shadow-md"
+                              : inMonth
+                                ? "bg-zinc-50 text-zinc-900 hover:bg-zinc-100"
+                                : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
+                              } ${today && !selected ? "ring-2 ring-zinc-300" : ""}`}
                           >
                             {date.getDate()}
                           </button>
@@ -578,11 +520,10 @@ export default function MonthlyPlanStepTwoForm({
                       key={day}
                       type="button"
                       onClick={() => toggleDay(day)}
-                      className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${
-                        active
-                          ? "border-black bg-black text-white"
-                          : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
-                      }`}
+                      className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${active
+                        ? "border-black bg-black text-white"
+                        : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
+                        }`}
                     >
                       {day.toUpperCase()}
                     </button>
@@ -591,11 +532,10 @@ export default function MonthlyPlanStepTwoForm({
                 <button
                   type="button"
                   onClick={setAllWeek}
-                  className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${
-                    selectedDays.length === availableWeekDays.length
-                      ? "border-black bg-black text-white"
-                      : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
-                  }`}
+                  className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${selectedDays.length === availableWeekDays.length
+                    ? "border-black bg-black text-white"
+                    : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
+                    }`}
                 >
                   ALL WEEK
                 </button>

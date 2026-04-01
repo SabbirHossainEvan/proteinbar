@@ -465,163 +465,33 @@ function getSavedMealsFromStorage() {
   }
 }
 
-function getOptionGroups(options: BuilderOption[]) {
-  const grouped = new Map<string, OptionGroup>();
-
-  options.forEach((option) => {
-    const current = grouped.get(option.groupId);
-    if (current) {
-      current.sizes.push(option);
-      return;
-    }
-
-    grouped.set(option.groupId, {
-      id: option.groupId,
-      title: option.shortLabel,
-      image: option.image,
-      sizes: [option],
-    });
-  });
-
-  return Array.from(grouped.values());
-}
-
-function getSelectedLabels(
-  options: BuilderOption[],
-  selectedCounts: Record<string, number>,
-) {
-  return options
-    .filter((option) => (selectedCounts[option.id] ?? 0) > 0)
-    .map((option) => `${option.label} x${selectedCounts[option.id]}`);
-}
-
-function CategoryOptionCard({
-  categoryId,
-  group,
-  value,
-  selectedCount,
-  ctaLabel,
-  onSizeChange,
-  onSelect,
+function CategorySection({
+  category,
+  selectedValue,
+  onChange,
 }: {
-  categoryId: string;
-  group: OptionGroup;
-  value: string;
-  selectedCount: number;
-  ctaLabel: string;
-  onSizeChange: (value: string) => void;
-  onSelect: () => void;
+  category: CategoryConfig;
+  selectedValue: string;
+  onChange: (optionId: string) => void;
 }) {
-  const previewOption = group.sizes.find((option) => option.id === value) ?? group.sizes[0];
-  const isSelected = selectedCount > 0;
-
   return (
-    <article
-      className={`snap-start flex min-w-[190px] max-w-[190px] flex-col self-stretch rounded-xl border bg-white shadow-sm transition ${
-        isSelected ? "border-zinc-900 ring-1 ring-zinc-900/10" : "border-zinc-300"
-      }`}
-    >
-      <div className="relative h-20 overflow-hidden rounded-t-xl bg-zinc-100">
-        <Image
-          src={group.image}
-          alt={group.title}
-          fill
-          className="object-cover"
-          sizes="190px"
-        />
-        {isSelected ? (
-          <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-bold text-white">
-            &#10003;
-          </span>
-        ) : null}
-      </div>
-
-      <div className="flex flex-1 flex-col gap-2 p-3">
-        <div className="flex items-start justify-between gap-2">
-          <p className="line-clamp-1 text-base font-semibold text-zinc-900">
-            {group.title}
-          </p>
-          <span className="shrink-0 text-[11px] font-semibold text-zinc-700">
-            {previewOption ? `${previewOption.price.toFixed(2)} MAD` : ""}
-          </span>
-        </div>
-
+    <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
+          {category.label}
+        </label>
         <select
-          value={value}
-          onChange={(event) => onSizeChange(event.target.value)}
-          className="h-9 w-full rounded-md border border-zinc-300 bg-white px-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-500"
+          value={selectedValue}
+          onChange={(event) => onChange(event.target.value)}
+          className="mt-1 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-500"
         >
-          <option value="">Choose size ({categoryId === "sauces" ? "ml" : "g"})</option>
-          {group.sizes.map((option) => (
+          <option value="">Choose {category.label.includes("-") ? category.label.split(" - ")[1] : category.label}</option>
+          {category.options.map((option) => (
             <option key={option.id} value={option.id}>
-              {option.sizeLabel}
+              {option.label} - {option.price.toFixed(2)} MAD
             </option>
           ))}
         </select>
-
-        <button
-          type="button"
-          onClick={onSelect}
-          className="h-9 w-full rounded-md bg-zinc-700 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
-        >
-          {selectedCount > 0 ? `${ctaLabel} x${selectedCount}` : ctaLabel}
-        </button>
-      </div>
-    </article>
-  );
-}
-
-function CategorySection({
-  category,
-  groupSelections,
-  selectedCounts,
-  onSizeChange,
-  onSelect,
-}: {
-  category: CategoryConfig;
-  groupSelections: Record<string, string>;
-  selectedCounts: Record<string, number>;
-  onSizeChange: (groupId: string, value: string) => void;
-  onSelect: (optionId: string) => void;
-}) {
-  const groups = useMemo(() => getOptionGroups(category.options), [category.options]);
-  const selectedEntries = getSelectedLabels(category.options, selectedCounts);
-
-  return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-lg font-bold tracking-tight text-zinc-900">
-          {category.label}
-        </h3>
-        {selectedEntries.length ? (
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 sm:text-right">
-            {selectedEntries.join(", ")}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="mt-4 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto pb-2 pr-1">
-        {groups.map((group) => {
-          const value = groupSelections[group.id] ?? "";
-          const selectedOptionId = value || group.sizes[0]?.id || "";
-          const selectedCount = group.sizes.reduce(
-            (total, option) => total + (selectedCounts[option.id] ?? 0),
-            0,
-          );
-
-          return (
-            <CategoryOptionCard
-              key={group.id}
-              categoryId={category.id}
-              group={group}
-              value={value}
-              selectedCount={selectedCount}
-              ctaLabel={category.ctaLabel ?? "Select"}
-              onSizeChange={(nextValue) => onSizeChange(group.id, nextValue)}
-              onSelect={() => onSelect(selectedOptionId)}
-            />
-          );
-        })}
       </div>
     </section>
   );
@@ -631,7 +501,8 @@ function getCategorySummary(
   category: CategoryConfig,
   selectedCounts: Record<string, number>,
 ) {
-  return getSelectedLabels(category.options, selectedCounts).join(", ");
+  const selectedOption = category.options.find(opt => selectedCounts[opt.id] > 0);
+  return selectedOption ? selectedOption.label : "";
 }
 
 function MealSummaryPanel({
@@ -726,10 +597,15 @@ export default function MakeYourPlanModal({
   onClose,
   onSave,
 }: MakeYourPlanModalProps) {
-  const [planName, setPlanName] = useState("");
-  const [selections, setSelections] =
-    useState<Record<string, Record<string, string>>>(initialSelections);
-  const [selectedCounts, setSelectedCounts] = useState<Record<string, number>>({});
+  const [categorySelections, setCategorySelections] = useState<Record<string, string>>({});
+
+  const selectedCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    Object.values(categorySelections).forEach((optionId) => {
+      if (optionId) counts[optionId] = 1;
+    });
+    return counts;
+  }, [categorySelections]);
 
   const selectedOptions = useMemo(
     () =>
@@ -762,18 +638,14 @@ export default function MakeYourPlanModal({
     [selectedOptions],
   );
 
-  const canSave = categories.every((category) =>
-    category.options.some((option) => (selectedCounts[option.id] ?? 0) > 0),
-  );
+  const canSave = Object.values(selectedCounts).some((count) => count > 0);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setPlanName("");
-        setSelections(initialSelections);
-        setSelectedCounts({});
+        setCategorySelections({});
         onClose();
       }
     };
@@ -785,9 +657,7 @@ export default function MakeYourPlanModal({
   if (!isOpen) return null;
 
   const handleModalClose = () => {
-    setPlanName("");
-    setSelections(initialSelections);
-    setSelectedCounts({});
+    setCategorySelections({});
     onClose();
   };
 
@@ -796,7 +666,7 @@ export default function MakeYourPlanModal({
 
     const payload: SavedCustomMeal = {
       id: `custom-meal-${Date.now()}`,
-      title: planName.trim() || "Make Your Own Plan",
+      title: "Make Your Own Plan",
       createdAt: new Date().toISOString(),
       selections: categories.reduce<Record<string, BuilderOption>>((acc, category) => {
         const firstSelected = category.options.find(
@@ -846,38 +716,15 @@ export default function MakeYourPlanModal({
         <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
           <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_330px]">
             <div className="space-y-4">
-              <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
-                <label className="text-sm font-semibold uppercase tracking-wide text-zinc-700">
-                  Plan Name
-                </label>
-                <input
-                  type="text"
-                  value={planName}
-                  onChange={(event) => setPlanName(event.target.value)}
-                  placeholder="Enter your plan name"
-                  className="mt-3 h-12 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-500"
-                />
-              </section>
-
               {categories.map((category) => (
                 <CategorySection
                   key={category.id}
                   category={category}
-                  groupSelections={selections[category.id]}
-                  selectedCounts={selectedCounts}
-                  onSizeChange={(groupId, value) =>
-                    setSelections((prev) => ({
+                  selectedValue={categorySelections[category.id] ?? ""}
+                  onChange={(optionId) =>
+                    setCategorySelections((prev) => ({
                       ...prev,
-                      [category.id]: {
-                        ...prev[category.id],
-                        [groupId]: value,
-                      },
-                    }))
-                  }
-                  onSelect={(optionId) =>
-                    setSelectedCounts((prev) => ({
-                      ...prev,
-                      [optionId]: (prev[optionId] ?? 0) + 1,
+                      [category.id]: optionId,
                     }))
                   }
                 />

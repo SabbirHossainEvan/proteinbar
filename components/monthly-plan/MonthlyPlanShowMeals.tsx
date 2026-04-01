@@ -447,24 +447,6 @@ export default function MonthlyPlanShowMeals({
     sliderPage * pageSize + pageSize,
   );
 
-  const selectedMealSummary = useMemo(() => {
-    const totals = selectedMeals.reduce(
-      (acc, meal) => ({
-        calories: acc.calories + meal.calories,
-        protein: acc.protein + meal.protein,
-        carb: acc.carb + meal.carb,
-        fat: acc.fat + meal.fat,
-      }),
-      { calories: 0, protein: 0, carb: 0, fat: 0 },
-    );
-
-    return {
-      count: selectedMeals.length,
-      uniqueCount: new Set(selectedMeals.map((item) => item.id)).size,
-      ...totals,
-    };
-  }, [selectedMeals]);
-
   const customCardStats = useMemo(() => {
     const undatedSelections = selectedMeals.filter((item) => !item.date);
 
@@ -646,40 +628,6 @@ export default function MonthlyPlanShowMeals({
 
           <div className="mt-6 rounded-xl bg-zinc-50 p-4 sm:p-5">
             <h4 className="text-3xl font-semibold text-zinc-900">Your Cards</h4>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
-                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
-                  Selected Meals
-                </p>
-                <p className="mt-1 text-lg font-semibold text-zinc-900">
-                  {selectedMealSummary.count}
-                </p>
-              </div>
-              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
-                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
-                  Unique Items
-                </p>
-                <p className="mt-1 text-lg font-semibold text-zinc-900">
-                  {selectedMealSummary.uniqueCount}
-                </p>
-              </div>
-              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
-                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
-                  Total Calories
-                </p>
-                <p className="mt-1 text-lg font-semibold text-zinc-900">
-                  {selectedMealSummary.calories.toFixed(0)}
-                </p>
-              </div>
-              <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
-                <p className="text-[11px] uppercase tracking-wide text-zinc-500">
-                  Total Protein
-                </p>
-                <p className="mt-1 text-lg font-semibold text-zinc-900">
-                  {selectedMealSummary.protein.toFixed(1)}g
-                </p>
-              </div>
-            </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {customCards.map((card, index) => (
                 <article
@@ -710,7 +658,7 @@ export default function MonthlyPlanShowMeals({
                     }).map((_, itemIndex) => (
                       <span
                         key={`${card.id}-meal-${itemIndex}`}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-600 text-white"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white"
                       >
                         <svg
                           viewBox="0 0 20 20"

@@ -45,7 +45,7 @@ export default function MonthlyPlanPage() {
           {monthlyPlans.map((plan) => (
             <article
               key={plan.id}
-              className="group relative flex min-h-[720px] flex-col overflow-hidden rounded-md bg-white px-8 pb-14 pt-6 shadow-[0_20px_45px_rgba(0,0,0,0.12)] transition hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)]"
+              className="group relative flex h-full flex-col overflow-hidden rounded-md bg-white px-8 pb-10 pt-6 shadow-[0_20px_45px_rgba(0,0,0,0.12)] transition hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)]"
             >
               {plan.badge ? (
                 <span className="absolute right-[-36px] top-[18px] z-10 rotate-45 bg-[#e73345] px-10 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white">
@@ -71,7 +71,7 @@ export default function MonthlyPlanPage() {
                 {plan.description}
               </p>
 
-              <div className="mt-auto flex justify-center pt-12">
+              <div className="mt-auto flex justify-center pt-8">
                 <Link
                   href={getSetPlanPath(plan)}
                   className="inline-flex h-10 min-w-[152px] items-center justify-center rounded bg-black px-6 text-sm font-medium !text-white transition hover:bg-zinc-800 hover:!text-white visited:!text-white"
