@@ -61,7 +61,7 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <article className="flex min-h-[360px] flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
             <h3 className="mt-2 text-center text-[2.2rem] font-bold leading-none text-zinc-900">
-              Make Your Own Plan
+              Make Your Own Meal
             </h3>
             <p className="mx-auto mt-4 max-w-[280px] text-center text-base leading-8 text-zinc-500">
               Create a personalized meal plan by choosing your own ingredients,
@@ -74,7 +74,7 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
                 onClick={() => setIsOpen(true)}
                 className="h-10 w-full rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
               >
-                Make Your Plan
+                Make Your Meal
               </button>
 
               {savedMessage ? (

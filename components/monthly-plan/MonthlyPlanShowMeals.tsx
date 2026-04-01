@@ -533,7 +533,7 @@ export default function MonthlyPlanShowMeals({
                         : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
                     }`}
                   >
-                    {category === makeYourPlanTabId ? "Make Your Plan" : category}
+                    {category === makeYourPlanTabId ? "Make Your Meal" : category}
                   </button>
                 );
               })}

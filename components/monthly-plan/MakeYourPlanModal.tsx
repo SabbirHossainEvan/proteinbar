@@ -666,7 +666,7 @@ export default function MakeYourPlanModal({
 
     const payload: SavedCustomMeal = {
       id: `custom-meal-${Date.now()}`,
-      title: "Make Your Own Plan",
+      title: "Make Your Own Meal",
       createdAt: new Date().toISOString(),
       selections: categories.reduce<Record<string, BuilderOption>>((acc, category) => {
         const firstSelected = category.options.find(
@@ -697,7 +697,7 @@ export default function MakeYourPlanModal({
         <div className="flex items-start justify-between gap-4 border-b border-zinc-200 bg-white px-5 py-5 sm:px-7">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
-              Make Your Own Plan
+              Make Your Own Meal
             </h2>
             <p className="mt-2 text-sm text-zinc-600 sm:text-base">
               Select one item from each category and build your custom meal.
