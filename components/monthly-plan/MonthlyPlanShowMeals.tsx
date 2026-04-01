@@ -658,7 +658,7 @@ export default function MonthlyPlanShowMeals({
                     }).map((_, itemIndex) => (
                       <span
                         key={`${card.id}-meal-${itemIndex}`}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-600 text-white"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white"
                       >
                         <svg
                           viewBox="0 0 20 20"
