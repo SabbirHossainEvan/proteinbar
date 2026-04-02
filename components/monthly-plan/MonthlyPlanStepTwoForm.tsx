@@ -136,6 +136,13 @@ export default function MonthlyPlanStepTwoForm({
   }, []);
 
   const requiresWeeks = isCustomPlan;
+  const requiredDeliveryDayCount = useMemo(() => {
+    if (requiresWeeks) return null;
+    const parsedDays = Number(days);
+    if (!Number.isFinite(parsedDays) || parsedDays < 1) return null;
+
+    return Math.min(parsedDays, availableWeekDays.length);
+  }, [availableWeekDays.length, days, requiresWeeks]);
 
   const dateLabel = useMemo(() => formatDateLabel(startDate), [startDate]);
   const startDateDisplayValue = useMemo(
@@ -154,6 +161,12 @@ export default function MonthlyPlanStepTwoForm({
     );
   }, [availableWeekDays]);
 
+  useEffect(() => {
+    if (requiredDeliveryDayCount === null) return;
+
+    setSelectedDays((prev) => prev.slice(0, requiredDeliveryDayCount));
+  }, [requiredDeliveryDayCount]);
+
 
 
   useEffect(() => {
@@ -171,15 +184,29 @@ export default function MonthlyPlanStepTwoForm({
   }, []);
 
   const toggleDay = (day: string) => {
-    setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((item) => item !== day) : [...prev, day],
-    );
+    setSelectedDays((prev) => {
+      if (prev.includes(day)) {
+        return prev.filter((item) => item !== day);
+      }
+
+      if (
+        requiredDeliveryDayCount !== null &&
+        prev.length >= requiredDeliveryDayCount
+      ) {
+        return prev;
+      }
+
+      return [...prev, day];
+    });
   };
 
   const setAllWeek = () => {
-    setSelectedDays((prev) =>
-      prev.length === availableWeekDays.length ? [] : [...availableWeekDays],
-    );
+    setSelectedDays((prev) => {
+      const nextCount = requiredDeliveryDayCount ?? availableWeekDays.length;
+      const nextSelection = availableWeekDays.slice(0, nextCount);
+
+      return prev.length === nextSelection.length ? [] : nextSelection;
+    });
   };
 
   const openDatePicker = () => {
@@ -265,6 +292,12 @@ export default function MonthlyPlanStepTwoForm({
       (requiresWeeks && (!Number.isFinite(weeksValue) || weeksValue < 1)) ||
       mealsValue < 1 ||
       daysValue < 1
+    ) {
+      return;
+    }
+    if (
+      requiredDeliveryDayCount !== null &&
+      selectedDays.length !== requiredDeliveryDayCount
     ) {
       return;
     }
@@ -511,38 +544,71 @@ export default function MonthlyPlanStepTwoForm({
               <p className="mt-1 text-sm text-zinc-500">
                 Days you want your meals to be delivered
               </p>
+              {requiredDeliveryDayCount !== null ? (
+                <p className="mt-1 text-sm text-zinc-500">
+                  Select exactly {requiredDeliveryDayCount} delivery day
+                  {requiredDeliveryDayCount > 1 ? "s" : ""}.
+                </p>
+              ) : null}
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {availableWeekDays.map((day) => {
                   const active = selectedDays.includes(day);
+                  const limitReached =
+                    requiredDeliveryDayCount !== null &&
+                    selectedDays.length >= requiredDeliveryDayCount;
+                  const disabled = !active && limitReached;
                   return (
                     <button
                       key={day}
                       type="button"
                       onClick={() => toggleDay(day)}
+                      disabled={disabled}
                       className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${active
                         ? "border-black bg-black text-white"
                         : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
+                        } ${disabled ? "cursor-not-allowed opacity-50" : ""
                         }`}
                     >
                       {day.toUpperCase()}
                     </button>
                   );
                 })}
+                {(() => {
+                  const allWeekTargetCount =
+                    requiredDeliveryDayCount ?? availableWeekDays.length;
+                  const allWeekActive =
+                    selectedDays.length === allWeekTargetCount &&
+                    selectedDays.every((day) =>
+                      availableWeekDays.slice(0, allWeekTargetCount).includes(day),
+                    );
+
+                  return (
                 <button
                   type="button"
                   onClick={setAllWeek}
-                  className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${selectedDays.length === availableWeekDays.length
+                  className={`h-11 rounded-lg border px-4 text-left text-sm font-semibold transition ${allWeekActive
                     ? "border-black bg-black text-white"
                     : "border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200"
                     }`}
                 >
                   ALL WEEK
                 </button>
+                  );
+                })()}
               </div>
               {submitAttempted && selectedDays.length === 0 ? (
                 <p className="mt-2 text-sm text-red-600">
                   Please select at least one delivery day
+                </p>
+              ) : null}
+              {submitAttempted &&
+              requiredDeliveryDayCount !== null &&
+              selectedDays.length > 0 &&
+              selectedDays.length !== requiredDeliveryDayCount ? (
+                <p className="mt-2 text-sm text-red-600">
+                  Please select exactly {requiredDeliveryDayCount} delivery day
+                  {requiredDeliveryDayCount > 1 ? "s" : ""}.
                 </p>
               ) : null}
             </div>
