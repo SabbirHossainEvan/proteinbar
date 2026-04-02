@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useMemo, useState } from "react";
 import MenuCategoryJumpSection from "@/components/menu/MenuCategoryJumpSection";
 import MenuHeroSection from "@/components/menu/MenuHeroSection";
 import Section from "@/components/ui/Section";
@@ -14,36 +15,110 @@ const categoryNotes: Record<string, string[]> = {
   ],
 };
 
-function splitItemDescription(description: string) {
-  const macroStart = description.indexOf("Proteins:");
+const filterOptions = [
+  "Filter",
+  "Restaurant A",
+  "Restaurant B",
+  "Restaurant C",
+  "Restaurant D",
+];
+
+const restaurantCategoryMap: Record<string, string[]> = {
+  "Restaurant A": [
+    "high-protein-breakfast",
+    "signature-bowls",
+    "fit-burgers-wraps",
+    "smoothies-drinks",
+  ],
+  "Restaurant B": [
+    "compose-ton-plat",
+    "hot-bowls",
+    "healthy-burgers",
+    "healthy-pizzas",
+  ],
+  "Restaurant C": [
+    "poke-bowls",
+    "shakers-a-la-carte",
+    "detox-soft-drinks",
+  ],
+  "Restaurant D": [
+    "hot-drinks",
+    "ice-tea",
+    "healthy-desserts",
+  ],
+};
+
+function splitItemDescription(description: string | null | undefined) {
+  const safeDescription = description ?? "";
+  const macroStart = safeDescription.indexOf("Proteins:");
   if (macroStart === -1) {
-    return { main: description, macros: "" };
+    return { main: safeDescription, macros: "" };
   }
 
   return {
-    main: description.slice(0, macroStart).trim(),
-    macros: description.slice(macroStart).trim(),
+    main: safeDescription.slice(0, macroStart).trim(),
+    macros: safeDescription.slice(macroStart).trim(),
   };
+}
+
+function getCategoryId(category: any) {
+  return String(category.categoryId ?? category.id ?? "");
+}
+
+function matchesRestaurantFilter(category: any, selectedFilter: string) {
+  if (selectedFilter === "Filter") {
+    return true;
+  }
+
+  const allowedCategoryIds = restaurantCategoryMap[selectedFilter] ?? [];
+  return allowedCategoryIds.includes(getCategoryId(category));
 }
 
 export default function MenuPage() {
   const { data, isLoading } = useGetMenuCategoriesQuery();
-  const menuCategories = (data?.data ?? []).map((category: any) => ({
-    ...category,
-    id: category.categoryId ?? category.id,
-  }));
+  const [selectedFilter, setSelectedFilter] = useState("Filter");
+
+  const menuCategories = useMemo(
+    () =>
+      (data?.data ?? []).map((category: any) => ({
+        ...category,
+        id: category.categoryId ?? category.id,
+      })),
+    [data],
+  );
+
+  const filteredCategories = useMemo(
+    () =>
+      menuCategories.filter((category: any) =>
+        matchesRestaurantFilter(category, selectedFilter),
+      ),
+    [menuCategories, selectedFilter],
+  );
+
+  const emptyMessage =
+    selectedFilter === "Filter"
+      ? "No menu categories available right now."
+      : `No menu categories available for ${selectedFilter}.`;
 
   return (
     <>
       <MenuHeroSection />
-      <MenuCategoryJumpSection categories={menuCategories} />
+      <MenuCategoryJumpSection
+        categories={filteredCategories}
+        filterOptions={filterOptions}
+        selectedFilter={selectedFilter}
+        onFilterChange={setSelectedFilter}
+      />
 
       <Section id="menu-details" className="scroll-mt-28 sm:scroll-mt-32">
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading menu...</p>
         ) : null}
+        {!isLoading && filteredCategories.length === 0 ? (
+          <p className="text-sm text-zinc-500">{emptyMessage}</p>
+        ) : null}
         <div className="space-y-16 sm:space-y-20">
-          {menuCategories.map((category: any, index: number) => {
+          {filteredCategories.map((category: any, index: number) => {
             const isDark = index % 2 === 1;
             return (
               <div
@@ -52,19 +127,6 @@ export default function MenuPage() {
                 className={`scroll-mt-28 rounded-2xl px-3 py-8 sm:scroll-mt-32 sm:px-6 sm:py-10 ${isDark ? "bg-black" : "bg-white"}`}
               >
                 <div className="mx-auto max-w-6xl">
-                  {/* {category.image ? (
-                    <div className="mb-6 overflow-hidden rounded-2xl">
-                      <img
-                        src={category.image}
-                        alt={
-                          category.name ||
-                          category.description ||
-                          "Menu category"
-                        }
-                        className="h-44 w-full object-cover sm:h-56"
-                      />
-                    </div>
-                  ) : null} */}
                   <h2
                     className={`text-center text-3xl font-semibold sm:text-4xl ${isDark ? "text-white" : "text-zinc-900"}`}
                   >
@@ -81,6 +143,7 @@ export default function MenuPage() {
                     const hasPrice = item.priceMad > 0;
                     const hasNutrition =
                       item.calories > 0 || Boolean(details.macros);
+
                     return (
                       <div
                         key={item.id}
@@ -128,6 +191,7 @@ export default function MenuPage() {
                     );
                   })}
                 </div>
+
                 {categoryNotes[category.categoryId ?? category.id]?.length ? (
                   <div className="mx-auto mt-6 max-w-6xl text-center">
                     {categoryNotes[category.categoryId ?? category.id].map(
