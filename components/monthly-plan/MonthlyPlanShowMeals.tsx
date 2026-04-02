@@ -93,6 +93,12 @@ function isDataImageUrl(value: string) {
   return value.toLowerCase().startsWith("data:image/");
 }
 
+function toPositiveInt(value: string, fallback = 1) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+  return Math.floor(parsed);
+}
+
 function toDayMeal(item: MealLibraryItem): DayMeal {
   return {
     id: item.id,
@@ -289,21 +295,69 @@ export default function MonthlyPlanShowMeals({
 
   const addMealSelection = (meal: DayMeal, quantity: number, date?: string) => {
     setSelectedMeals((prev) => {
-      const additions = Array.from(
-        { length: Math.max(1, quantity) },
-        (_, index) => ({
-          instanceId: `${meal.id}-${date ?? "custom"}-${Date.now()}-${index}`,
-          id: meal.id,
-          title: meal.title,
-          date,
-          calories: meal.calories,
-          protein: meal.protein,
-          carb: meal.carb,
-          fat: meal.fat,
-        }),
-      );
+      const requestedCount = Math.max(1, quantity);
+      const now = Date.now();
+      const additions: SelectedMealOption[] = [];
+
+      if (!date && isCustom && customCards.length > 0) {
+        const cardCounts = new Map(
+          customCards.map((card) => [
+            card.dateIso ?? card.id,
+            prev.filter((item) => item.date === card.dateIso).length,
+          ]),
+        );
+
+        for (let index = 0; index < requestedCount; index += 1) {
+          const nextCard =
+            customCards.find((card) => {
+              const key = card.dateIso ?? card.id;
+              return (cardCounts.get(key) ?? 0) < customMealSlotCount;
+            }) ?? customCards[customCards.length - 1];
+
+          const nextDate = nextCard?.dateIso;
+          const nextKey = nextDate ?? nextCard?.id ?? "custom";
+          cardCounts.set(nextKey, (cardCounts.get(nextKey) ?? 0) + 1);
+
+          additions.push({
+            instanceId: `${meal.id}-${nextDate ?? "custom"}-${now}-${index}`,
+            id: meal.id,
+            title: meal.title,
+            date: nextDate,
+            calories: meal.calories,
+            protein: meal.protein,
+            carb: meal.carb,
+            fat: meal.fat,
+          });
+        }
+      } else {
+        additions.push(
+          ...Array.from({ length: requestedCount }, (_, index) => ({
+            instanceId: `${meal.id}-${date ?? "custom"}-${now}-${index}`,
+            id: meal.id,
+            title: meal.title,
+            date,
+            calories: meal.calories,
+            protein: meal.protein,
+            carb: meal.carb,
+            fat: meal.fat,
+          })),
+        );
+      }
 
       return [...prev, ...additions];
+    });
+  };
+
+  const removeLastMealSelection = (date?: string) => {
+    setSelectedMeals((prev) => {
+      const targetIndex = [...prev]
+        .map((item, index) => ({ item, index }))
+        .reverse()
+        .find(({ item }) => item.date === date)?.index;
+
+      if (targetIndex === undefined) return prev;
+
+      return prev.filter((_, index) => index !== targetIndex);
     });
   };
 
@@ -477,6 +531,10 @@ export default function MonthlyPlanShowMeals({
       };
     });
   }, [customCards, selectedMeals]);
+  const customMealSlotCount = useMemo(
+    () => toPositiveInt(selection.meals, 1),
+    [selection.meals],
+  );
 
   const goToCheckout = () => {
     const query = new URLSearchParams({
@@ -654,11 +712,33 @@ export default function MonthlyPlanShowMeals({
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     {Array.from({
-                      length: Math.max(1, customCardStats[index]?.count ?? 0),
-                    }).map((_, itemIndex) => (
-                      <span
+                      length: customMealSlotCount,
+                    }).map((_, itemIndex) => {
+                      const selectedCount = Math.min(
+                        customMealSlotCount,
+                        customCardStats[index]?.count ?? 0,
+                      );
+                      const isSelected = itemIndex < selectedCount;
+
+                      return (
+                      <button
                         key={`${card.id}-meal-${itemIndex}`}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white"
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            removeLastMealSelection(card.dateIso);
+                          }
+                        }}
+                        className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
+                          isSelected
+                            ? "bg-emerald-600 text-white"
+                            : "bg-slate-500 text-white"
+                        }`}
+                        aria-label={
+                          isSelected
+                            ? `Remove one meal from ${card.label}`
+                            : `Empty meal slot for ${card.label}`
+                        }
                       >
                         <svg
                           viewBox="0 0 20 20"
@@ -672,8 +752,8 @@ export default function MonthlyPlanShowMeals({
                         >
                           <path d="m5 10 3 3 7-7" />
                         </svg>
-                      </span>
-                    ))}
+                      </button>
+                    )})}
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-zinc-600">
