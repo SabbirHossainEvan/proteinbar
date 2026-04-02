@@ -57,6 +57,12 @@ type SelectedMealOption = {
   fat: number;
 };
 
+type SelectedCardMealDetail = {
+  selection: SelectedMealOption;
+  meal: DayMeal;
+  cardLabel: string;
+};
+
 const makeYourPlanTabId = "MAKE_YOUR_PLAN";
 
 function toDateInputValue(value: string) {
@@ -267,6 +273,7 @@ export default function MonthlyPlanShowMeals({
   const [selectionPopupMeal, setSelectionPopupMeal] = useState<DayMeal | null>(null);
   const [selectionPopupQty, setSelectionPopupQty] = useState(1);
   const [selectionPopupDate, setSelectionPopupDate] = useState<string | undefined>(undefined);
+  const [selectedCardMealDetail, setSelectedCardMealDetail] = useState<SelectedCardMealDetail | null>(null);
 
   useEffect(() => {
     if (!customTabs.includes(activeCategory)) {
@@ -345,19 +352,6 @@ export default function MonthlyPlanShowMeals({
       }
 
       return [...prev, ...additions];
-    });
-  };
-
-  const removeLastMealSelection = (date?: string) => {
-    setSelectedMeals((prev) => {
-      const targetIndex = [...prev]
-        .map((item, index) => ({ item, index }))
-        .reverse()
-        .find(({ item }) => item.date === date)?.index;
-
-      if (targetIndex === undefined) return prev;
-
-      return prev.filter((_, index) => index !== targetIndex);
     });
   };
 
@@ -535,6 +529,51 @@ export default function MonthlyPlanShowMeals({
     () => toPositiveInt(selection.meals, 1),
     [selection.meals],
   );
+
+  const openSelectedCardMealDetail = (
+    selectionItem: SelectedMealOption,
+    cardLabel: string,
+  ) => {
+    const linkedMeal = mealById.get(selectionItem.id);
+    const meal: DayMeal = linkedMeal
+      ? toDayMeal(linkedMeal)
+      : {
+          id: selectionItem.id,
+          title: selectionItem.title,
+          subtitle: selectionItem.date ?? "Selected meal",
+          image: "/food/food11.webp",
+          calories: selectionItem.calories,
+          fat: selectionItem.fat,
+          protein: selectionItem.protein,
+          carb: selectionItem.carb,
+        };
+
+    setSelectedCardMealDetail({
+      selection: selectionItem,
+      meal: {
+        ...meal,
+        title: selectionItem.title,
+      },
+      cardLabel,
+    });
+  };
+
+  const deleteSelectedCardMeal = () => {
+    if (!selectedCardMealDetail) return;
+
+    setSelectedMeals((prev) =>
+      prev.filter(
+        (item) =>
+          (item.instanceId ?? mealSelectionKey(item.id, item.date)) !==
+          (selectedCardMealDetail.selection.instanceId ??
+            mealSelectionKey(
+              selectedCardMealDetail.selection.id,
+              selectedCardMealDetail.selection.date,
+            )),
+      ),
+    );
+    setSelectedCardMealDetail(null);
+  };
 
   const goToCheckout = () => {
     const query = new URLSearchParams({
@@ -714,19 +753,23 @@ export default function MonthlyPlanShowMeals({
                     {Array.from({
                       length: customMealSlotCount,
                     }).map((_, itemIndex) => {
+                      const cardSelections = selectedMeals.filter(
+                        (item) => item.date === card.dateIso,
+                      );
                       const selectedCount = Math.min(
                         customMealSlotCount,
                         customCardStats[index]?.count ?? 0,
                       );
                       const isSelected = itemIndex < selectedCount;
+                      const selectedItem = cardSelections[itemIndex];
 
                       return (
                       <button
                         key={`${card.id}-meal-${itemIndex}`}
                         type="button"
                         onClick={() => {
-                          if (isSelected) {
-                            removeLastMealSelection(card.dateIso);
+                          if (isSelected && selectedItem) {
+                            openSelectedCardMealDetail(selectedItem, card.label);
                           }
                         }}
                         className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
@@ -1061,6 +1104,155 @@ export default function MonthlyPlanShowMeals({
                 >
                   Add To Plan
                 </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {selectedCardMealDetail ? (
+          <div
+            className="fixed inset-0 z-[126] flex items-center justify-center bg-black/60 p-4"
+            onClick={() => setSelectedCardMealDetail(null)}
+          >
+            <div
+              className="w-full max-w-5xl rounded-[20px] bg-white p-6 shadow-xl sm:p-8"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCardMealDetail(null)}
+                  className="text-4xl leading-none text-zinc-500 transition hover:text-zinc-700"
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="grid gap-6 lg:grid-cols-[334px_minmax(0,1fr)] lg:items-start">
+                <div className="relative aspect-[1/1] overflow-hidden rounded-md bg-zinc-100">
+                  <Image
+                    src={selectedCardMealDetail.meal.image}
+                    alt={selectedCardMealDetail.meal.title}
+                    fill
+                    unoptimized={isDataImageUrl(selectedCardMealDetail.meal.image)}
+                    className="object-cover"
+                  />
+                </div>
+
+                <div>
+                  <div className="border-b border-zinc-200 pb-5">
+                    <h6 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 sm:text-[2.45rem]">
+                      {selectedCardMealDetail.meal.title} - Meal Details
+                    </h6>
+                  </div>
+
+                  <div className="border-b border-zinc-200 py-4">
+                    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_224px] sm:items-center">
+                      <div>
+                        <p className="text-lg font-bold uppercase tracking-tight text-zinc-900">
+                          {selectedCardMealDetail.meal.title}
+                        </p>
+                        <p className="mt-1.5 text-xs text-zinc-500 sm:text-sm">
+                          {selectedCardMealDetail.meal.subtitle}
+                        </p>
+                      </div>
+                      <div className="flex justify-start sm:justify-end">
+                        <div className="rounded-md border border-zinc-200 bg-zinc-50 px-5 py-3 text-base font-bold text-zinc-900">
+                          {selectedCardMealDetail.cardLabel}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-b border-zinc-200 py-4">
+                    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_224px] sm:items-center">
+                      <div>
+                        <p className="text-lg font-bold uppercase tracking-tight text-zinc-900">
+                          Portion Size
+                        </p>
+                        <p className="mt-1.5 text-xs text-zinc-500 sm:text-sm">
+                          This selected meal currently fills one slot in your card.
+                        </p>
+                      </div>
+                      <div className="flex justify-start sm:justify-end">
+                        <div className="rounded-md border border-zinc-200 bg-zinc-50 px-5 py-3 text-xl font-bold text-zinc-900">
+                          1 PCS
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3 md:grid-cols-4">
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
+                    Calories
+                  </p>
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {selectedCardMealDetail.meal.calories.toFixed(1)}
+                  </p>
+                </div>
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
+                    Fat
+                  </p>
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {selectedCardMealDetail.meal.fat.toFixed(1)}
+                  </p>
+                </div>
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
+                    Protein
+                  </p>
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {selectedCardMealDetail.meal.protein.toFixed(1)}
+                  </p>
+                </div>
+                <div className="overflow-hidden rounded-md border border-zinc-200">
+                  <p className="bg-zinc-900 py-2.5 text-center text-lg font-semibold text-white">
+                    Carb
+                  </p>
+                  <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
+                    {selectedCardMealDetail.meal.carb.toFixed(1)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 flex flex-col gap-5 border-t border-zinc-200 pt-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="space-y-2 text-zinc-900">
+                  <div className="flex items-center gap-4 text-xl">
+                    <span className="font-medium uppercase">Base Price</span>
+                    <span className="font-medium">
+                      ${(planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xl">
+                    <span className="font-medium uppercase">Extras/Add-ons</span>
+                    <span className="font-medium">$0.00</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-[2rem] font-bold uppercase sm:text-[1.7rem]">
+                    <span>Total Meal Price</span>
+                    <span>
+                      ${(planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={deleteSelectedCardMeal}
+                    className="inline-flex h-11 items-center justify-center rounded-full bg-red-600 px-7 text-sm font-semibold text-white transition hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCardMealDetail(null)}
+                    className="inline-flex h-11 items-center justify-center rounded-full border-2 border-zinc-300 bg-white px-7 text-sm font-medium text-zinc-900 transition hover:bg-zinc-100"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
