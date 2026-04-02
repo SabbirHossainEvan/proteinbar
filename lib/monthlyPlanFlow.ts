@@ -31,3 +31,8 @@ export function getCheckoutPath(plan: MonthlyPlan): string {
   const kind = getPlanKind(plan);
   return `/${kind}/${plan.id}/checkout`;
 }
+
+export function getSelectedMealsPath(plan: MonthlyPlan): string {
+  const kind = getPlanKind(plan);
+  return `/${kind}/${plan.id}/selected-meals`;
+}

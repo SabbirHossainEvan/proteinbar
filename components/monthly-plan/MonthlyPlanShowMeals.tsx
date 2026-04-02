@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
-import { getCheckoutPath } from "@/lib/monthlyPlanFlow";
+import { getSelectedMealsPath } from "@/lib/monthlyPlanFlow";
 import MakeYourPlanTab from "@/components/monthly-plan/MakeYourPlanTab";
 import type {
   MealLibraryItem,
@@ -600,7 +600,7 @@ export default function MonthlyPlanShowMeals({
       );
     }
 
-    router.push(`${getCheckoutPath(plan)}?${query.toString()}`);
+    router.push(`${getSelectedMealsPath(plan)}?${query.toString()}`);
   };
 
   if (isCustom) {
