@@ -179,8 +179,10 @@ export default function MonthlyPlanShowMeals({
     return Array.from(new Set(dates)).sort((a, b) => a.localeCompare(b));
   }, [planDetails]);
 
-  const customCategoryDefs =
-    planDetails?.plan?.content?.customStepTwo?.categories ?? [];
+  const customCategoryDefs = useMemo(
+    () => planDetails?.plan?.content?.customStepTwo?.categories ?? [],
+    [planDetails],
+  );
   const customCategories = useMemo(() => {
     const fromCustomConfig = customCategoryDefs.map((item) =>
       item.name.toUpperCase(),
@@ -525,10 +527,7 @@ export default function MonthlyPlanShowMeals({
       };
     });
   }, [customCards, selectedMeals]);
-  const customMealSlotCount = useMemo(
-    () => toPositiveInt(selection.meals, 1),
-    [selection.meals],
-  );
+  const customMealSlotCount = toPositiveInt(selection.meals, 1);
 
   const openSelectedCardMealDetail = (
     selectionItem: SelectedMealOption,
@@ -638,7 +637,10 @@ export default function MonthlyPlanShowMeals({
           </div>
 
           {activeCategory === makeYourPlanTabId ? (
-            <MakeYourPlanTab className="mt-6" />
+            <MakeYourPlanTab
+              className="mt-6"
+              builder={planDetails?.customPlanBuilder}
+            />
           ) : (
             <>
               <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
