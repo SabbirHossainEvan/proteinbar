@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { getSelectedMealsPath } from "@/lib/monthlyPlanFlow";
 import MakeYourPlanTab from "@/components/monthly-plan/MakeYourPlanTab";
+import type { SavedCustomMeal } from "@/components/monthly-plan/MakeYourPlanModal";
 import type {
   MealLibraryItem,
   MonthlyPlanDetails,
@@ -64,6 +65,15 @@ type SelectedCardMealDetail = {
 };
 
 const makeYourPlanTabId = "MAKE_YOUR_PLAN";
+const weekdayIndexByName: Record<string, number> = {
+  sunday: 0,
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+};
 
 function toDateInputValue(value: string) {
   const parsed = new Date(value);
@@ -103,6 +113,51 @@ function toPositiveInt(value: string, fallback = 1) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed < 1) return fallback;
   return Math.floor(parsed);
+}
+
+function toIsoDate(date: Date) {
+  return date.toISOString().split("T")[0];
+}
+
+function buildCustomDeliveryDates({
+  startDate,
+  deliveryDays,
+  weeks,
+  totalDays,
+}: {
+  startDate: string;
+  deliveryDays: string[];
+  weeks?: string;
+  totalDays?: string;
+}) {
+  const start = new Date(`${startDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return [] as string[];
+
+  const selectedWeekDays = new Set(
+    deliveryDays
+      .map((day) => weekdayIndexByName[day.trim().toLowerCase()])
+      .filter((day): day is number => Number.isInteger(day)),
+  );
+
+  if (selectedWeekDays.size === 0) {
+    return [toIsoDate(start)];
+  }
+
+  const rangeDays = Math.max(
+    1,
+    weeks ? toPositiveInt(weeks, 1) * 7 : toPositiveInt(totalDays ?? "", 1),
+  );
+
+  const dates: string[] = [];
+  for (let offset = 0; offset < rangeDays; offset += 1) {
+    const nextDate = new Date(start);
+    nextDate.setDate(start.getDate() + offset);
+    if (selectedWeekDays.has(nextDate.getDay())) {
+      dates.push(toIsoDate(nextDate));
+    }
+  }
+
+  return dates.length > 0 ? dates : [toIsoDate(start)];
 }
 
 function toDayMeal(item: MealLibraryItem): DayMeal {
@@ -150,6 +205,7 @@ export default function MonthlyPlanShowMeals({
   const mealById = useMemo(() => {
     return new Map(mealLibrary.map((item) => [item.id, item]));
   }, [mealLibrary]);
+  const customMealSlotCount = toPositiveInt(selection.meals, 1);
 
   const weekDates = useMemo(() => {
     const dates =
@@ -179,8 +235,10 @@ export default function MonthlyPlanShowMeals({
     return Array.from(new Set(dates)).sort((a, b) => a.localeCompare(b));
   }, [planDetails]);
 
-  const customCategoryDefs =
-    planDetails?.plan?.content?.customStepTwo?.categories ?? [];
+  const customCategoryDefs = useMemo(
+    () => planDetails?.plan?.content?.customStepTwo?.categories ?? [],
+    [planDetails],
+  );
   const customCategories = useMemo(() => {
     const fromCustomConfig = customCategoryDefs.map((item) =>
       item.name.toUpperCase(),
@@ -199,7 +257,7 @@ export default function MonthlyPlanShowMeals({
 
   const customCards = useMemo(() => {
     if (weekDates.length > 0) {
-      return weekDates.slice(0, 3).map((dateIso): CustomCard => {
+      return weekDates.map((dateIso): CustomCard => {
         const items = (planDetails?.weekAssignments ?? []).flatMap(
           (assignment) => assignment.mealsByDate[dateIso] ?? [],
         );
@@ -228,10 +286,15 @@ export default function MonthlyPlanShowMeals({
       });
     }
 
-    const start = new Date(initialDate);
-    return Array.from({ length: 3 }, (_, index) => {
-      const date = new Date(start);
-      date.setDate(start.getDate() + index * 2);
+    const deliveryDates = buildCustomDeliveryDates({
+      startDate: initialDate,
+      deliveryDays,
+      weeks: selection.weeks,
+      totalDays: selection.days,
+    });
+
+    return deliveryDates.map((dateIso, index) => {
+      const date = new Date(`${dateIso}T00:00:00`);
       const label = date.toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
@@ -241,11 +304,19 @@ export default function MonthlyPlanShowMeals({
       return {
         id: `card-${index}`,
         label,
-        mealLabel: deliveryDays[index] ?? "Meals",
-        dateIso: date.toISOString().split("T")[0],
+        mealLabel: `${customMealSlotCount} Meal${customMealSlotCount > 1 ? "s" : ""}`,
+        dateIso,
       };
     });
-  }, [deliveryDays, initialDate, planDetails, weekDates]);
+  }, [
+    customMealSlotCount,
+    deliveryDays,
+    initialDate,
+    planDetails,
+    selection.days,
+    selection.weeks,
+    weekDates,
+  ]);
 
   const tabs = useMemo(() => {
     if (weekDates.length > 0) {
@@ -270,10 +341,15 @@ export default function MonthlyPlanShowMeals({
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
   const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>([]);
-  const [selectionPopupMeal, setSelectionPopupMeal] = useState<DayMeal | null>(null);
+  const [selectionPopupMeal, setSelectionPopupMeal] = useState<DayMeal | null>(
+    null,
+  );
   const [selectionPopupQty, setSelectionPopupQty] = useState(1);
-  const [selectionPopupDate, setSelectionPopupDate] = useState<string | undefined>(undefined);
-  const [selectedCardMealDetail, setSelectedCardMealDetail] = useState<SelectedCardMealDetail | null>(null);
+  const [selectionPopupDate, setSelectionPopupDate] = useState<
+    string | undefined
+  >(undefined);
+  const [selectedCardMealDetail, setSelectedCardMealDetail] =
+    useState<SelectedCardMealDetail | null>(null);
 
   useEffect(() => {
     if (!customTabs.includes(activeCategory)) {
@@ -315,11 +391,14 @@ export default function MonthlyPlanShowMeals({
         );
 
         for (let index = 0; index < requestedCount; index += 1) {
-          const nextCard =
-            customCards.find((card) => {
-              const key = card.dateIso ?? card.id;
-              return (cardCounts.get(key) ?? 0) < customMealSlotCount;
-            }) ?? customCards[customCards.length - 1];
+          const nextCard = customCards.find((card) => {
+            const key = card.dateIso ?? card.id;
+            return (cardCounts.get(key) ?? 0) < customMealSlotCount;
+          });
+
+          if (!nextCard) {
+            break;
+          }
 
           const nextDate = nextCard?.dateIso;
           const nextKey = nextDate ?? nextCard?.id ?? "custom";
@@ -347,6 +426,67 @@ export default function MonthlyPlanShowMeals({
             protein: meal.protein,
             carb: meal.carb,
             fat: meal.fat,
+          })),
+        );
+      }
+
+      return [...prev, ...additions];
+    });
+  };
+
+  const addSavedCustomMealSelection = (
+    savedMeal: SavedCustomMeal,
+    quantity = 1,
+  ) => {
+    setSelectedMeals((prev) => {
+      const requestedCount = Math.max(1, quantity);
+      const now = Date.now();
+      const additions: SelectedMealOption[] = [];
+
+      if (isCustom && customCards.length > 0) {
+        const cardCounts = new Map(
+          customCards.map((card) => [
+            card.dateIso ?? card.id,
+            prev.filter((item) => item.date === card.dateIso).length,
+          ]),
+        );
+
+        for (let index = 0; index < requestedCount; index += 1) {
+          const nextCard = customCards.find((card) => {
+            const key = card.dateIso ?? card.id;
+            return (cardCounts.get(key) ?? 0) < customMealSlotCount;
+          });
+
+          if (!nextCard) {
+            break;
+          }
+
+          const nextDate = nextCard?.dateIso;
+          const nextKey = nextDate ?? nextCard?.id ?? "custom";
+          cardCounts.set(nextKey, (cardCounts.get(nextKey) ?? 0) + 1);
+
+          additions.push({
+            instanceId: `${savedMeal.id}-${nextDate ?? "custom"}-${now}-${index}`,
+            id: savedMeal.id,
+            title: savedMeal.title,
+            date: nextDate,
+            calories: savedMeal.totals.calories,
+            protein: savedMeal.totals.protein,
+            carb: savedMeal.totals.carbs,
+            fat: savedMeal.totals.fat,
+          });
+        }
+      } else {
+        additions.push(
+          ...Array.from({ length: requestedCount }, (_, index) => ({
+            instanceId: `${savedMeal.id}-custom-${now}-${index}`,
+            id: savedMeal.id,
+            title: savedMeal.title,
+            date: undefined,
+            calories: savedMeal.totals.calories,
+            protein: savedMeal.totals.protein,
+            carb: savedMeal.totals.carbs,
+            fat: savedMeal.totals.fat,
           })),
         );
       }
@@ -525,11 +665,6 @@ export default function MonthlyPlanShowMeals({
       };
     });
   }, [customCards, selectedMeals]);
-  const customMealSlotCount = useMemo(
-    () => toPositiveInt(selection.meals, 1),
-    [selection.meals],
-  );
-
   const openSelectedCardMealDetail = (
     selectionItem: SelectedMealOption,
     cardLabel: string,
@@ -630,7 +765,9 @@ export default function MonthlyPlanShowMeals({
                         : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
                     }`}
                   >
-                    {category === makeYourPlanTabId ? "Make Your Meal" : category}
+                    {category === makeYourPlanTabId
+                      ? "Make Your Meal"
+                      : category}
                   </button>
                 );
               })}
@@ -638,7 +775,23 @@ export default function MonthlyPlanShowMeals({
           </div>
 
           {activeCategory === makeYourPlanTabId ? (
-            <MakeYourPlanTab className="mt-6" />
+            <MakeYourPlanTab
+              className="mt-6"
+              builder={planDetails?.customPlanBuilder}
+              selectedCounts={selectedMeals.reduce<Record<string, number>>(
+                (acc, item) => {
+                  acc[item.id] = (acc[item.id] ?? 0) + 1;
+                  return acc;
+                },
+                {},
+              )}
+              onSelectSavedMeal={addSavedCustomMealSelection}
+              onDeleteSavedMeal={(mealId) =>
+                setSelectedMeals((prev) =>
+                  prev.filter((item) => item.id !== mealId),
+                )
+              }
+            />
           ) : (
             <>
               <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -764,39 +917,43 @@ export default function MonthlyPlanShowMeals({
                       const selectedItem = cardSelections[itemIndex];
 
                       return (
-                      <button
-                        key={`${card.id}-meal-${itemIndex}`}
-                        type="button"
-                        onClick={() => {
-                          if (isSelected && selectedItem) {
-                            openSelectedCardMealDetail(selectedItem, card.label);
+                        <button
+                          key={`${card.id}-meal-${itemIndex}`}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected && selectedItem) {
+                              openSelectedCardMealDetail(
+                                selectedItem,
+                                card.label,
+                              );
+                            }
+                          }}
+                          className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
+                            isSelected
+                              ? "bg-emerald-600 text-white"
+                              : "bg-slate-500 text-white"
+                          }`}
+                          aria-label={
+                            isSelected
+                              ? `Remove one meal from ${card.label}`
+                              : `Empty meal slot for ${card.label}`
                           }
-                        }}
-                        className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
-                          isSelected
-                            ? "bg-emerald-600 text-white"
-                            : "bg-slate-500 text-white"
-                        }`}
-                        aria-label={
-                          isSelected
-                            ? `Remove one meal from ${card.label}`
-                            : `Empty meal slot for ${card.label}`
-                        }
-                      >
-                        <svg
-                          viewBox="0 0 20 20"
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
                         >
-                          <path d="m5 10 3 3 7-7" />
-                        </svg>
-                      </button>
-                    )})}
+                          <svg
+                            viewBox="0 0 20 20"
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="m5 10 3 3 7-7" />
+                          </svg>
+                        </button>
+                      );
+                    })}
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-zinc-600">
@@ -804,7 +961,8 @@ export default function MonthlyPlanShowMeals({
                       Kcal: {customCardStats[index]?.calories.toFixed(0) ?? "0"}
                     </p>
                     <p className="rounded-md bg-zinc-50 px-2.5 py-1.5">
-                      Protein: {customCardStats[index]?.protein.toFixed(1) ?? "0"}g
+                      Protein:{" "}
+                      {customCardStats[index]?.protein.toFixed(1) ?? "0"}g
                     </p>
                     <p className="rounded-md bg-zinc-50 px-2.5 py-1.5">
                       Carb: {customCardStats[index]?.carb.toFixed(1) ?? "0"}g
@@ -826,14 +984,18 @@ export default function MonthlyPlanShowMeals({
               <div className="mt-3 flex flex-wrap gap-2">
                 {selectedMeals.map((item) => (
                   <button
-                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
+                    key={
+                      item.instanceId ?? mealSelectionKey(item.id, item.date)
+                    }
                     type="button"
                     onClick={() =>
                       setSelectedMeals((prev) =>
                         prev.filter(
                           (selected) =>
-                            (selected.instanceId ?? mealSelectionKey(selected.id, selected.date)) !==
-                            (item.instanceId ?? mealSelectionKey(item.id, item.date)),
+                            (selected.instanceId ??
+                              mealSelectionKey(selected.id, selected.date)) !==
+                            (item.instanceId ??
+                              mealSelectionKey(item.id, item.date)),
                         ),
                       )
                     }
@@ -991,17 +1153,27 @@ export default function MonthlyPlanShowMeals({
                   <div className="flex items-center gap-4 text-xl">
                     <span className="font-medium uppercase">Base Price</span>
                     <span className="font-medium">
-                      ${((planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0) * detailQty).toFixed(2)}
+                      $
+                      {(
+                        (planDetails?.pricing?.basePriceFormula?.pricePerMeal ??
+                          0) * detailQty
+                      ).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-xl">
-                    <span className="font-medium uppercase">Extras/Add-ons</span>
+                    <span className="font-medium uppercase">
+                      Extras/Add-ons
+                    </span>
                     <span className="font-medium">$0.00</span>
                   </div>
                   <div className="flex items-center gap-4 text-[2rem] font-bold uppercase sm:text-[1.7rem]">
                     <span>Total Meal Price</span>
                     <span>
-                      ${((planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0) * detailQty).toFixed(2)}
+                      $
+                      {(
+                        (planDetails?.pricing?.basePriceFormula?.pricePerMeal ??
+                          0) * detailQty
+                      ).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -1065,7 +1237,9 @@ export default function MonthlyPlanShowMeals({
               <div className="mt-6 flex items-center justify-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setSelectionPopupQty((prev) => Math.max(1, prev - 1))}
+                  onClick={() =>
+                    setSelectionPopupQty((prev) => Math.max(1, prev - 1))
+                  }
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 text-2xl text-zinc-900"
                 >
                   -
@@ -1132,7 +1306,9 @@ export default function MonthlyPlanShowMeals({
                     src={selectedCardMealDetail.meal.image}
                     alt={selectedCardMealDetail.meal.title}
                     fill
-                    unoptimized={isDataImageUrl(selectedCardMealDetail.meal.image)}
+                    unoptimized={isDataImageUrl(
+                      selectedCardMealDetail.meal.image,
+                    )}
                     className="object-cover"
                   />
                 </div>
@@ -1169,7 +1345,8 @@ export default function MonthlyPlanShowMeals({
                           Portion Size
                         </p>
                         <p className="mt-1.5 text-xs text-zinc-500 sm:text-sm">
-                          This selected meal currently fills one slot in your card.
+                          This selected meal currently fills one slot in your
+                          card.
                         </p>
                       </div>
                       <div className="flex justify-start sm:justify-end">
@@ -1222,17 +1399,27 @@ export default function MonthlyPlanShowMeals({
                   <div className="flex items-center gap-4 text-xl">
                     <span className="font-medium uppercase">Base Price</span>
                     <span className="font-medium">
-                      ${(planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0).toFixed(2)}
+                      $
+                      {(
+                        planDetails?.pricing?.basePriceFormula?.pricePerMeal ??
+                        0
+                      ).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-xl">
-                    <span className="font-medium uppercase">Extras/Add-ons</span>
+                    <span className="font-medium uppercase">
+                      Extras/Add-ons
+                    </span>
                     <span className="font-medium">$0.00</span>
                   </div>
                   <div className="flex items-center gap-4 text-[2rem] font-bold uppercase sm:text-[1.7rem]">
                     <span>Total Meal Price</span>
                     <span>
-                      ${(planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0).toFixed(2)}
+                      $
+                      {(
+                        planDetails?.pricing?.basePriceFormula?.pricePerMeal ??
+                        0
+                      ).toFixed(2)}
                     </span>
                   </div>
                 </div>

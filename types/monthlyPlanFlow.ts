@@ -20,6 +20,53 @@ export type MealLibraryItem = {
   image?: string;
 };
 
+export type CustomPlanSelectionMode = "single" | "multi";
+
+export type CustomPlanCategory = {
+  id: string;
+  planId: string;
+  name: string;
+  slug: string;
+  code?: string;
+  displayOrder: number;
+  selectionMode: CustomPlanSelectionMode;
+  isActive: boolean;
+  isRequired: boolean;
+  minSelect: number;
+  maxSelect?: number | null;
+};
+
+export type CustomPlanFoodSize = {
+  id: string;
+  foodItemId: string;
+  label: string;
+  unit?: string;
+  price: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  displayOrder: number;
+  isActive: boolean;
+};
+
+export type CustomPlanFoodItem = {
+  id: string;
+  planId: string;
+  categoryId: string;
+  name: string;
+  imageUrl: string;
+  description?: string;
+  displayOrder: number;
+  isActive: boolean;
+  sizes: CustomPlanFoodSize[];
+};
+
+export type CustomPlanBuilder = {
+  categories: CustomPlanCategory[];
+  foodItems: CustomPlanFoodItem[];
+};
+
 export type AssignedMeal = {
   id: string;
   mealId: string;
@@ -111,4 +158,5 @@ export type MonthlyPlanDetails = {
   pricing: PricingConfig;
   weekAssignments: WeekAssignment[];
   mealLibrary?: MealLibraryItem[];
+  customPlanBuilder?: CustomPlanBuilder;
 };

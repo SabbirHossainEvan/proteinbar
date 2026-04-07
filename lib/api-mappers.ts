@@ -2,6 +2,14 @@ import type { MonthlyPlan } from "@/data/monthlyPlans";
 import type { StoreProduct } from "@/data/products";
 import type { Location } from "@/types";
 
+function asRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object") {
+    return value as Record<string, unknown>;
+  }
+
+  return {};
+}
+
 function toSlug(value: string) {
   return value
     .trim()
@@ -19,8 +27,11 @@ function toNumberFromPrice(value: unknown) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function mapApiPlan(plan: any): MonthlyPlan {
-  const source = plan?.plan ? plan.plan : plan;
+export function mapApiPlan(plan: unknown): MonthlyPlan {
+  const rawPlan = asRecord(plan);
+  const source = rawPlan.plan && typeof rawPlan.plan === "object"
+    ? asRecord(rawPlan.plan)
+    : rawPlan;
   const rawKind = String(source?.planKind ?? source?.type ?? "").toLowerCase();
   const mappedType =
     rawKind === "custom"
@@ -30,33 +41,41 @@ export function mapApiPlan(plan: any): MonthlyPlan {
   return {
     id: String(source?.planId ?? source?.id ?? ""),
     planKind: mappedType,
-    title: source?.name ?? source?.title ?? "",
-    description: source?.description ?? "",
-    image: source?.imageUrl ?? source?.image ?? "/food/food.png",
-    badge: source?.isNew ? "NEW" : source?.badge
+    title: String(source?.name ?? source?.title ?? ""),
+    description: String(source?.description ?? ""),
+    image: String(source?.imageUrl ?? source?.image ?? "/food/food.png"),
+    badge: source?.isNew ? "NEW" : typeof source?.badge === "string" ? source.badge : undefined
   };
 }
 
-export function mapApiProduct(product: any): StoreProduct {
-  const fallbackHandle = toSlug(product?.sku ?? product?.name ?? product?.title ?? "");
-  const fallbackDescription = [product?.description, product?.category].filter(Boolean).join(" | ");
+export function mapApiProduct(product: unknown): StoreProduct {
+  const source = asRecord(product);
+  const fallbackHandle = toSlug(String(source.sku ?? source.name ?? source.title ?? ""));
+  const fallbackDescription = [source.description, source.category].filter(Boolean).join(" | ");
 
   return {
-    id: product?.productId ?? product?.id ?? product?._id ?? product?.sku ?? "",
-    handle: product?.handle ?? fallbackHandle ?? "",
-    title: product?.title ?? product?.name ?? "",
+    id: String(source.productId ?? source.id ?? source._id ?? source.sku ?? ""),
+    handle: String(source.handle ?? fallbackHandle ?? ""),
+    title: String(source.title ?? source.name ?? ""),
     description: fallbackDescription || "",
-    priceMad: toNumberFromPrice(product?.priceMad ?? product?.price),
-    image: product?.image ?? product?.imageUrl ?? "/food/food.png"
+    priceMad: toNumberFromPrice(source.priceMad ?? source.price),
+    image: String(source.image ?? source.imageUrl ?? "/food/food.png")
   };
 }
 
-export function mapApiLocation(location: any): Location {
+export function mapApiLocation(location: unknown): Location {
+  const source = asRecord(location);
   return {
-    id: location?.locationId ?? location?.id ?? "",
-    name: location?.name ?? "",
-    address: location?.address ?? location?.pickupAddress ?? "",
-    phone: location?.phone ?? "",
-    mapUrl: location?.mapUrl ?? location?.mapLink ?? ""
+    id: String(source.locationId ?? source.id ?? ""),
+    name: String(source.name ?? ""),
+    address: String(source.address ?? source.pickupAddress ?? ""),
+    phone: String(source.phone ?? ""),
+    mapUrl: String(source.mapUrl ?? source.mapLink ?? source.googleMapsUrl ?? ""),
+    image: String(source.image ?? source.imageUrl ?? ""),
+    ratingText: String(source.ratingText ?? ""),
+    deliveryZone: String(source.deliveryZone ?? ""),
+    cutoffTime: String(source.cutoffTime ?? ""),
+    workingDays: Array.isArray(source.workingDays) ? source.workingDays.map(String) : [],
+    timeSlots: Array.isArray(source.timeSlots) ? source.timeSlots.map(String) : []
   };
 }

@@ -19,6 +19,10 @@ export const publicApi = createApi({
       query: () => "/menu-categories",
       providesTags: ["Menu"],
     }),
+    getRestaurants: builder.query<ApiResponse<any[]>, void>({
+      query: () => "/restaurants",
+      providesTags: ["Locations"],
+    }),
     getMonthlyPlans: builder.query<ApiResponse<any[]>, void>({
       query: () => "/public/monthly-plan/plans",
       providesTags: ["Plans"],
@@ -69,6 +73,7 @@ export const publicApi = createApi({
 
 export const {
   useGetMenuCategoriesQuery,
+  useGetRestaurantsQuery,
   useGetMonthlyPlansQuery,
   useGetMonthlyPlanByIdQuery,
   useGetProductsQuery,

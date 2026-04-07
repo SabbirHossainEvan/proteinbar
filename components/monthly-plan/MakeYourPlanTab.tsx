@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import MakeYourPlanModal, { type SavedCustomMeal } from "@/components/monthly-plan/MakeYourPlanModal";
+import MakeYourPlanModal, {
+  type SavedCustomMeal,
+} from "@/components/monthly-plan/MakeYourPlanModal";
+import type { CustomPlanBuilder } from "@/types/monthlyPlanFlow";
 
 type MakeYourPlanTabProps = {
   className?: string;
+  builder?: CustomPlanBuilder;
+  selectedCounts?: Record<string, number>;
+  onSelectSavedMeal?: (meal: SavedCustomMeal) => void;
+  onDeleteSavedMeal?: (mealId: string) => void;
 };
 
 const storageKey = "proteinbar_custom_meals";
@@ -23,18 +30,22 @@ function getSavedMeals() {
   }
 }
 
-export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps) {
+export default function MakeYourPlanTab({
+  className = "",
+  builder,
+  selectedCounts = {},
+  onSelectSavedMeal,
+  onDeleteSavedMeal,
+}: MakeYourPlanTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
-  const [savedMeals, setSavedMeals] = useState<SavedCustomMeal[]>(() => getSavedMeals());
-  const [selectedCounts, setSelectedCounts] = useState<Record<string, number>>({});
+  const [savedMeals, setSavedMeals] = useState<SavedCustomMeal[]>(() =>
+    getSavedMeals(),
+  );
 
-  const handleSelectSavedMeal = (mealId: string, mealTitle: string) => {
-    setSelectedCounts((prev) => ({
-      ...prev,
-      [mealId]: (prev[mealId] ?? 0) + 1,
-    }));
-    setSavedMessage(`${mealTitle} selected`);
+  const handleSelectSavedMeal = (meal: SavedCustomMeal) => {
+    onSelectSavedMeal?.(meal);
+    setSavedMessage(`${meal.title} selected`);
   };
 
   const handleDeleteSavedMeal = (mealId: string, mealTitle: string) => {
@@ -46,13 +57,17 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
       return nextMeals;
     });
 
-    setSelectedCounts((prev) => {
-      const nextCounts = { ...prev };
-      delete nextCounts[mealId];
-      return nextCounts;
-    });
-
+    onDeleteSavedMeal?.(mealId);
     setSavedMessage(`${mealTitle} deleted`);
+  };
+
+  const getSavedMealPreview = (meal: SavedCustomMeal) => {
+    const labels = Object.values(meal.selections ?? {})
+      .map((selection) => selection?.shortLabel || selection?.label || "")
+      .filter(Boolean);
+
+    if (!labels.length) return "Custom meal";
+    return labels.slice(0, 2).join(" + ");
   };
 
   return (
@@ -94,13 +109,13 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
                 {savedMeal.title}
               </h3>
               <p className="mx-auto mt-3 min-h-[32px] max-w-[260px] text-center text-[1.05rem] text-zinc-500">
-                {savedMeal.selections.protein?.label ?? "Custom meal"} + {savedMeal.selections.carbs?.label ?? "selection"}
+                {getSavedMealPreview(savedMeal)}
               </p>
               <div className="mt-auto pt-5">
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => handleSelectSavedMeal(savedMeal.id, savedMeal.title)}
+                    onClick={() => handleSelectSavedMeal(savedMeal)}
                     className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
                   >
                     {selectedCounts[savedMeal.id]
@@ -109,7 +124,9 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleDeleteSavedMeal(savedMeal.id, savedMeal.title)}
+                    onClick={() =>
+                      handleDeleteSavedMeal(savedMeal.id, savedMeal.title)
+                    }
                     className="h-10 rounded-md border border-red-200 bg-red-50 text-sm font-semibold text-red-600 transition hover:bg-red-100"
                   >
                     Delete
@@ -124,16 +141,28 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
 
                 <div className="mt-3 grid gap-2 text-sm text-zinc-700 sm:grid-cols-2">
                   <p className="rounded-md bg-zinc-50 px-3 py-2.5">
-                    Kcal: <span className="font-semibold text-zinc-900">{savedMeal.totals.calories.toFixed(0)}</span>
+                    Kcal:{" "}
+                    <span className="font-semibold text-zinc-900">
+                      {savedMeal.totals.calories.toFixed(0)}
+                    </span>
                   </p>
                   <p className="rounded-md bg-zinc-50 px-3 py-2.5">
-                    Protein: <span className="font-semibold text-zinc-900">{savedMeal.totals.protein.toFixed(1)}g</span>
+                    Protein:{" "}
+                    <span className="font-semibold text-zinc-900">
+                      {savedMeal.totals.protein.toFixed(1)}g
+                    </span>
                   </p>
                   <p className="rounded-md bg-zinc-50 px-3 py-2.5">
-                    Carbs: <span className="font-semibold text-zinc-900">{savedMeal.totals.carbs.toFixed(1)}g</span>
+                    Carbs:{" "}
+                    <span className="font-semibold text-zinc-900">
+                      {savedMeal.totals.carbs.toFixed(1)}g
+                    </span>
                   </p>
                   <p className="rounded-md bg-zinc-50 px-3 py-2.5">
-                    Fat: <span className="font-semibold text-zinc-900">{savedMeal.totals.fat.toFixed(1)}g</span>
+                    Fat:{" "}
+                    <span className="font-semibold text-zinc-900">
+                      {savedMeal.totals.fat.toFixed(1)}g
+                    </span>
                   </p>
                 </div>
               </div>
@@ -145,6 +174,7 @@ export default function MakeYourPlanTab({ className = "" }: MakeYourPlanTabProps
       <MakeYourPlanModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        builder={builder}
         onSave={(meal) => {
           setSavedMeals((prev) => [...prev, meal]);
           setSavedMessage("Custom meal saved");

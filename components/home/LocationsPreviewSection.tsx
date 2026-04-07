@@ -22,16 +22,27 @@ export default function LocationsPreviewSection() {
           {locations.map((location, index) => (
             <article key={location.id}>
               <div className="relative aspect-[4/5] w-[90%] overflow-hidden bg-zinc-900">
-                <Image src={locationImages[index] ?? locationImages[0]} alt={location.name} fill className="object-cover" />
+                <Image
+                  src={
+                    location.image && location.image.trim()
+                      ? location.image
+                      : locationImages[index] ?? locationImages[0]
+                  }
+                  alt={location.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
 
               <h3 className="mt-4 text-2xl font-semibold text-white">{location.name}</h3>
               <p className="mt-2 text-xl text-white"><span className="font-semibold">Address:</span> {location.address}</p>
-              <p className="mt-1 text-xl text-white"><span className="font-semibold">Phone:</span> {location.phone}</p>
+              <p className="mt-1 text-xl text-white"><span className="font-semibold">Phone:</span> {location.phone || "Contact in store"}</p>
 
-              <a href={location.mapUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-lg !text-white underline underline-offset-4 visited:!text-white hover:!text-white">
-                See on Google Maps
-              </a>
+              {location.mapUrl ? (
+                <a href={location.mapUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-lg !text-white underline underline-offset-4 visited:!text-white hover:!text-white">
+                  See on Google Maps
+                </a>
+              ) : null}
             </article>
           ))}
         </div>
