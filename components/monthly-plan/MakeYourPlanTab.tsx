@@ -9,6 +9,9 @@ import type { CustomPlanBuilder } from "@/types/monthlyPlanFlow";
 type MakeYourPlanTabProps = {
   className?: string;
   builder?: CustomPlanBuilder;
+  selectedCounts?: Record<string, number>;
+  onSelectSavedMeal?: (meal: SavedCustomMeal) => void;
+  onDeleteSavedMeal?: (mealId: string) => void;
 };
 
 const storageKey = "proteinbar_custom_meals";
@@ -30,22 +33,19 @@ function getSavedMeals() {
 export default function MakeYourPlanTab({
   className = "",
   builder,
+  selectedCounts = {},
+  onSelectSavedMeal,
+  onDeleteSavedMeal,
 }: MakeYourPlanTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
   const [savedMeals, setSavedMeals] = useState<SavedCustomMeal[]>(() =>
     getSavedMeals(),
   );
-  const [selectedCounts, setSelectedCounts] = useState<Record<string, number>>(
-    {},
-  );
 
-  const handleSelectSavedMeal = (mealId: string, mealTitle: string) => {
-    setSelectedCounts((prev) => ({
-      ...prev,
-      [mealId]: (prev[mealId] ?? 0) + 1,
-    }));
-    setSavedMessage(`${mealTitle} selected`);
+  const handleSelectSavedMeal = (meal: SavedCustomMeal) => {
+    onSelectSavedMeal?.(meal);
+    setSavedMessage(`${meal.title} selected`);
   };
 
   const handleDeleteSavedMeal = (mealId: string, mealTitle: string) => {
@@ -57,12 +57,7 @@ export default function MakeYourPlanTab({
       return nextMeals;
     });
 
-    setSelectedCounts((prev) => {
-      const nextCounts = { ...prev };
-      delete nextCounts[mealId];
-      return nextCounts;
-    });
-
+    onDeleteSavedMeal?.(mealId);
     setSavedMessage(`${mealTitle} deleted`);
   };
 
@@ -120,9 +115,7 @@ export default function MakeYourPlanTab({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      handleSelectSavedMeal(savedMeal.id, savedMeal.title)
-                    }
+                    onClick={() => handleSelectSavedMeal(savedMeal)}
                     className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
                   >
                     {selectedCounts[savedMeal.id]
