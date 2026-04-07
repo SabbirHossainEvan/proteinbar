@@ -28,6 +28,12 @@ export type Location = {
   id: string;
   name: string;
   address: string;
-  phone: string;
+  phone?: string;
   mapUrl: string;
+  image?: string;
+  ratingText?: string;
+  deliveryZone?: string;
+  cutoffTime?: string;
+  workingDays?: string[];
+  timeSlots?: string[];
 };

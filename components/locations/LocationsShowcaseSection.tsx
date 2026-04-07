@@ -6,34 +6,103 @@ import { mapApiLocation } from "@/lib/api-mappers";
 
 const locationVisuals: Record<string, { image: string; reviews: number }> = {
   "anfa-casablanca": { image: "/location-1.png", reviews: 318 },
-  "maarif-casablanca": { image: "/location_hero.png", reviews: 95 }
+  "maarif-casablanca": { image: "/location_hero.png", reviews: 95 },
 };
 
 export default function LocationsShowcaseSection() {
-  const { data } = useGetLocationsQuery();
-  const locations = (data?.data ?? []).map(mapApiLocation);
+  const { data, isLoading, isError } = useGetLocationsQuery();
+  const locations = (data?.data ?? [])
+    .map(mapApiLocation)
+    .filter((location) => location.name && location.address);
+
+  if (isLoading) {
+    return (
+      <section className="relative left-1/2 right-1/2 -mx-[50vw] -mb-8 w-screen bg-zinc-950 px-4 py-20 text-white sm:-mb-10 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1300px]">
+          <p className="text-sm text-white/80">Loading locations...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError || locations.length === 0) {
+    return (
+      <section className="relative left-1/2 right-1/2 -mx-[50vw] -mb-8 w-screen bg-zinc-950 px-4 py-20 text-white sm:-mb-10 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1300px]">
+          <p className="text-sm text-white/80">
+            No pickup locations are available right now.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] -mb-8 w-screen sm:-mb-10">
-      {locations.map((location) => {
-        const visual = locationVisuals[location.id] ?? { image: "/location_hero.png", reviews: 95 };
+      {locations.map((location, index) => {
+        const visual = locationVisuals[location.id] ?? {
+          image:
+            location.image && location.image.trim()
+              ? location.image
+              : index % 2 === 0
+                ? "/location_hero.png"
+                : "/location-1.png",
+          reviews: 95,
+        };
 
         return (
-          <article key={location.id} className="relative min-h-[62vh] overflow-hidden sm:min-h-[72vh] lg:min-h-[78vh]">
-            <Image src={visual.image} alt={location.name} fill className="object-cover" />
+          <article
+            key={location.id}
+            className="relative min-h-[62vh] overflow-hidden sm:min-h-[72vh] lg:min-h-[78vh]"
+          >
+            <Image
+              src={visual.image}
+              alt={location.name}
+              fill
+              className="object-cover"
+            />
             <div className="absolute inset-0 bg-black/65" />
             <div className="absolute inset-x-0 bottom-0 z-10 px-4 pb-10 sm:px-8 sm:pb-14 lg:px-12">
               <div className="mx-auto w-full max-w-[1300px] text-white">
                 <p className="text-xs font-medium tracking-wide text-white/90 sm:text-sm">
                   *****
-                  <span className="ml-2 text-[11px] sm:text-sm">Rated 4.5/5 Based on {visual.reviews} Reviews</span>
+                  <span className="ml-2 text-[11px] sm:text-sm">
+                    {location.ratingText?.trim()
+                      ? location.ratingText
+                      : `Rated 4.5/5 Based on ${visual.reviews} Reviews`}
+                  </span>
                 </p>
-                <h3 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">{location.name}</h3>
-                <p className="mt-2 text-base sm:text-3xl"><span className="font-semibold">Address:</span> {location.address}</p>
-                <p className="mt-1 text-base sm:text-3xl"><span className="font-semibold">Phone:</span> {location.phone}</p>
-                <a href={location.mapUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-base font-semibold underline underline-offset-4 sm:text-3xl">
-                  See on Google Maps
-                </a>
+                <h3 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
+                  {location.name}
+                </h3>
+                <p className="mt-2 text-base sm:text-3xl">
+                  <span className="font-semibold">Address:</span>{" "}
+                  {location.address}
+                </p>
+                <p className="mt-1 text-base sm:text-3xl">
+                  <span className="font-semibold">Phone:</span>{" "}
+                  {location.phone?.trim() || "Contact in store"}
+                </p>
+                {location.timeSlots?.length ? (
+                  <p className="mt-1 text-sm text-white/85 sm:text-xl">
+                    Time slots: {location.timeSlots.join(", ")}
+                  </p>
+                ) : null}
+                {location.cutoffTime?.trim() ? (
+                  <p className="mt-1 text-sm text-white/85 sm:text-xl">
+                    Cutoff time: {location.cutoffTime}
+                  </p>
+                ) : null}
+                {location.mapUrl ? (
+                  <a
+                    href={location.mapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-block text-base font-semibold underline underline-offset-4 sm:text-3xl"
+                  >
+                    See on Google Maps
+                  </a>
+                ) : null}
                 <div className="mt-2 h-1 w-48 bg-white/60 sm:w-72" />
               </div>
             </div>
