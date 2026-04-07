@@ -3,13 +3,14 @@
 import Image from "next/image";
 import { ListFilter } from "lucide-react";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import type { MenuCategory } from "@/types";
+import type { MenuCategory, RestaurantInfo } from "@/types";
 
 type MenuCategoryJumpSectionProps = {
   categories: MenuCategory[];
   filterOptions: string[];
   selectedFilter: string;
   onFilterChange: (value: string) => void;
+  selectedRestaurantInfo?: RestaurantInfo | null;
 };
 
 const categoryVisuals: Record<string, string> = {
@@ -51,9 +52,33 @@ export default function MenuCategoryJumpSection({
   filterOptions,
   selectedFilter,
   onFilterChange,
+  selectedRestaurantInfo,
 }: MenuCategoryJumpSectionProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement | null>(null);
+
+  const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayLabels: Record<string, string> = {
+    Mon: "Lundi",
+    Tue: "Mardi",
+    Wed: "Mercredi",
+    Thu: "Jeudi",
+    Fri: "Vendredi",
+    Sat: "Samedi",
+    Sun: "Dimanche",
+  };
+
+  const workingDays = [...(selectedRestaurantInfo?.workingDays ?? [])].sort(
+    (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b),
+  );
+  const isOpenDaily = workingDays.length === 7;
+  const workingDaysLabel = isOpenDaily
+    ? "Lundi - Dimanche"
+    : workingDays.map((day) => dayLabels[day] ?? day).join(" - ") || "N/A";
+  const workingDaysTitle = isOpenDaily
+    ? "Ouvert tous les jours"
+    : "Jours d'ouverture";
+  const openingHoursLabel = selectedRestaurantInfo?.openingHours || "N/A";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | globalThis.MouseEvent) => {
@@ -110,10 +135,8 @@ export default function MenuCategoryJumpSection({
             <rect x="4" y="5" width="16" height="15" rx="2" />
             <path d="M8 3v4M16 3v4M4 10h16" />
           </svg>
-          <p className="mt-3 text-2xl text-zinc-500">Ouvert tous les jours</p>
-          <p className="text-3xl font-semibold text-zinc-900">
-            Lundi - Dimanche
-          </p>
+          <p className="mt-3 text-2xl text-zinc-500">{workingDaysTitle}</p>
+          <p className="text-3xl font-semibold text-zinc-900">{workingDaysLabel}</p>
         </div>
 
         <div className="text-center sm:text-left">
@@ -128,7 +151,7 @@ export default function MenuCategoryJumpSection({
             <path d="M12 8v5l3 2M9 2h6" />
           </svg>
           <p className="mt-3 text-2xl text-zinc-500">Horaire</p>
-          <p className="text-3xl font-semibold text-zinc-900">9:30 - 00:00</p>
+          <p className="text-3xl font-semibold text-zinc-900">{openingHoursLabel}</p>
         </div>
 
         <div

@@ -12,6 +12,16 @@ export type MenuCategory = {
   description: string;
   items: MenuItem[];
   image: string;
+  restaurants?: string[];
+};
+
+export type RestaurantInfo = {
+  restaurantId: string;
+  name: string;
+  address: string;
+  workingDays: string[];
+  openingHours: string;
+  status: string;
 };
 
 export type Location = {

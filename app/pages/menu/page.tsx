@@ -1,50 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MenuCategoryJumpSection from "@/components/menu/MenuCategoryJumpSection";
 import MenuHeroSection from "@/components/menu/MenuHeroSection";
 import Section from "@/components/ui/Section";
-import { useGetMenuCategoriesQuery } from "@/redux/api/publicApi";
+import { useGetMenuCategoriesQuery, useGetRestaurantsQuery } from "@/redux/api/publicApi";
 
 const categoryNotes: Record<string, string[]> = {
   "high-protein-breakfast": [
     "*Les macros ont ete calcules pour une omelette de 6 oeufs entiers.",
     "*NOS SUPPLEMENTS",
     "2 Blancs d'oeuf: +8 DH | 2 Oeufs complets: +10 DH",
-  ],
-};
-
-const filterOptions = [
-  "Filter",
-  "Restaurant A",
-  "Restaurant B",
-  "Restaurant C",
-  "Restaurant D",
-];
-
-const restaurantCategoryMap: Record<string, string[]> = {
-  "Restaurant A": [
-    "high-protein-breakfast",
-    "signature-bowls",
-    "fit-burgers-wraps",
-    "smoothies-drinks",
-  ],
-  "Restaurant B": [
-    "compose-ton-plat",
-    "hot-bowls",
-    "healthy-burgers",
-    "healthy-pizzas",
-  ],
-  "Restaurant C": [
-    "poke-bowls",
-    "shakers-a-la-carte",
-    "detox-soft-drinks",
-  ],
-  "Restaurant D": [
-    "hot-drinks",
-    "ice-tea",
-    "healthy-desserts",
   ],
 };
 
@@ -61,8 +28,14 @@ function splitItemDescription(description: string | null | undefined) {
   };
 }
 
-function getCategoryId(category: any) {
-  return String(category.categoryId ?? category.id ?? "");
+function getCategoryRestaurants(category: any) {
+  if (!Array.isArray(category?.restaurants)) {
+    return [];
+  }
+
+  return category.restaurants
+    .map((restaurant: unknown) => String(restaurant ?? "").trim())
+    .filter(Boolean);
 }
 
 function matchesRestaurantFilter(category: any, selectedFilter: string) {
@@ -70,12 +43,14 @@ function matchesRestaurantFilter(category: any, selectedFilter: string) {
     return true;
   }
 
-  const allowedCategoryIds = restaurantCategoryMap[selectedFilter] ?? [];
-  return allowedCategoryIds.includes(getCategoryId(category));
+  return getCategoryRestaurants(category).some(
+    (restaurant) => restaurant.toLowerCase() === selectedFilter.toLowerCase(),
+  );
 }
 
 export default function MenuPage() {
   const { data, isLoading } = useGetMenuCategoriesQuery();
+  const { data: restaurantsData } = useGetRestaurantsQuery();
   const [selectedFilter, setSelectedFilter] = useState("Filter");
 
   const menuCategories = useMemo(
@@ -87,6 +62,34 @@ export default function MenuPage() {
     [data],
   );
 
+  const filterOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const dynamicRestaurants = menuCategories.reduce<string[]>(
+      (acc, category: any) => {
+        getCategoryRestaurants(category).forEach((restaurant) => {
+          const key = restaurant.toLowerCase();
+          if (seen.has(key)) {
+            return;
+          }
+
+          seen.add(key);
+          acc.push(restaurant);
+        });
+
+        return acc;
+      },
+      [],
+    );
+
+    return ["Filter", ...dynamicRestaurants];
+  }, [menuCategories]);
+
+  useEffect(() => {
+    if (!filterOptions.includes(selectedFilter)) {
+      setSelectedFilter("Filter");
+    }
+  }, [filterOptions, selectedFilter]);
+
   const filteredCategories = useMemo(
     () =>
       menuCategories.filter((category: any) =>
@@ -94,6 +97,28 @@ export default function MenuPage() {
       ),
     [menuCategories, selectedFilter],
   );
+
+  const restaurants = useMemo(
+    () => restaurantsData?.data ?? [],
+    [restaurantsData],
+  );
+
+  const selectedRestaurantInfo = useMemo(() => {
+    const activeRestaurantName =
+      selectedFilter === "Filter" ? filterOptions[1] : selectedFilter;
+
+    if (!activeRestaurantName) {
+      return null;
+    }
+
+    return (
+      restaurants.find(
+        (restaurant: any) =>
+          String(restaurant.name ?? "").toLowerCase() ===
+          activeRestaurantName.toLowerCase(),
+      ) ?? null
+    );
+  }, [filterOptions, restaurants, selectedFilter]);
 
   const emptyMessage =
     selectedFilter === "Filter"
@@ -108,6 +133,7 @@ export default function MenuPage() {
         filterOptions={filterOptions}
         selectedFilter={selectedFilter}
         onFilterChange={setSelectedFilter}
+        selectedRestaurantInfo={selectedRestaurantInfo}
       />
 
       <Section id="menu-details" className="scroll-mt-28 sm:scroll-mt-32">
