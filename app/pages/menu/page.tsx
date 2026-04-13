@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -6,6 +5,7 @@ import MenuCategoryJumpSection from "@/components/menu/MenuCategoryJumpSection";
 import MenuHeroSection from "@/components/menu/MenuHeroSection";
 import Section from "@/components/ui/Section";
 import { useGetMenuCategoriesQuery, useGetRestaurantsQuery } from "@/redux/api/publicApi";
+import type { MenuCategory, MenuItem, RestaurantInfo } from "@/types";
 
 const categoryNotes: Record<string, string[]> = {
   "high-protein-breakfast": [
@@ -13,6 +13,15 @@ const categoryNotes: Record<string, string[]> = {
     "*NOS SUPPLEMENTS",
     "2 Blancs d'oeuf: +8 DH | 2 Oeufs complets: +10 DH",
   ],
+};
+
+type MenuItemWithDisplayFields = MenuItem & {
+  image?: string | null;
+};
+
+type MenuCategoryWithDisplayFields = Omit<MenuCategory, "items"> & {
+  categoryId?: string;
+  items: MenuItemWithDisplayFields[];
 };
 
 function splitItemDescription(description: string | null | undefined) {
@@ -28,7 +37,7 @@ function splitItemDescription(description: string | null | undefined) {
   };
 }
 
-function getCategoryRestaurants(category: any) {
+function getCategoryRestaurants(category: MenuCategoryWithDisplayFields): string[] {
   if (!Array.isArray(category?.restaurants)) {
     return [];
   }
@@ -38,7 +47,10 @@ function getCategoryRestaurants(category: any) {
     .filter(Boolean);
 }
 
-function matchesRestaurantFilter(category: any, selectedFilter: string) {
+function matchesRestaurantFilter(
+  category: MenuCategoryWithDisplayFields,
+  selectedFilter: string,
+) {
   if (selectedFilter === "Filter") {
     return true;
   }
@@ -55,9 +67,10 @@ export default function MenuPage() {
 
   const menuCategories = useMemo(
     () =>
-      (data?.data ?? []).map((category: any) => ({
+      ((data?.data ?? []) as MenuCategoryWithDisplayFields[]).map((category) => ({
         ...category,
         id: category.categoryId ?? category.id,
+        items: Array.isArray(category.items) ? category.items : [],
       })),
     [data],
   );
@@ -65,7 +78,7 @@ export default function MenuPage() {
   const filterOptions = useMemo(() => {
     const seen = new Set<string>();
     const dynamicRestaurants = menuCategories.reduce<string[]>(
-      (acc, category: any) => {
+      (acc, category) => {
         getCategoryRestaurants(category).forEach((restaurant) => {
           const key = restaurant.toLowerCase();
           if (seen.has(key)) {
@@ -92,14 +105,14 @@ export default function MenuPage() {
 
   const filteredCategories = useMemo(
     () =>
-      menuCategories.filter((category: any) =>
+      menuCategories.filter((category) =>
         matchesRestaurantFilter(category, selectedFilter),
       ),
     [menuCategories, selectedFilter],
   );
 
   const restaurants = useMemo(
-    () => restaurantsData?.data ?? [],
+    () => (restaurantsData?.data ?? []) as RestaurantInfo[],
     [restaurantsData],
   );
 
@@ -113,7 +126,7 @@ export default function MenuPage() {
 
     return (
       restaurants.find(
-        (restaurant: any) =>
+        (restaurant) =>
           String(restaurant.name ?? "").toLowerCase() ===
           activeRestaurantName.toLowerCase(),
       ) ?? null
@@ -144,7 +157,7 @@ export default function MenuPage() {
           <p className="text-sm text-zinc-500">{emptyMessage}</p>
         ) : null}
         <div className="space-y-16 sm:space-y-20">
-          {filteredCategories.map((category: any, index: number) => {
+          {filteredCategories.map((category, index: number) => {
             const isDark = index % 2 === 1;
             return (
               <div
@@ -164,7 +177,7 @@ export default function MenuPage() {
                 </div>
 
                 <div className="mx-auto mt-2 max-w-6xl">
-                  {(category.items ?? []).map((item: any) => {
+                  {(category.items ?? []).map((item) => {
                     const details = splitItemDescription(item.description);
                     const hasPrice = item.priceMad > 0;
                     const hasNutrition =
