@@ -15,85 +15,87 @@ const navLinks = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
 
   return (
-    <header className="fixed left-0 top-0 z-50 w-full px-3 pt-2 sm:px-5">
-      <div className="mx-auto max-w-[1500px] rounded-3xl bg-black/15 backdrop-blur-xl">
-        <div className="flex h-14 items-center justify-between px-4 sm:px-8">
-          <div className="flex w-24 items-center gap-3">
+    <header className="fixed left-0 top-0 z-50 w-full px-4 pt-6 sm:px-8 lg:px-14">
+      <div className="mx-auto max-w-[1500px] border-b border-white/8 bg-black/18 backdrop-blur-[2px]">
+        <div className="flex min-h-[86px] items-center justify-between gap-6 px-4 sm:px-6 lg:px-10">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
               className="text-white transition-colors hover:text-white/80 lg:hidden"
               aria-label="Toggle menu"
             >
-              <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <svg
+                viewBox="0 0 24 24"
+                className="h-7 w-7"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
                 <path d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             </button>
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={() => setSearchOpen(true)}
-              className="hidden text-white/90 transition-colors hover:text-white lg:inline-flex"
-            >
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <circle cx="11" cy="11" r="7" />
-                <path d="M20 20L16.6 16.6" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="flex flex-col items-center justify-center ">
             <Link
               href="/"
-              className="text-[2rem] font-medium tracking-wide !text-white sm:text-3xl"
-              style={{ color: "#ffffff" }}
+              className="shrink-0 text-white"
+              onClick={() => setMenuOpen(false)}
             >
-              PROTEINBAR
+              <div className="leading-none">
+                <p className="text-[1.2rem] font-semibold tracking-[0.12em] text-white sm:text-[1.45rem]">
+                  PROTEINBAR
+                </p>
+                <p className="mt-1 text-[0.48rem] uppercase tracking-[0.22em] text-white sm:text-[0.58rem]">
+                  The Real Food Revolution
+                </p>
+              </div>
             </Link>
           </div>
 
-          <div className="flex w-24 items-center justify-end gap-3">
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={() => setSearchOpen(true)}
-              className="text-white/90 transition-colors hover:text-white lg:hidden"
-            >
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <circle cx="11" cy="11" r="7" />
-                <path d="M20 20L16.6 16.6" />
-              </svg>
-            </button>
+          <nav className="hidden flex-1 items-center justify-center lg:flex">
+            <div className="flex items-center gap-8 xl:gap-12">
+              {navLinks.map((item) => {
+                const linkPath = item.href.split("#")[0];
+                const isActive = pathname === linkPath;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`nav-link-hover !text-white text-[0.98rem] font-normal tracking-[0.01em] ${
+                      isActive ? "after:scale-x-100" : ""
+                    }`}
+                    style={{ color: "#ffffff" }}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
             <Link
               href="/login"
-              aria-label="Account"
-              className="!text-white transition-colors hover:!text-white"
+              className="hidden !text-white text-[0.98rem] font-normal transition-colors hover:!text-white sm:inline-flex"
+              style={{ color: "#ffffff" }}
             >
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M5 20c1.5-3 4.2-4.5 7-4.5s5.5 1.5 7 4.5" />
-              </svg>
+              Log in
             </Link>
             <Link
-              href="/cart"
-              aria-label="Cart"
-              className="!text-white transition-colors hover:!text-white"
+              href="/plans"
+              className="inline-flex h-[52px] items-center justify-center rounded-none border border-white/36 px-6 text-[0.98rem] font-normal !text-white transition hover:bg-white hover:!text-black sm:px-8"
             >
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="#ffffff" strokeWidth="1.8">
-                <path d="M4 6h2l2 10h8l2-7H7.5" />
-                <circle cx="10" cy="19" r="1.5" />
-                <circle cx="17" cy="19" r="1.5" />
-              </svg>
+              Meal Prep
             </Link>
           </div>
         </div>
+      </div>
 
-        <div className="hidden justify-center border-t border-white/10 px-6 py-3 lg:flex">
-          <nav className="flex items-center gap-8 text-base font-medium text-white/85">
+      {menuOpen && (
+        <nav className="animate-fade-down mx-auto mt-3 max-w-[1500px] border border-white/12 bg-black/88 px-4 py-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.28)] lg:hidden">
+          <div className="flex w-full flex-col gap-2">
             {navLinks.map((item) => {
               const linkPath = item.href.split("#")[0];
               const isActive = pathname === linkPath;
@@ -101,86 +103,33 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`nav-link-hover ${isActive ? "text-white after:scale-x-100" : ""}`}
+                  onClick={() => setMenuOpen(false)}
+                  className={`rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-white/10 ${
+                    isActive ? "bg-white/10 text-white" : "text-white/90"
+                  }`}
                 >
                   {item.label}
                 </Link>
               );
             })}
-          </nav>
-        </div>
-
-      </div>
-
-      {menuOpen && (
-        <nav className="animate-fade-down   bg-black/80 px-4 py-4 text-white lg:hidden">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-2">
-            {navLinks.map((item) => {
-                const linkPath = item.href.split("#")[0];
-                const isActive = pathname === linkPath;
-                return (
+            <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
               <Link
-                key={item.href}
-                href={item.href}
+                href="/login"
                 onClick={() => setMenuOpen(false)}
-                className={`rounded-lg px-2 py-2 text-sm transition-colors hover:bg-white/10 ${
-                  isActive ? "bg-white/10 text-white" : "text-white/90"
-                }`}
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-white/15 text-sm font-medium text-white/90 transition hover:bg-white/10"
               >
-                {item.label}
+                Log in
               </Link>
-                );
-              })}
-          </div>
-        </nav>
-      )}
-
-      {searchOpen && (
-        <div
-          className="fixed inset-0 z-[70] bg-black/45"
-          onClick={() => setSearchOpen(false)}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") setSearchOpen(false);
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Close search"
-        >
-          <div className="mx-auto mt-6 w-[94%] max-w-[980px] px-2" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-full items-center rounded-2xl border-2 border-white bg-black/75 px-4">
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="Recherche"
-                  className="w-full bg-transparent text-base text-white outline-none placeholder:text-white/70"
-                />
-                <button type="button" aria-label="Run search" className="text-white/90 hover:text-white">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  >
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="M20 20L16.6 16.6" />
-                  </svg>
-                </button>
-              </div>
-              <button
-                type="button"
-                aria-label="Close search"
-                onClick={() => setSearchOpen(false)}
-                className="text-white/90 transition-colors hover:text-white"
+              <Link
+                href="/plans"
+                onClick={() => setMenuOpen(false)}
+                className="inline-flex h-11 items-center justify-center border border-white bg-white text-sm font-medium text-zinc-950 transition hover:bg-zinc-100"
               >
-                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
-              </button>
+                Meal Prep
+              </Link>
             </div>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

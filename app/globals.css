@@ -127,7 +127,6 @@ img {
 .hero-cta:hover {
   transform: translateY(-3px) scale(1.01);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
-  color: #ffffff !important;
 }
 
 .hero-cta:hover::before {
@@ -140,10 +139,12 @@ img {
 
 .hero-cta-primary:hover {
   filter: brightness(1.02);
+  color: #111111 !important;
 }
 
 .hero-cta-secondary:hover {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  color: #ffffff !important;
 }
 
 .reviews-marquee-track {
