@@ -21,14 +21,14 @@ export default function HeroSection() {
           priority
           className="hero-image-zoom object-cover"
         />
-        <div className="absolute inset-0 bg-black/68" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04),transparent_42%),linear-gradient(180deg,rgba(0,0,0,0.30)_0%,rgba(0,0,0,0.38)_28%,rgba(0,0,0,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-black/52" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05),transparent_42%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.24)_28%,rgba(0,0,0,0.52)_100%)]" />
 
         <div className="relative z-10 flex min-h-[92vh] flex-col items-center justify-center px-6 pt-24 text-center text-white sm:px-10">
           <p className="fade-up text-[0.72rem] uppercase tracking-[0.38em] text-white/72 sm:text-xs">
             {heroContent.eyebrow}
           </p>
-          <h1 className="fade-up-delay mt-5 max-w-5xl text-5xl font-medium tracking-[-0.03em] sm:text-6xl lg:text-[5.3rem] lg:leading-[1.02]">
+          <h1 className="fade-up-delay mt-5 max-w-[1180px] text-[3.35rem] font-normal tracking-[-0.045em] sm:text-[4.6rem] lg:text-[5.55rem] lg:leading-[1.01]">
             {heroContent.title}
           </h1>
           <p className="fade-up-delay-2 mt-5 max-w-3xl text-base leading-8 text-white/82 sm:text-lg sm:leading-9">
