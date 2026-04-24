@@ -235,9 +235,7 @@ export default function MenuPage() {
       <MenuHeroSection />
       <MenuCategoryJumpSection
         categories={filteredCategories}
-        filterOptions={filterOptions}
         selectedFilter={selectedFilter}
-        onFilterChange={handleLocationSelect}
         selectedRestaurantInfo={selectedRestaurantInfo}
       />
 
