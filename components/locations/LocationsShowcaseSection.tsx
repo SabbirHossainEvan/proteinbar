@@ -63,33 +63,33 @@ export default function LocationsShowcaseSection() {
             />
             <div className="absolute inset-0 bg-black/65" />
             <div className="absolute inset-x-0 bottom-0 z-10 px-4 pb-10 sm:px-8 sm:pb-14 lg:px-12">
-              <div className="mx-auto w-full max-w-[1300px] text-white">
-                <p className="text-xs font-medium tracking-wide text-white/90 sm:text-sm">
-                  *****
-                  <span className="ml-2 text-[11px] sm:text-sm">
+              <div className="mx-auto w-full max-w-[1300px] text-white lg:pl-8">
+                <p className="text-[11px] font-medium tracking-[0.18em] text-white/90 sm:text-xs">
+                  <span className="text-white">*****</span>
+                  <span className="ml-2 text-[10px] tracking-normal text-white/90 sm:text-xs">
                     {location.ratingText?.trim()
                       ? location.ratingText
                       : `Rated 4.5/5 Based on ${visual.reviews} Reviews`}
                   </span>
                 </p>
-                <h3 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
+                <h3 className="mt-3 text-[2rem] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-[2.7rem] lg:text-[3.2rem]">
                   {location.name}
                 </h3>
-                <p className="mt-2 text-base sm:text-3xl">
+                <p className="mt-3 text-base leading-relaxed text-white/95 sm:text-xl lg:text-[1.1rem]">
                   <span className="font-semibold">Address:</span>{" "}
                   {location.address}
                 </p>
-                <p className="mt-1 text-base sm:text-3xl">
+                <p className="mt-1.5 text-base leading-relaxed text-white/95 sm:text-xl lg:text-[1.1rem]">
                   <span className="font-semibold">Phone:</span>{" "}
                   {location.phone?.trim() || "Contact in store"}
                 </p>
                 {location.timeSlots?.length ? (
-                  <p className="mt-1 text-sm text-white/85 sm:text-xl">
+                  <p className="mt-1.5 text-sm text-white/85 sm:text-base lg:text-[0.95rem]">
                     Time slots: {location.timeSlots.join(", ")}
                   </p>
                 ) : null}
                 {location.cutoffTime?.trim() ? (
-                  <p className="mt-1 text-sm text-white/85 sm:text-xl">
+                  <p className="mt-1.5 text-sm text-white/85 sm:text-base lg:text-[0.95rem]">
                     Cutoff time: {location.cutoffTime}
                   </p>
                 ) : null}
@@ -98,12 +98,12 @@ export default function LocationsShowcaseSection() {
                     href={location.mapUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-2 inline-block text-base font-semibold underline underline-offset-4 sm:text-3xl"
+                    className="mt-3 inline-block text-base font-semibold text-white underline underline-offset-4 sm:text-lg lg:text-[1.05rem]"
                   >
                     See on Google Maps
                   </a>
                 ) : null}
-                <div className="mt-2 h-1 w-48 bg-white/60 sm:w-72" />
+                <div className="mt-3 h-px w-40 bg-white/60 sm:w-52" />
               </div>
             </div>
           </article>

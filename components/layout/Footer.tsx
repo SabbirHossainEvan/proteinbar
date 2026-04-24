@@ -5,13 +5,14 @@ export default function Footer() {
     <footer className="relative bg-black px-6 py-20 text-white sm:py-24">
       <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
         <div>
-          <h2 className="text-[3.6rem] leading-none tracking-[0.02em] sm:text-[4.2rem]">
+          <h2 className="text-[2.6rem] leading-[0.92] tracking-[0.08em] sm:text-[3.4rem]">
             <span className="font-semibold">PROTEIN</span>
-            <span className="font-light">BAR</span>
+            <span className="font-light tracking-[0.1em]">BAR</span>
           </h2>
-          <p className="mt-2 text-[0.92rem] uppercase tracking-[0.18em] text-white/92 sm:text-[1rem]">
+          <p className="mt-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/95 sm:text-[1.16rem]">
             The Real Food Revolution
           </p>
+          <div className="mx-auto mt-2 h-px w-full max-w-[22rem] bg-white/18 sm:max-w-[26rem]" />
         </div>
 
         <div className="mt-6 space-y-1 text-[1.1rem] leading-[1.6] sm:text-[1.18rem]">
