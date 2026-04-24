@@ -17,7 +17,7 @@ const healthyImages = [
 
 export default function HealthyCustomersSection() {
   return (
-    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[#efefef] px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
+    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen  px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
       <div className="mx-auto w-full max-w-[1800px]">
         <h2
           className="px-2 text-center text-3xl font-semibold tracking-tight text-zinc-800 sm:text-5xl lg:text-5xl"

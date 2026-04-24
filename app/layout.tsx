@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="overflow-x-hidden">
-      <body className={`${poppins.className} min-h-screen overflow-x-hidden bg-zinc-50 text-zinc-900 antialiased`}>
+      <body className={`${poppins.className} min-h-screen overflow-x-hidden bg-white text-zinc-900 antialiased`}>
         <Providers>
           <div className="flex min-h-screen max-w-full flex-col overflow-x-hidden">
             <Header />

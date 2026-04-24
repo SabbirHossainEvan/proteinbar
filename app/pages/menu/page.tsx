@@ -49,21 +49,40 @@ function getCategoryRestaurants(category: MenuCategoryWithDisplayFields): string
 
 function matchesRestaurantFilter(
   category: MenuCategoryWithDisplayFields,
-  selectedFilter: string,
+  selectedRestaurantName: string,
+  selectedRestaurantAliases: string[],
 ) {
-  if (selectedFilter === "Filter") {
-    return true;
+  if (!selectedRestaurantName) {
+    return false;
   }
 
-  return getCategoryRestaurants(category).some(
-    (restaurant) => restaurant.toLowerCase() === selectedFilter.toLowerCase(),
+  const categoryRestaurants = getCategoryRestaurants(category).map((restaurant) =>
+    restaurant.toLowerCase(),
   );
+
+  return selectedRestaurantAliases.some((alias) =>
+    categoryRestaurants.includes(alias.toLowerCase()),
+  );
+}
+
+function toRestaurantAliases(restaurant: RestaurantInfo | null) {
+  if (!restaurant) return [] as string[];
+
+  const values = [
+    restaurant.name,
+    restaurant.restaurantId,
+    restaurant.restaurantId?.replace(/-/g, " "),
+  ]
+    .map((value) => String(value ?? "").trim())
+    .filter(Boolean);
+
+  return Array.from(new Set(values));
 }
 
 export default function MenuPage() {
   const { data, isLoading } = useGetMenuCategoriesQuery();
   const { data: restaurantsData } = useGetRestaurantsQuery();
-  const [selectedFilter, setSelectedFilter] = useState("Filter");
+  const [selectedFilter, setSelectedFilter] = useState("");
 
   const menuCategories = useMemo(
     () =>
@@ -75,52 +94,44 @@ export default function MenuPage() {
     [data],
   );
 
-  const filterOptions = useMemo(() => {
-    const seen = new Set<string>();
-    const dynamicRestaurants = menuCategories.reduce<string[]>(
-      (acc, category) => {
-        getCategoryRestaurants(category).forEach((restaurant) => {
-          const key = restaurant.toLowerCase();
-          if (seen.has(key)) {
-            return;
-          }
-
-          seen.add(key);
-          acc.push(restaurant);
-        });
-
-        return acc;
-      },
-      [],
-    );
-
-    return ["Filter", ...dynamicRestaurants];
-  }, [menuCategories]);
-
-  useEffect(() => {
-    if (!filterOptions.includes(selectedFilter)) {
-      setSelectedFilter("Filter");
-    }
-  }, [filterOptions, selectedFilter]);
-
-  const filteredCategories = useMemo(
-    () =>
-      menuCategories.filter((category) =>
-        matchesRestaurantFilter(category, selectedFilter),
-      ),
-    [menuCategories, selectedFilter],
-  );
-
   const restaurants = useMemo(
     () => (restaurantsData?.data ?? []) as RestaurantInfo[],
     [restaurantsData],
   );
 
-  const selectedRestaurantInfo = useMemo(() => {
-    const activeRestaurantName =
-      selectedFilter === "Filter" ? filterOptions[1] : selectedFilter;
+  const filterOptions = useMemo(() => {
+    const fromApi = restaurants
+      .map((restaurant) => String(restaurant.name ?? "").trim())
+      .filter(Boolean);
 
-    if (!activeRestaurantName) {
+    if (fromApi.length) {
+      return fromApi;
+    }
+
+    const seen = new Set<string>();
+    return menuCategories.reduce<string[]>((acc, category) => {
+      getCategoryRestaurants(category).forEach((restaurant) => {
+        const key = restaurant.toLowerCase();
+        if (seen.has(key)) {
+          return;
+        }
+
+        seen.add(key);
+        acc.push(restaurant);
+      });
+
+      return acc;
+    }, []);
+  }, [menuCategories, restaurants]);
+
+  useEffect(() => {
+    if (selectedFilter && !filterOptions.includes(selectedFilter)) {
+      setSelectedFilter("");
+    }
+  }, [filterOptions, selectedFilter]);
+
+  const selectedRestaurantInfo = useMemo(() => {
+    if (!selectedFilter) {
       return null;
     }
 
@@ -128,14 +139,36 @@ export default function MenuPage() {
       restaurants.find(
         (restaurant) =>
           String(restaurant.name ?? "").toLowerCase() ===
-          activeRestaurantName.toLowerCase(),
+          selectedFilter.toLowerCase(),
       ) ?? null
     );
-  }, [filterOptions, restaurants, selectedFilter]);
+  }, [restaurants, selectedFilter]);
+
+  const selectedRestaurantAliases = useMemo(
+    () =>
+      selectedRestaurantInfo
+        ? toRestaurantAliases(selectedRestaurantInfo)
+        : selectedFilter
+          ? [selectedFilter]
+          : [],
+    [selectedFilter, selectedRestaurantInfo],
+  );
+
+  const filteredCategories = useMemo(
+    () =>
+      menuCategories.filter((category) =>
+        matchesRestaurantFilter(
+          category,
+          selectedFilter,
+          selectedRestaurantAliases,
+        ),
+      ),
+    [menuCategories, selectedFilter, selectedRestaurantAliases],
+  );
 
   const emptyMessage =
-    selectedFilter === "Filter"
-      ? "No menu categories available right now."
+    !selectedFilter
+      ? "Select a location to view its menu."
       : `No menu categories available for ${selectedFilter}.`;
 
   return (

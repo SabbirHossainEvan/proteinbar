@@ -21,6 +21,7 @@ type ShowMealsSelection = {
   startDate: string;
   deliveryDays?: string;
   planType?: string;
+  selectedMeals?: string;
 };
 
 type MonthlyPlanShowMealsProps = {
@@ -57,6 +58,30 @@ type SelectedMealOption = {
   carb: number;
   fat: number;
 };
+
+function parseSelectedMeals(value?: string): SelectedMealOption[] {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .map((item) => ({
+        instanceId: item?.instanceId ? String(item.instanceId) : undefined,
+        id: String(item?.id ?? ""),
+        title: String(item?.title ?? ""),
+        date: item?.date ? String(item.date) : undefined,
+        calories: Number(item?.calories ?? 0),
+        protein: Number(item?.protein ?? 0),
+        carb: Number(item?.carb ?? 0),
+        fat: Number(item?.fat ?? 0),
+      }))
+      .filter((item) => item.id && item.title);
+  } catch {
+    return [];
+  }
+}
 
 type SelectedCardMealDetail = {
   selection: SelectedMealOption;
@@ -340,7 +365,22 @@ export default function MonthlyPlanShowMeals({
   const [sliderPage, setSliderPage] = useState(0);
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
-  const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>([]);
+  const storageKey = useMemo(
+    () =>
+      `proteinbar_selected_meals:${plan.id}:${selection.startDate}:${selection.meals}:${selection.days}:${selection.weeks ?? ""}:${selection.deliveryDays ?? ""}`,
+    [
+      plan.id,
+      selection.days,
+      selection.deliveryDays,
+      selection.meals,
+      selection.startDate,
+      selection.weeks,
+    ],
+  );
+  const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>(() =>
+    parseSelectedMeals(selection.selectedMeals),
+  );
+  const [slotWarning, setSlotWarning] = useState("");
   const [selectionPopupMeal, setSelectionPopupMeal] = useState<DayMeal | null>(
     null,
   );
@@ -367,6 +407,33 @@ export default function MonthlyPlanShowMeals({
     }
   }, [activeTab, tabs.length]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const fromStorage = window.sessionStorage.getItem(storageKey);
+    if (!fromStorage) {
+      if (selection.selectedMeals) {
+        setSelectedMeals(parseSelectedMeals(selection.selectedMeals));
+      }
+      return;
+    }
+
+    const parsed = parseSelectedMeals(fromStorage);
+    if (parsed.length > 0) {
+      setSelectedMeals(parsed);
+      return;
+    }
+
+    if (selection.selectedMeals) {
+      setSelectedMeals(parseSelectedMeals(selection.selectedMeals));
+    }
+  }, [selection.selectedMeals, storageKey]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.setItem(storageKey, JSON.stringify(selectedMeals));
+  }, [selectedMeals, storageKey]);
+
   const mealSelectionKey = (mealId: string, date?: string) =>
     `${mealId}::${date ?? "custom"}`;
 
@@ -381,6 +448,7 @@ export default function MonthlyPlanShowMeals({
       const requestedCount = Math.max(1, quantity);
       const now = Date.now();
       const additions: SelectedMealOption[] = [];
+      let reachedLimit = false;
 
       if (!date && isCustom && customCards.length > 0) {
         const cardCounts = new Map(
@@ -397,6 +465,7 @@ export default function MonthlyPlanShowMeals({
           });
 
           if (!nextCard) {
+            reachedLimit = true;
             break;
           }
 
@@ -430,6 +499,14 @@ export default function MonthlyPlanShowMeals({
         );
       }
 
+      if (reachedLimit || additions.length < requestedCount) {
+        setSlotWarning(
+          "Meal slot limit reached. Extra meals were not added beyond the available slots.",
+        );
+      } else {
+        setSlotWarning("");
+      }
+
       return [...prev, ...additions];
     });
   };
@@ -442,6 +519,7 @@ export default function MonthlyPlanShowMeals({
       const requestedCount = Math.max(1, quantity);
       const now = Date.now();
       const additions: SelectedMealOption[] = [];
+      let reachedLimit = false;
 
       if (isCustom && customCards.length > 0) {
         const cardCounts = new Map(
@@ -458,6 +536,7 @@ export default function MonthlyPlanShowMeals({
           });
 
           if (!nextCard) {
+            reachedLimit = true;
             break;
           }
 
@@ -489,6 +568,14 @@ export default function MonthlyPlanShowMeals({
             fat: savedMeal.totals.fat,
           })),
         );
+      }
+
+      if (reachedLimit || additions.length < requestedCount) {
+        setSlotWarning(
+          "Meal slot limit reached. Extra meals were not added beyond the available slots.",
+        );
+      } else {
+        setSlotWarning("");
       }
 
       return [...prev, ...additions];
@@ -586,6 +673,7 @@ export default function MonthlyPlanShowMeals({
             if (!id) continue;
 
             const selectionItem: SelectedMealOption = {
+              instanceId: undefined,
               id,
               title:
                 mappedMeal?.title ??
@@ -609,6 +697,7 @@ export default function MonthlyPlanShowMeals({
     }
 
     return normalMeals.map((meal) => ({
+      instanceId: undefined,
       id: meal.id,
       title: meal.title,
       date: undefined,
@@ -727,9 +816,14 @@ export default function MonthlyPlanShowMeals({
         "selectedMeals",
         JSON.stringify(
           selectedMealsForCheckout.map((item) => ({
+            instanceId: item.instanceId,
             id: item.id,
             title: item.title,
             date: item.date,
+            calories: item.calories,
+            protein: item.protein,
+            carb: item.carb,
+            fat: item.fat,
           })),
         ),
       );
@@ -989,16 +1083,16 @@ export default function MonthlyPlanShowMeals({
                     }
                     type="button"
                     onClick={() =>
-                      setSelectedMeals((prev) =>
-                        prev.filter(
-                          (selected) =>
-                            (selected.instanceId ??
-                              mealSelectionKey(selected.id, selected.date)) !==
-                            (item.instanceId ??
-                              mealSelectionKey(item.id, item.date)),
-                        ),
-                      )
-                    }
+                          setSelectedMeals((prev) =>
+                            prev.filter(
+                              (selected) =>
+                                (selected.instanceId ??
+                                  mealSelectionKey(selected.id, selected.date)) !==
+                                (item.instanceId ??
+                                  mealSelectionKey(item.id, item.date)),
+                            ),
+                          )
+                        }
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title}
@@ -1548,29 +1642,36 @@ export default function MonthlyPlanShowMeals({
         </div>
 
         <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
-          <h4 className="text-2xl font-semibold text-zinc-900">
-            Selected Options
-          </h4>
+            <h4 className="text-2xl font-semibold text-zinc-900">
+              Selected Options
+            </h4>
+          {slotWarning ? (
+            <p className="mt-3 text-sm font-medium text-amber-700">
+              {slotWarning}
+            </p>
+          ) : null}
           {selectedMealsForCheckout.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {selectedMealsForCheckout.map((item) =>
                 isNormalPlan ? (
                   <span
-                    key={mealSelectionKey(item.id, item.date)}
+                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title} {item.date ? `(${item.date})` : ""}
                   </span>
                 ) : (
                   <button
-                    key={mealSelectionKey(item.id, item.date)}
+                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
                     type="button"
                     onClick={() =>
                       setSelectedMeals((prev) =>
                         prev.filter(
                           (selected) =>
-                            mealSelectionKey(selected.id, selected.date) !==
-                            mealSelectionKey(item.id, item.date),
+                            (selected.instanceId ??
+                              mealSelectionKey(selected.id, selected.date)) !==
+                            (item.instanceId ??
+                              mealSelectionKey(item.id, item.date)),
                         ),
                       )
                     }

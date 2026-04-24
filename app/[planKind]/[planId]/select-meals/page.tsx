@@ -28,6 +28,7 @@ export default function SelectMealsPage() {
       searchParams.get("startDate") ?? new Date().toISOString().split("T")[0],
     deliveryDays: searchParams.get("deliveryDays") ?? "",
     planType: searchParams.get("planType") ?? "",
+    selectedMeals: searchParams.get("selectedMeals") ?? "",
   };
 
   return (

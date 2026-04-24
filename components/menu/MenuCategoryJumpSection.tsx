@@ -167,7 +167,7 @@ export default function MenuCategoryJumpSection({
           >
             <span className="flex min-w-0 items-center gap-2 whitespace-nowrap">
               <ListFilter className="h-5 w-5 shrink-0" strokeWidth={2} />
-              <span className="truncate">{selectedFilter}</span>
+              <span className="truncate">{selectedFilter || "Select Location"}</span>
             </span>
             <svg
               viewBox="0 0 24 24"
@@ -205,6 +205,12 @@ export default function MenuCategoryJumpSection({
         qu&apos;avec des produits frais que nos fournisseurs nous livrent chaque
         matin. Les calories sont approximatives et a titre indicatif.
       </p>
+
+      {!selectedFilter ? (
+        <div className="mt-10 rounded-2xl border border-[#b8942c]/30 bg-[#b8942c]/5 px-6 py-10 text-center text-sm text-zinc-700 sm:mt-12">
+          Select a restaurant from the dropdown first. We will then show only that location&apos;s menu.
+        </div>
+      ) : null}
 
       <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 xl:grid-cols-4">
         {categories.map((category) => {

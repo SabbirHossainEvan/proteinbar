@@ -15,19 +15,19 @@ export default function LocationsPreviewSection() {
   ).slice(0, 2);
 
   return (
-    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-black px-6 py-28 sm:px-8 sm:py-32">
-      <div className="mx-auto max-w-[1180px]">
-        <div className="mb-16 text-center sm:mb-18">
-          <h2 className="text-[2.5rem] font-bold uppercase tracking-[-0.03em] text-white sm:text-[3.7rem]">
+    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-black px-6 py-20 sm:px-8 sm:py-24">
+      <div className="mx-auto max-w-[980px]">
+        <div className="mb-14 text-center">
+          <h2 className="text-[2rem] font-semibold uppercase tracking-[0.02em] text-white sm:text-[2.8rem]">
             Our Locations
           </h2>
-          <div className="mx-auto mt-6 h-px w-[182px] bg-white" />
+          <div className="mx-auto mt-4 h-px w-[110px] bg-[#b8942c]" />
         </div>
 
-        <div className="mx-auto grid max-w-[835px] gap-7 md:grid-cols-2 md:gap-7">
+        <div className="mx-auto grid max-w-[720px] gap-4 md:grid-cols-2">
           {locations.map((location, index) => (
             <article key={location.id} className="text-white">
-              <div className="relative h-[402px] overflow-hidden bg-zinc-900 sm:h-[430px]">
+              <div className="relative h-[270px] overflow-hidden bg-zinc-900 sm:h-[320px]">
                 <Image
                   src={
                     location.image && location.image.trim()
@@ -40,16 +40,16 @@ export default function LocationsPreviewSection() {
                 />
               </div>
 
-              <div className="mt-5 space-y-1">
-                <h3 className="text-[1.15rem] font-semibold leading-tight text-white sm:text-[1.28rem]">
+              <div className="mt-4 space-y-1">
+                <h3 className="text-[0.95rem] font-semibold leading-tight text-white sm:text-[1rem]">
                   {location.name}
                 </h3>
-                <p className="text-[1rem] leading-7 text-white/96 sm:text-[1.08rem]">
-                  <span className="font-semibold text-white">Address:</span>{" "}
+                <p className="text-[0.78rem] leading-6 text-white/92 sm:text-[0.82rem]">
+                  <span className="font-semibold text-[#b8942c]">Address:</span>{" "}
                   {location.address}
                 </p>
-                <p className="text-[1rem] leading-7 text-white/96 sm:text-[1.08rem]">
-                  <span className="font-semibold text-white">Phone:</span>{" "}
+                <p className="text-[0.78rem] leading-6 text-white/92 sm:text-[0.82rem]">
+                  <span className="font-semibold text-[#b8942c]">Phone:</span>{" "}
                   {location.phone || "Contact in store"}
                 </p>
               </div>
@@ -59,7 +59,7 @@ export default function LocationsPreviewSection() {
                   href={location.mapUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-1.5 inline-block text-[1rem] text-white underline underline-offset-4 transition hover:text-white/80"
+                  className="mt-1.5 inline-block text-[0.78rem] text-white underline underline-offset-4 transition hover:text-[#b8942c]"
                 >
                   See on Google Maps
                 </a>
