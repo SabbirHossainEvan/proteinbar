@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -33,11 +33,77 @@ function BrandLogo() {
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const lastScrollYRef = useRef(0);
+  const isHeaderVisibleRef = useRef(true);
+  const isScrolledRef = useRef(false);
+  const menuOpenRef = useRef(false);
+
+  useEffect(() => {
+    menuOpenRef.current = menuOpen;
+  }, [menuOpen]);
+
+  useEffect(() => {
+    lastScrollYRef.current = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const isNearTop = currentScrollY < 24;
+      const nextIsScrolled = !isNearTop;
+      const isScrollingDown = currentScrollY > lastScrollYRef.current;
+
+      if (nextIsScrolled !== isScrolledRef.current) {
+        isScrolledRef.current = nextIsScrolled;
+        setIsScrolled(nextIsScrolled);
+      }
+
+      if (isNearTop) {
+        if (!isHeaderVisibleRef.current) {
+          isHeaderVisibleRef.current = true;
+          setIsHeaderVisible(true);
+        }
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      if (isScrollingDown && currentScrollY > 96) {
+        if (isHeaderVisibleRef.current) {
+          isHeaderVisibleRef.current = false;
+          setIsHeaderVisible(false);
+        }
+        if (menuOpenRef.current) {
+          menuOpenRef.current = false;
+          setMenuOpen(false);
+        }
+      } else if (!isScrollingDown && !isHeaderVisibleRef.current) {
+        isHeaderVisibleRef.current = true;
+        setIsHeaderVisible(true);
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="fixed left-0 top-0 z-50 w-full px-4 pt-5 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-[1500px] border border-white/12 bg-black/20 backdrop-blur-md">
+    <header
+      className={`fixed left-0 top-0 z-50 w-full px-4 pt-5 transition-transform duration-300 ease-out sm:px-8 lg:px-12 ${
+        isHeaderVisible ? "translate-y-0" : "-translate-y-[calc(100%+1.25rem)]"
+      }`}
+    >
+      <div
+        className={`mx-auto max-w-[1500px] transition-[background-color,backdrop-filter,box-shadow] duration-300 ${
+          isScrolled && isHeaderVisible
+            ? "bg-black/20 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
+            : "bg-transparent shadow-none backdrop-blur-0"
+        }`}
+      >
         <div className="grid min-h-[84px] grid-cols-[auto_1fr_auto] items-center gap-6 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button
@@ -93,7 +159,7 @@ export default function Header() {
                 href={item.href}
                 className={`hidden text-[0.98rem] font-normal transition-colors hover:text-white sm:inline-flex ${
                   item.label === "Meal Prep"
-                    ? "border border-white/28 px-4 py-2.5"
+                    ? "h-[46px] min-w-[146px] items-center justify-center border border-white/35 bg-white/[0.06] px-6 text-[0.98rem] font-normal shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur-[1.5px]"
                     : ""
                 }`}
                 style={{ color: "#ffffff" }}
