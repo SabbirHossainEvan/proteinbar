@@ -1,10 +1,10 @@
-import Link from "next/link";
+import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 
 export default function IntroStatementSection() {
   return (
-    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-white px-6 py-24 sm:py-28">
-      <div className="mx-auto max-w-5xl text-center">
-        <p className="mx-auto max-w-4xl text-lg font-semibold leading-[1.7] tracking-tight text-black sm:text-[22px]">
+    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-white px-6 py-16 sm:py-20">
+      <div className="mx-auto max-w-4xl text-center">
+        <p className="mx-auto max-w-3xl font-semibold text-[15px] leading-7 tracking-[0.01em] text-black sm:text-[14px] sm:leading-8">
           Founded in 2018, Proteinbar is dedicated to offering a wide array of
           wholesome and nutritious meals. Our restaurant prides itself on
           crafting delicious dishes that prioritize health and well-being,
@@ -13,13 +13,11 @@ export default function IntroStatementSection() {
         </p>
 
         <div className="mt-10">
-          <Link
-            href="/pages/menu"
-            className="inline-flex h-10 min-w-[220px] items-center justify-center bg-black px-8 text-lg font-medium !text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-900"
-            style={{ color: "#ffffff" }}
+          <MenuLocationTrigger
+            className="inline-flex h-10 min-w-[120px] items-center justify-center bg-black px-6 text-[11px] uppercase tracking-[0.14em] !text-white transition-all duration-200 hover:bg-black"
           >
             See Our Menu
-          </Link>
+          </MenuLocationTrigger>
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 
 const heroContent = {
   eyebrow: "Since 2018",
@@ -21,30 +22,30 @@ export default function HeroSection() {
           priority
           className="hero-image-zoom object-cover"
         />
-        <div className="absolute inset-0 bg-black/52" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05),transparent_42%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.24)_28%,rgba(0,0,0,0.52)_100%)]" />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.28)_0%,rgba(0,0,0,0.22)_28%,rgba(0,0,0,0.66)_100%)]" />
 
         <div className="relative z-10 flex min-h-[92vh] flex-col items-center justify-center px-6 pt-24 text-center text-white sm:px-10">
-          <p className="fade-up text-[0.72rem] uppercase tracking-[0.38em] text-white/72 sm:text-xs">
+          <p className="fade-up text-[0.8rem] uppercase tracking-[0.32em] text-white/80 sm:text-[0.9rem]">
             {heroContent.eyebrow}
           </p>
-          <h1 className="fade-up-delay mt-5 max-w-[1180px] text-[3.35rem] font-normal tracking-[-0.045em] sm:text-[4.6rem] lg:text-[5.55rem] lg:leading-[1.01]">
+          <h1 className="fade-up-delay mt-4 max-w-[980px] text-[2.9rem] font-normal tracking-[-0.05em] sm:text-[4.4rem] lg:text-[5.1rem] lg:leading-[1.02]">
             {heroContent.title}
           </h1>
-          <p className="fade-up-delay-2 mt-5 max-w-3xl text-base leading-8 text-white/82 sm:text-lg sm:leading-9">
+          <p className="fade-up-delay-2 mt-5 max-w-[760px] text-[1.05rem] leading-8 text-white/84 sm:text-[1.2rem] sm:leading-9">
             {heroContent.subtitle}
           </p>
-          <div className="fade-up-delay-3 mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link href={heroContent.ctaPrimary.href}>
-              <span className="hero-cta inline-flex h-16 min-w-[190px] items-center justify-center bg-white px-8 text-base font-semibold text-zinc-950 transition hover:bg-zinc-100">
+          <div className="fade-up-delay-3 mt-8 flex flex-wrap items-center justify-center gap-6">
+            <MenuLocationTrigger>
+              <span className="hero-cta inline-flex h-[54px] min-w-[144px] items-center justify-center bg-white px-7 text-[0.96rem] font-medium text-zinc-950 transition hover:bg-[#f6eed5]">
                 {heroContent.ctaPrimary.label}
               </span>
-            </Link>
+            </MenuLocationTrigger>
             <Link href={heroContent.ctaSecondary.href}>
-              <span className="inline-flex items-center justify-center gap-2 text-base font-medium text-white/92 transition hover:text-white">
+              <span className="inline-flex items-center justify-center gap-2 text-[1rem] font-medium text-white/92 transition hover:text-[#f1e7c5]">
                 {heroContent.ctaSecondary.label}
                 <span aria-hidden="true" className="text-lg">
-                  ↗
+                  →
                 </span>
               </span>
             </Link>

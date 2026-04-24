@@ -240,6 +240,14 @@ function MealSummaryPanel({
       </div>
 
       <div className="mt-5 grid gap-2 text-sm text-zinc-700 sm:grid-cols-2">
+        <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3 sm:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Total Macros
+          </p>
+          <p className="mt-1 font-medium text-zinc-900">
+            {(totals.protein + totals.carbs + totals.fat).toFixed(0)} gm
+          </p>
+        </div>
         <p className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
           Total Calories:{" "}
           <span className="font-semibold text-zinc-900">

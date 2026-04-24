@@ -21,6 +21,7 @@ type ShowMealsSelection = {
   startDate: string;
   deliveryDays?: string;
   planType?: string;
+  selectedMeals?: string;
 };
 
 type MonthlyPlanShowMealsProps = {
@@ -57,6 +58,30 @@ type SelectedMealOption = {
   carb: number;
   fat: number;
 };
+
+function parseSelectedMeals(value?: string): SelectedMealOption[] {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .map((item) => ({
+        instanceId: item?.instanceId ? String(item.instanceId) : undefined,
+        id: String(item?.id ?? ""),
+        title: String(item?.title ?? ""),
+        date: item?.date ? String(item.date) : undefined,
+        calories: Number(item?.calories ?? 0),
+        protein: Number(item?.protein ?? 0),
+        carb: Number(item?.carb ?? 0),
+        fat: Number(item?.fat ?? 0),
+      }))
+      .filter((item) => item.id && item.title);
+  } catch {
+    return [];
+  }
+}
 
 type SelectedCardMealDetail = {
   selection: SelectedMealOption;
@@ -340,7 +365,25 @@ export default function MonthlyPlanShowMeals({
   const [sliderPage, setSliderPage] = useState(0);
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
-  const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>([]);
+  const [detailAddOnCounts, setDetailAddOnCounts] = useState<
+    Record<string, number>
+  >({});
+  const storageKey = useMemo(
+    () =>
+      `proteinbar_selected_meals:${plan.id}:${selection.startDate}:${selection.meals}:${selection.days}:${selection.weeks ?? ""}:${selection.deliveryDays ?? ""}`,
+    [
+      plan.id,
+      selection.days,
+      selection.deliveryDays,
+      selection.meals,
+      selection.startDate,
+      selection.weeks,
+    ],
+  );
+  const [selectedMeals, setSelectedMeals] = useState<SelectedMealOption[]>(() =>
+    parseSelectedMeals(selection.selectedMeals),
+  );
+  const [slotWarning, setSlotWarning] = useState("");
   const [selectionPopupMeal, setSelectionPopupMeal] = useState<DayMeal | null>(
     null,
   );
@@ -367,6 +410,44 @@ export default function MonthlyPlanShowMeals({
     }
   }, [activeTab, tabs.length]);
 
+  useEffect(() => {
+    if (!detailMeal) {
+      setDetailQty(1);
+      setDetailAddOnCounts({});
+      return;
+    }
+
+    setDetailQty(1);
+    setDetailAddOnCounts({});
+  }, [detailMeal]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const fromStorage = window.sessionStorage.getItem(storageKey);
+    if (!fromStorage) {
+      if (selection.selectedMeals) {
+        setSelectedMeals(parseSelectedMeals(selection.selectedMeals));
+      }
+      return;
+    }
+
+    const parsed = parseSelectedMeals(fromStorage);
+    if (parsed.length > 0) {
+      setSelectedMeals(parsed);
+      return;
+    }
+
+    if (selection.selectedMeals) {
+      setSelectedMeals(parseSelectedMeals(selection.selectedMeals));
+    }
+  }, [selection.selectedMeals, storageKey]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.setItem(storageKey, JSON.stringify(selectedMeals));
+  }, [selectedMeals, storageKey]);
+
   const mealSelectionKey = (mealId: string, date?: string) =>
     `${mealId}::${date ?? "custom"}`;
 
@@ -381,6 +462,7 @@ export default function MonthlyPlanShowMeals({
       const requestedCount = Math.max(1, quantity);
       const now = Date.now();
       const additions: SelectedMealOption[] = [];
+      let reachedLimit = false;
 
       if (!date && isCustom && customCards.length > 0) {
         const cardCounts = new Map(
@@ -397,6 +479,7 @@ export default function MonthlyPlanShowMeals({
           });
 
           if (!nextCard) {
+            reachedLimit = true;
             break;
           }
 
@@ -430,6 +513,14 @@ export default function MonthlyPlanShowMeals({
         );
       }
 
+      if (reachedLimit || additions.length < requestedCount) {
+        setSlotWarning(
+          "Meal slot limit reached. Extra meals were not added beyond the available slots.",
+        );
+      } else {
+        setSlotWarning("");
+      }
+
       return [...prev, ...additions];
     });
   };
@@ -442,6 +533,7 @@ export default function MonthlyPlanShowMeals({
       const requestedCount = Math.max(1, quantity);
       const now = Date.now();
       const additions: SelectedMealOption[] = [];
+      let reachedLimit = false;
 
       if (isCustom && customCards.length > 0) {
         const cardCounts = new Map(
@@ -458,6 +550,7 @@ export default function MonthlyPlanShowMeals({
           });
 
           if (!nextCard) {
+            reachedLimit = true;
             break;
           }
 
@@ -489,6 +582,14 @@ export default function MonthlyPlanShowMeals({
             fat: savedMeal.totals.fat,
           })),
         );
+      }
+
+      if (reachedLimit || additions.length < requestedCount) {
+        setSlotWarning(
+          "Meal slot limit reached. Extra meals were not added beyond the available slots.",
+        );
+      } else {
+        setSlotWarning("");
       }
 
       return [...prev, ...additions];
@@ -534,6 +635,22 @@ export default function MonthlyPlanShowMeals({
   }, [activeCategory, allMeals, customCategoryDefs, mealById, mealLibrary]);
 
   const activeDateIso = tabs[activeTab]?.date ?? "";
+  const isCustomDetail = isCustom && Boolean(detailMeal);
+  const customDetailAddOnOptions = [
+    "Extra Chicken",
+    "Extra Potatoes",
+  ];
+  const detailSelectedOptionCount = Object.values(detailAddOnCounts).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
+  const detailSelectedOptionSummary = customDetailAddOnOptions
+    .filter((addOn) => (detailAddOnCounts[addOn] ?? 0) > 0)
+    .map((addOn) => `${addOn} x${detailAddOnCounts[addOn]}`)
+    .join(", ");
+  const detailMultiplier = isCustomDetail
+    ? Math.max(1, detailSelectedOptionCount)
+    : detailQty;
   const assignedMealsForDate = useMemo(() => {
     if (!activeDateIso) return [];
 
@@ -586,6 +703,7 @@ export default function MonthlyPlanShowMeals({
             if (!id) continue;
 
             const selectionItem: SelectedMealOption = {
+              instanceId: undefined,
               id,
               title:
                 mappedMeal?.title ??
@@ -609,6 +727,7 @@ export default function MonthlyPlanShowMeals({
     }
 
     return normalMeals.map((meal) => ({
+      instanceId: undefined,
       id: meal.id,
       title: meal.title,
       date: undefined,
@@ -727,9 +846,14 @@ export default function MonthlyPlanShowMeals({
         "selectedMeals",
         JSON.stringify(
           selectedMealsForCheckout.map((item) => ({
+            instanceId: item.instanceId,
             id: item.id,
             title: item.title,
             date: item.date,
+            calories: item.calories,
+            protein: item.protein,
+            carb: item.carb,
+            fat: item.fat,
           })),
         ),
       );
@@ -989,16 +1113,16 @@ export default function MonthlyPlanShowMeals({
                     }
                     type="button"
                     onClick={() =>
-                      setSelectedMeals((prev) =>
-                        prev.filter(
-                          (selected) =>
-                            (selected.instanceId ??
-                              mealSelectionKey(selected.id, selected.date)) !==
-                            (item.instanceId ??
-                              mealSelectionKey(item.id, item.date)),
-                        ),
-                      )
-                    }
+                          setSelectedMeals((prev) =>
+                            prev.filter(
+                              (selected) =>
+                                (selected.instanceId ??
+                                  mealSelectionKey(selected.id, selected.date)) !==
+                                (item.instanceId ??
+                                  mealSelectionKey(item.id, item.date)),
+                            ),
+                          )
+                        }
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title}
@@ -1069,27 +1193,75 @@ export default function MonthlyPlanShowMeals({
                           {detailMeal.subtitle}
                         </p>
                       </div>
-                      <div className="flex items-center justify-start gap-3 sm:justify-end">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setDetailQty((prev) => Math.max(1, prev - 1))
-                          }
-                          className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-zinc-900 text-2xl font-semibold text-white transition hover:bg-zinc-800"
-                        >
-                          -
-                        </button>
-                        <div className="inline-flex h-12 min-w-[108px] items-center justify-center rounded-md border border-zinc-200 bg-zinc-50 px-4 text-2xl font-bold text-zinc-900">
-                          {detailQty}
+                      {isCustomDetail ? (
+                        <div className="flex w-full flex-col gap-2 sm:items-end">
+                          {customDetailAddOnOptions.map((addOn) => {
+                            const count = detailAddOnCounts[addOn] ?? 0;
+                            return (
+                              <div
+                                key={addOn}
+                                className="inline-flex min-h-12 min-w-[260px] items-center justify-between rounded-md border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-900"
+                              >
+                                <span>{addOn}</span>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setDetailAddOnCounts((prev) => ({
+                                        ...prev,
+                                        [addOn]: Math.max(
+                                          0,
+                                          (prev[addOn] ?? 0) - 1,
+                                        ),
+                                      }))
+                                    }
+                                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 text-lg leading-none text-zinc-900 transition hover:bg-zinc-100"
+                                  >
+                                    -
+                                  </button>
+                                  <span className="inline-flex min-w-8 items-center justify-center text-base font-bold text-zinc-900">
+                                    {count}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setDetailAddOnCounts((prev) => ({
+                                        ...prev,
+                                        [addOn]: (prev[addOn] ?? 0) + 1,
+                                      }))
+                                    }
+                                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 text-lg leading-none text-white transition hover:bg-zinc-800"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setDetailQty((prev) => prev + 1)}
-                          className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-zinc-900 text-2xl font-semibold text-white transition hover:bg-zinc-800"
-                        >
-                          +
-                        </button>
-                      </div>
+                      ) : (
+                        <div className="flex items-center justify-start gap-3 sm:justify-end">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setDetailQty((prev) => Math.max(1, prev - 1))
+                            }
+                            className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-zinc-900 text-2xl font-semibold text-white transition hover:bg-zinc-800"
+                          >
+                            -
+                          </button>
+                          <div className="inline-flex h-12 min-w-[108px] items-center justify-center rounded-md border border-zinc-200 bg-zinc-50 px-4 text-2xl font-bold text-zinc-900">
+                            {detailQty}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setDetailQty((prev) => prev + 1)}
+                            className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-zinc-900 text-2xl font-semibold text-white transition hover:bg-zinc-800"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1097,15 +1269,21 @@ export default function MonthlyPlanShowMeals({
                     <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_224px] sm:items-center">
                       <div>
                         <p className="text-lg font-bold uppercase tracking-tight text-zinc-900">
-                          Portion Size
+                          {isCustomDetail ? "Add-on Options" : "Portion Size"}
                         </p>
                         <p className="mt-1.5 text-xs text-zinc-500 sm:text-sm">
-                          Adjust how many portions of this meal you want to add.
+                          {isCustomDetail
+                            ? "Use the plus button to add extra options for this meal."
+                            : "Adjust how many portions of this meal you want to add."}
                         </p>
                       </div>
                       <div className="flex justify-start sm:justify-end">
                         <div className="rounded-md border border-zinc-200 bg-zinc-50 px-5 py-3 text-xl font-bold text-zinc-900">
-                          {detailQty} PCS
+                          {isCustomDetail
+                            ? detailSelectedOptionCount
+                              ? `${detailSelectedOptionCount} Selected`
+                              : "No Add-ons"
+                            : `${detailQty} PCS`}
                         </div>
                       </div>
                     </div>
@@ -1119,7 +1297,7 @@ export default function MonthlyPlanShowMeals({
                     Calories
                   </p>
                   <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
-                    {(detailMeal.calories * detailQty).toFixed(1)}
+                    {(detailMeal.calories * detailMultiplier).toFixed(1)}
                   </p>
                 </div>
                 <div className="overflow-hidden rounded-md border border-zinc-200">
@@ -1127,7 +1305,7 @@ export default function MonthlyPlanShowMeals({
                     Fat
                   </p>
                   <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
-                    {(detailMeal.fat * detailQty).toFixed(1)}
+                    {(detailMeal.fat * detailMultiplier).toFixed(1)}
                   </p>
                 </div>
                 <div className="overflow-hidden rounded-md border border-zinc-200">
@@ -1135,7 +1313,7 @@ export default function MonthlyPlanShowMeals({
                     Protein
                   </p>
                   <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
-                    {(detailMeal.protein * detailQty).toFixed(1)}
+                    {(detailMeal.protein * detailMultiplier).toFixed(1)}
                   </p>
                 </div>
                 <div className="overflow-hidden rounded-md border border-zinc-200">
@@ -1143,7 +1321,7 @@ export default function MonthlyPlanShowMeals({
                     Carb
                   </p>
                   <p className="bg-zinc-50 py-3.5 text-center text-2xl font-medium text-zinc-900">
-                    {(detailMeal.carb * detailQty).toFixed(1)}
+                    {(detailMeal.carb * detailMultiplier).toFixed(1)}
                   </p>
                 </div>
               </div>
@@ -1156,7 +1334,7 @@ export default function MonthlyPlanShowMeals({
                       $
                       {(
                         (planDetails?.pricing?.basePriceFormula?.pricePerMeal ??
-                          0) * detailQty
+                          0) * detailMultiplier
                       ).toFixed(2)}
                     </span>
                   </div>
@@ -1164,7 +1342,11 @@ export default function MonthlyPlanShowMeals({
                     <span className="font-medium uppercase">
                       Extras/Add-ons
                     </span>
-                    <span className="font-medium">$0.00</span>
+                    <span className="font-medium">
+                      {isCustomDetail && detailSelectedOptionCount
+                        ? detailSelectedOptionSummary
+                        : "$0.00"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-4 text-[2rem] font-bold uppercase sm:text-[1.7rem]">
                     <span>Total Meal Price</span>
@@ -1172,7 +1354,7 @@ export default function MonthlyPlanShowMeals({
                       $
                       {(
                         (planDetails?.pricing?.basePriceFormula?.pricePerMeal ??
-                          0) * detailQty
+                          0) * detailMultiplier
                       ).toFixed(2)}
                     </span>
                   </div>
@@ -1192,7 +1374,7 @@ export default function MonthlyPlanShowMeals({
                   <button
                     type="button"
                     onClick={() => {
-                      addMealSelection(detailMeal, detailQty);
+                      addMealSelection(detailMeal, detailMultiplier);
                       setDetailMeal(null);
                     }}
                     className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-7 text-sm font-semibold text-white transition hover:bg-emerald-700"
@@ -1548,29 +1730,36 @@ export default function MonthlyPlanShowMeals({
         </div>
 
         <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
-          <h4 className="text-2xl font-semibold text-zinc-900">
-            Selected Options
-          </h4>
+            <h4 className="text-2xl font-semibold text-zinc-900">
+              Selected Options
+            </h4>
+          {slotWarning ? (
+            <p className="mt-3 text-sm font-medium text-amber-700">
+              {slotWarning}
+            </p>
+          ) : null}
           {selectedMealsForCheckout.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {selectedMealsForCheckout.map((item) =>
                 isNormalPlan ? (
                   <span
-                    key={mealSelectionKey(item.id, item.date)}
+                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title} {item.date ? `(${item.date})` : ""}
                   </span>
                 ) : (
                   <button
-                    key={mealSelectionKey(item.id, item.date)}
+                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
                     type="button"
                     onClick={() =>
                       setSelectedMeals((prev) =>
                         prev.filter(
                           (selected) =>
-                            mealSelectionKey(selected.id, selected.date) !==
-                            mealSelectionKey(item.id, item.date),
+                            (selected.instanceId ??
+                              mealSelectionKey(selected.id, selected.date)) !==
+                            (item.instanceId ??
+                              mealSelectionKey(item.id, item.date)),
                         ),
                       )
                     }

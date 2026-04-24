@@ -44,7 +44,7 @@ function StarRow() {
 
 export default function TestimonialsSection() {
   return (
-    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[#efefef] px-4 py-20 sm:px-6 sm:py-24">
+    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen px-4 py-20 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-6xl overflow-hidden">
         <div className="reviews-marquee-track flex w-max gap-5">
           {[...testimonials, ...testimonials].map((item, index) => (

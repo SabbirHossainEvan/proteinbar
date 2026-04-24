@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { mapApiLocation } from "@/lib/api-mappers";
@@ -596,9 +597,16 @@ export default function MonthlyPlanCheckoutForm({
                 checked={acceptedTerms}
                 onChange={(event) => setAcceptedTerms(event.target.checked)}
               />
-              I accepted the{" "}
-              <span className="text-zinc-900">Terms and Conditions</span> of the
-              meals plan
+              <span>
+                I accepted the{" "}
+                <Link
+                  href="/pages/terms-and-conditions"
+                  className="text-zinc-900 underline underline-offset-4"
+                >
+                  Terms and Conditions
+                </Link>{" "}
+                of the meals plan
+              </span>
             </label>
           </div>
 
