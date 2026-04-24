@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="relative bg-black px-6 py-20 text-white sm:py-24">
@@ -27,6 +29,21 @@ export default function Footer() {
           <span className="mr-2 text-[#c79a33]">E:</span>
           Proteinbarmaroc@gmail.com
         </p>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm uppercase tracking-[0.16em] text-white/72">
+          <Link
+            href="/pages/terms-and-conditions"
+            className="transition hover:text-white"
+          >
+            Terms & Conditions
+          </Link>
+          <Link
+            href="/pages/privacy-policy"
+            className="transition hover:text-white"
+          >
+            Privacy Policy
+          </Link>
+        </div>
       </div>
 
       <a

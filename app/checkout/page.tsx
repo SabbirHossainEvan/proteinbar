@@ -74,7 +74,15 @@ export default function CheckoutPage() {
 
           <label className="mt-5 flex items-center gap-2 text-sm text-zinc-700">
             <input type="checkbox" checked={acceptedTerms} onChange={(event) => setAcceptedTerms(event.target.checked)} />
-            I accept the terms and conditions
+            <span>
+              I accept the{" "}
+              <Link
+                href="/pages/terms-and-conditions"
+                className="font-medium text-zinc-900 underline underline-offset-4"
+              >
+                terms and conditions
+              </Link>
+            </span>
           </label>
 
           <button
