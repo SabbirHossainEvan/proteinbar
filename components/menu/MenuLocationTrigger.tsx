@@ -103,7 +103,7 @@ export default function MenuLocationTrigger({
             onBeforeOpen?.();
             setOpen((prev) => !prev);
           }}
-          className={`appearance-none border-0 bg-transparent p-0 ${className ?? ""}`}
+          className={`appearance-none border-0 p-0 ${className ?? ""}`}
           aria-haspopup="menu"
           aria-expanded={open}
         >
@@ -166,7 +166,7 @@ export default function MenuLocationTrigger({
           onBeforeOpen?.();
           setOpen(true);
         }}
-        className={`appearance-none border-0 bg-transparent p-0 ${className ?? ""}`}
+        className={`appearance-none border-0 p-0 ${className ?? ""}`}
       >
         {children}
       </button>
