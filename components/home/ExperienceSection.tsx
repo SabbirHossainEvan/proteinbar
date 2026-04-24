@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 
 const experienceCards = [
   {
@@ -52,12 +53,18 @@ export default function ExperienceSection() {
                   {card.title}
                 </h3>
 
-                <Link
-                  href={card.href}
-                  className="absolute bottom-4 left-4 text-sm lowercase tracking-[0.04em] !text-white/85 visited:!text-white hover:!text-[#b8942c] sm:bottom-5 sm:left-5"
-                >
-                  {card.cta}
-                </Link>
+                {card.href === "/pages/menu" ? (
+                  <MenuLocationTrigger className="absolute bottom-4 left-4 text-sm lowercase tracking-[0.04em] !text-white/85 transition hover:!text-[#b8942c] sm:bottom-5 sm:left-5">
+                    {card.cta}
+                  </MenuLocationTrigger>
+                ) : (
+                  <Link
+                    href={card.href}
+                    className="absolute bottom-4 left-4 text-sm lowercase tracking-[0.04em] !text-white/85 visited:!text-white hover:!text-[#b8942c] sm:bottom-5 sm:left-5"
+                  >
+                    {card.cta}
+                  </Link>
+                )}
               </div>
             </article>
           ))}

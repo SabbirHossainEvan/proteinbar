@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import MenuCategoryJumpSection from "@/components/menu/MenuCategoryJumpSection";
 import MenuHeroSection from "@/components/menu/MenuHeroSection";
+import MenuLocationModal from "@/components/menu/MenuLocationModal";
+import {
+  MENU_LOCATION_STORAGE_KEY,
+  resolveLocationName,
+} from "@/components/menu/menuLocation";
 import Section from "@/components/ui/Section";
 import { useGetMenuCategoriesQuery, useGetRestaurantsQuery } from "@/redux/api/publicApi";
 import type { MenuCategory, MenuItem, RestaurantInfo } from "@/types";
@@ -80,9 +86,15 @@ function toRestaurantAliases(restaurant: RestaurantInfo | null) {
 }
 
 export default function MenuPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { data, isLoading } = useGetMenuCategoriesQuery();
   const { data: restaurantsData } = useGetRestaurantsQuery();
-  const [selectedFilter, setSelectedFilter] = useState("");
+  const [storedLocation, setStoredLocation] = useState(() =>
+    typeof window === "undefined"
+      ? ""
+      : window.localStorage.getItem(MENU_LOCATION_STORAGE_KEY) ?? "",
+  );
 
   const menuCategories = useMemo(
     () =>
@@ -124,11 +136,39 @@ export default function MenuPage() {
     }, []);
   }, [menuCategories, restaurants]);
 
+  const selectedFilter = useMemo(() => {
+    const locationParam = searchParams.get("location");
+
+    return (
+      resolveLocationName(locationParam, filterOptions) ||
+      resolveLocationName(storedLocation, filterOptions)
+    );
+  }, [filterOptions, searchParams, storedLocation]);
+
   useEffect(() => {
-    if (selectedFilter && !filterOptions.includes(selectedFilter)) {
-      setSelectedFilter("");
+    if (!filterOptions.length) {
+      return;
     }
-  }, [filterOptions, selectedFilter]);
+
+    const locationParam = searchParams.get("location");
+    const resolvedParamLocation = resolveLocationName(locationParam, filterOptions);
+    const resolvedStoredLocation = resolveLocationName(storedLocation, filterOptions);
+    const nextLocation = resolvedParamLocation || resolvedStoredLocation;
+
+    if (typeof window !== "undefined") {
+      if (nextLocation) {
+        window.localStorage.setItem(MENU_LOCATION_STORAGE_KEY, nextLocation);
+      } else {
+        window.localStorage.removeItem(MENU_LOCATION_STORAGE_KEY);
+      }
+    }
+
+    if (!resolvedParamLocation && nextLocation) {
+      router.replace(`/pages/menu?location=${encodeURIComponent(nextLocation)}`, {
+        scroll: false,
+      });
+    }
+  }, [filterOptions, router, searchParams, storedLocation]);
 
   const selectedRestaurantInfo = useMemo(() => {
     if (!selectedFilter) {
@@ -171,14 +211,33 @@ export default function MenuPage() {
       ? "Select a location to view its menu."
       : `No menu categories available for ${selectedFilter}.`;
 
+  const handleLocationSelect = (locationName: string) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(MENU_LOCATION_STORAGE_KEY, locationName);
+    }
+
+    setStoredLocation(locationName);
+    router.replace(`/pages/menu?location=${encodeURIComponent(locationName)}`, {
+      scroll: false,
+    });
+  };
+
   return (
     <>
+      <MenuLocationModal
+        open={!selectedFilter}
+        onClose={() => {}}
+        onSelect={handleLocationSelect}
+        allowClose={false}
+        title="Select your Proteinbar location"
+        description="Choose the location first, then we will load that location's menu only."
+      />
       <MenuHeroSection />
       <MenuCategoryJumpSection
         categories={filteredCategories}
         filterOptions={filterOptions}
         selectedFilter={selectedFilter}
-        onFilterChange={setSelectedFilter}
+        onFilterChange={handleLocationSelect}
         selectedRestaurantInfo={selectedRestaurantInfo}
       />
 

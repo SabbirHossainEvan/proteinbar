@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/pages/locations", label: "Locations" },
-  { href: "/pages/menu", label: "Menu" },
   { href: "/pages/about-us", label: "About us" },
   { href: "/pages/contact", label: "Contact us" },
 ];
@@ -36,6 +36,7 @@ export default function Header() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const isMenuActive = pathname === "/pages/menu";
   const lastScrollYRef = useRef(0);
   const isHeaderVisibleRef = useRef(true);
   const isScrolledRef = useRef(false);
@@ -133,7 +134,31 @@ export default function Header() {
 
           <nav className="hidden items-center justify-center lg:flex">
             <div className="flex items-center gap-8 xl:gap-12">
-              {navLinks.map((item) => {
+              {navLinks.slice(0, 2).map((item) => {
+                const linkPath = item.href.split("#")[0];
+                const isActive = pathname === linkPath;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`nav-link-hover !text-white text-[0.98rem] font-normal tracking-[0.01em] ${
+                      isActive ? "after:scale-x-100" : ""
+                    }`}
+                    style={{ color: "#ffffff" }}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+              <MenuLocationTrigger
+                className={`nav-link-hover !text-white text-[0.98rem] font-normal tracking-[0.01em] ${
+                  isMenuActive ? "after:scale-x-100" : ""
+                }`}
+                variant="dropdown"
+              >
+                Menu
+              </MenuLocationTrigger>
+              {navLinks.slice(2).map((item) => {
                 const linkPath = item.href.split("#")[0];
                 const isActive = pathname === linkPath;
                 return (
@@ -174,7 +199,31 @@ export default function Header() {
       {menuOpen && (
         <nav className="animate-fade-down mx-auto mt-3 max-w-[1500px] border border-white/12 bg-black/88 px-4 py-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.28)] lg:hidden">
           <div className="flex w-full flex-col gap-2">
-            {navLinks.map((item) => {
+            {navLinks.slice(0, 2).map((item) => {
+              const linkPath = item.href.split("#")[0];
+              const isActive = pathname === linkPath;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-white/10 ${
+                    isActive ? "bg-white/10 text-white" : "text-white/90"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+            <MenuLocationTrigger
+              className={`rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/10 ${
+                isMenuActive ? "bg-white/10 text-white" : "text-white/90"
+              }`}
+              onAfterSelect={() => setMenuOpen(false)}
+            >
+              Menu
+            </MenuLocationTrigger>
+            {navLinks.slice(2).map((item) => {
               const linkPath = item.href.split("#")[0];
               const isActive = pathname === linkPath;
               return (

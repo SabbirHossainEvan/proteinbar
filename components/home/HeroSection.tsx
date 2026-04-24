@@ -1,5 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 
 const heroContent = {
   eyebrow: "Since 2018",
@@ -35,11 +36,11 @@ export default function HeroSection() {
             {heroContent.subtitle}
           </p>
           <div className="fade-up-delay-3 mt-8 flex flex-wrap items-center justify-center gap-6">
-            <Link href={heroContent.ctaPrimary.href}>
+            <MenuLocationTrigger>
               <span className="hero-cta inline-flex h-[54px] min-w-[144px] items-center justify-center bg-white px-7 text-[0.96rem] font-medium text-zinc-950 transition hover:bg-[#f6eed5]">
                 {heroContent.ctaPrimary.label}
               </span>
-            </Link>
+            </MenuLocationTrigger>
             <Link href={heroContent.ctaSecondary.href}>
               <span className="inline-flex items-center justify-center gap-2 text-[1rem] font-medium text-white/92 transition hover:text-[#f1e7c5]">
                 {heroContent.ctaSecondary.label}

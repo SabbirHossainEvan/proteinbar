@@ -1,4 +1,4 @@
-import Link from "next/link";
+import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 
 export default function IntroStatementSection() {
   return (
@@ -13,13 +13,11 @@ export default function IntroStatementSection() {
         </p>
 
         <div className="mt-10">
-          <Link
-            href="/pages/menu"
+          <MenuLocationTrigger
             className="inline-flex h-10 min-w-[120px] items-center justify-center bg-black px-6 text-[11px] uppercase tracking-[0.14em] !text-white transition-all duration-200 hover:bg-[#b8942c]"
-            style={{ color: "#ffffff" }}
           >
             See Our Menu
-          </Link>
+          </MenuLocationTrigger>
         </div>
       </div>
     </section>
