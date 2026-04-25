@@ -1,10 +1,13 @@
 import ContactForm from "@/components/contact/ContactForm";
 import ContactHeroSection from "@/components/contact/ContactHeroSection";
+import { fetchWebsitePageContent } from "@/lib/homePageCms";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const contactPage = await fetchWebsitePageContent("contact");
+
   return (
     <>
-      <ContactHeroSection />
+      <ContactHeroSection page={contactPage} />
       <section className=" py-14 sm:py-20 lg:py-24">
         <div className="grid gap-10 lg:grid-cols-[1fr_minmax(0,600px)] lg:gap-16">
           <div className="pt-2">

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import type { WebsitePageSection } from "@/types/cms";
 
 type StatItem = {
   value: number;
@@ -15,6 +16,11 @@ const stats: StatItem[] = [
   { value: 7, suffix: "/7", label: "Opens everyday", icon: "calendar" },
   { value: 411, suffix: "+", label: "Positive Reviews", icon: "thumbs-up" },
 ];
+
+const defaultImage = "/healthy/image-7.png";
+const defaultHeading = "2 Locations & Delivery All Over Casablanca";
+const defaultBody =
+  "Besides Our 2 Locations, We Focus Bringing Healthy, Delicious Meals Right To Your Doorstep, Wherever You Are In Casablanca.";
 
 function StatIcon({ icon }: { icon: StatItem["icon"] }) {
   if (icon === "users") {
@@ -42,11 +48,24 @@ function StatIcon({ icon }: { icon: StatItem["icon"] }) {
   );
 }
 
-export default function LocationsDeliverySection() {
+function toStatIcon(value: string | undefined, fallback: StatItem["icon"]): StatItem["icon"] {
+  if (value === "users" || value === "calendar" || value === "thumbs-up") return value;
+  return fallback;
+}
+
+export default function LocationsDeliverySection({ section }: { section?: WebsitePageSection }) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const hasAnimatedRef = useRef(false);
-  const [counts, setCounts] = useState<number[]>(stats.map(() => 0));
+  const sectionStats = section?.items.length
+    ? section.items.slice(0, 3).map((item, index) => ({
+        value: Number.parseInt(item.value ?? "0", 10) || 0,
+        label: item.title || stats[index]?.label || `Stat ${index + 1}`,
+        suffix: item.subtitle || "",
+        icon: toStatIcon(item.body, stats[index]?.icon ?? "users")
+      }))
+    : stats;
+  const [counts, setCounts] = useState<number[]>(sectionStats.map(() => 0));
 
   useEffect(() => {
     const element = sectionRef.current;
@@ -65,7 +84,7 @@ export default function LocationsDeliverySection() {
           const progress = Math.min((now - start) / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 3);
 
-          setCounts(stats.map((item) => Math.round(item.value * eased)));
+          setCounts(sectionStats.map((item) => Math.round(item.value * eased)));
 
           if (progress < 1) {
             rafRef.current = requestAnimationFrame(animate);
@@ -83,7 +102,9 @@ export default function LocationsDeliverySection() {
       observer.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [sectionStats]);
+
+  if (section && !section.isVisible) return null;
 
   return (
     <section
@@ -93,7 +114,7 @@ export default function LocationsDeliverySection() {
       <div className="mx-auto grid w-full max-w-[1300px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:items-center lg:gap-14 lg:px-10">
         <div className="overflow-hidden rounded-sm">
           <Image
-            src="/healthy/image-7.png"
+            src={section?.image || defaultImage}
             alt="Proteinbar delivery and location"
             width={800}
             height={800}
@@ -103,15 +124,14 @@ export default function LocationsDeliverySection() {
 
         <div className="text-zinc-900">
           <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-            2 Locations & Delivery All Over Casablanca
+            {section?.heading || defaultHeading}
           </h2>
           <p className="mt-6 max-w-2xl text-base leading-8 tracking-[0.04em] text-zinc-700 sm:text-lg">
-            Besides Our 2 Locations, We Focus Bringing Healthy, Delicious Meals Right To Your Doorstep, Wherever You
-            Are In Casablanca.
+            {section?.body || defaultBody}
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
-            {stats.map((item, index) => (
+            {sectionStats.map((item, index) => (
               <article key={item.label} className="flex flex-col items-center">
                 <div className="text-zinc-900">
                   <StatIcon icon={item.icon} />

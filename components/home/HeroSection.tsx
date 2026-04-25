@@ -1,22 +1,46 @@
 import Image from "next/image";
 import Link from "next/link";
 import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
+import type { WebsitePageRecord } from "@/types/cms";
 
-const heroContent = {
+const defaultHeroContent = {
   eyebrow: "Since 2018",
   title: "The Real Food Revolution",
   subtitle:
     "Fresh ingredients. No oil. No trans fat. Casablanca's favorite healthy restaurant since 2018.",
+  body: "",
+  image: "/hero.png",
   ctaPrimary: { href: "/pages/menu", label: "See Our Menu" },
   ctaSecondary: { href: "/plans", label: "Start A Monthly Plan" },
 };
 
-export default function HeroSection() {
+type HeroSectionProps = {
+  page?: WebsitePageRecord;
+};
+
+export default function HeroSection({ page }: HeroSectionProps) {
+  const heroContent = {
+    eyebrow: page?.heroEyebrow || defaultHeroContent.eyebrow,
+    title: page?.heroTitle || defaultHeroContent.title,
+    subtitle: page?.heroSubtitle || defaultHeroContent.subtitle,
+    body: page?.heroBody || defaultHeroContent.body,
+    image: page?.heroImage || defaultHeroContent.image,
+    ctaPrimary: {
+      href: page?.heroPrimaryCtaLink || defaultHeroContent.ctaPrimary.href,
+      label: page?.heroPrimaryCtaLabel || defaultHeroContent.ctaPrimary.label,
+    },
+    ctaSecondary: {
+      href: page?.heroSecondaryCtaLink || defaultHeroContent.ctaSecondary.href,
+      label: page?.heroSecondaryCtaLabel || defaultHeroContent.ctaSecondary.label,
+    },
+  };
+  const primaryUsesMenuTrigger = heroContent.ctaPrimary.href.includes("menu");
+
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] -mt-8 w-screen overflow-hidden sm:-mt-10">
       <div className="relative min-h-[92vh] w-full">
         <Image
-          src="/hero.png"
+          src={heroContent.image}
           alt="Proteinbar hero"
           fill
           priority
@@ -35,12 +59,25 @@ export default function HeroSection() {
           <p className="fade-up-delay-2 mt-5 max-w-[760px] text-[1.05rem] leading-8 text-white/84 sm:text-[1.2rem] sm:leading-9">
             {heroContent.subtitle}
           </p>
+          {heroContent.body ? (
+            <p className="fade-up-delay-2 mt-4 max-w-[760px] text-sm leading-7 text-white/70 sm:text-base">
+              {heroContent.body}
+            </p>
+          ) : null}
           <div className="fade-up-delay-3 mt-8 flex flex-wrap items-center justify-center gap-6">
-            <MenuLocationTrigger>
-              <span className="hero-cta inline-flex h-[54px] min-w-[144px] items-center justify-center bg-white px-7 text-[0.96rem] font-medium text-zinc-950 transition hover:bg-[#f6eed5]">
-                {heroContent.ctaPrimary.label}
-              </span>
-            </MenuLocationTrigger>
+            {primaryUsesMenuTrigger ? (
+              <MenuLocationTrigger>
+                <span className="hero-cta inline-flex h-[54px] min-w-[144px] items-center justify-center bg-white px-7 text-[0.96rem] font-medium text-zinc-950 transition hover:bg-[#f6eed5]">
+                  {heroContent.ctaPrimary.label}
+                </span>
+              </MenuLocationTrigger>
+            ) : (
+              <Link href={heroContent.ctaPrimary.href}>
+                <span className="hero-cta inline-flex h-[54px] min-w-[144px] items-center justify-center bg-white px-7 text-[0.96rem] font-medium text-zinc-950 transition hover:bg-[#f6eed5]">
+                  {heroContent.ctaPrimary.label}
+                </span>
+              </Link>
+            )}
             <Link href={heroContent.ctaSecondary.href}>
               <span className="inline-flex items-center justify-center gap-2 text-[1rem] font-medium text-white/92 transition hover:text-[#f1e7c5]">
                 {heroContent.ctaSecondary.label}

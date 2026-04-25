@@ -1,5 +1,7 @@
 "use client";
 
+import type { WebsitePageSection } from "@/types/cms";
+
 type Testimonial = {
   id: string;
   title: string;
@@ -42,12 +44,24 @@ function StarRow() {
   return <p className="text-base tracking-[0.14em] text-amber-500">*****</p>;
 }
 
-export default function TestimonialsSection() {
+export default function TestimonialsSection({ section }: { section?: WebsitePageSection }) {
+  if (section && !section.isVisible) return null;
+
+  const items: Testimonial[] = section?.items.length
+    ? section.items.map((item, index) => ({
+        id: item.id || `review-${index}`,
+        title: item.title,
+        quote: item.body || "",
+        author: item.subtitle || "",
+      }))
+    : testimonials;
+  const reviewLabel = section?.body || "Reviews *****";
+
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen px-4 py-20 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-6xl overflow-hidden">
         <div className="reviews-marquee-track flex w-max gap-5">
-          {[...testimonials, ...testimonials].map((item, index) => (
+          {[...items, ...items].map((item, index) => (
             <article
               key={`${item.id}-${index}`}
               className="testimonial-marquee-card flex-none bg-[#f3f3f3] p-8 sm:p-10"
@@ -79,7 +93,7 @@ export default function TestimonialsSection() {
             <span className="text-[#DB4437]">e</span>
           </p>
           <p className="text-3xl font-medium text-zinc-500">
-            Reviews <span className="text-amber-500">*****</span>
+            {reviewLabel}
           </p>
         </div>
       </div>
