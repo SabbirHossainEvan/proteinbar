@@ -113,7 +113,9 @@ export default function MenuCategoryJumpSection({
             <path d="M8 3v4M16 3v4M4 10h16" />
           </svg>
           <p className="mt-3 text-2xl text-zinc-500">{workingDaysTitle}</p>
-          <p className="text-3xl font-semibold text-zinc-900">{workingDaysLabel}</p>
+          <p className="text-3xl font-semibold text-zinc-900">
+            {workingDaysLabel}
+          </p>
         </div>
 
         <div className="text-center sm:text-left">
@@ -128,7 +130,9 @@ export default function MenuCategoryJumpSection({
             <path d="M12 8v5l3 2M9 2h6" />
           </svg>
           <p className="mt-3 text-2xl text-zinc-500">Horaire</p>
-          <p className="text-3xl font-semibold text-zinc-900">{openingHoursLabel}</p>
+          <p className="text-3xl font-semibold text-zinc-900">
+            {openingHoursLabel}
+          </p>
         </div>
       </div>
 
@@ -140,7 +144,8 @@ export default function MenuCategoryJumpSection({
 
       {!selectedFilter ? (
         <div className="mt-10 rounded-2xl border border-[#b8942c]/30 bg-[#b8942c]/5 px-6 py-10 text-center text-sm text-zinc-700 sm:mt-12">
-          Select a restaurant from the dropdown first. We will then show only that location&apos;s menu.
+          Select a restaurant from the dropdown first. We will then show only
+          that location&apos;s menu.
         </div>
       ) : null}
 

@@ -67,6 +67,12 @@ function matchesRestaurantFilter(
     restaurant.toLowerCase(),
   );
 
+  // If a category has no restaurant assignment yet, treat it as globally visible
+  // so the menu still works while admins finish wiring associations.
+  if (categoryRestaurants.length === 0) {
+    return true;
+  }
+
   return selectedRestaurantAliases.some((alias) =>
     categoryRestaurants.includes(alias.toLowerCase()),
   );

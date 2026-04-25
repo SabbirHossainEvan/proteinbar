@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import MenuLocationModal from "@/components/menu/MenuLocationModal";
 import { MENU_LOCATION_STORAGE_KEY } from "@/components/menu/menuLocation";
+import { buildRestaurantOptions } from "@/components/menu/restaurantOptions";
 import { useGetRestaurantsQuery } from "@/redux/api/publicApi";
 import type { RestaurantInfo } from "@/types";
 
@@ -26,25 +27,41 @@ export default function MenuLocationTrigger({
   const pathname = usePathname();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { data, isLoading } = useGetRestaurantsQuery();
 
-  const locations = useMemo(() => {
-    const restaurants = (data?.data ?? []) as RestaurantInfo[];
-    const seen = new Set<string>();
+  const locations = useMemo(
+    () => buildRestaurantOptions((data?.data ?? []) as RestaurantInfo[]),
+    [data]
+  );
 
-    return restaurants.reduce<string[]>((acc, restaurant) => {
-      const name = String(restaurant.name ?? "").trim();
-      const normalizedName = name.toLowerCase();
-
-      if (!name || seen.has(normalizedName)) {
-        return acc;
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
       }
+    };
+  }, []);
 
-      seen.add(normalizedName);
-      acc.push(name);
-      return acc;
-    }, []);
-  }, [data]);
+  const openDropdown = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    onBeforeOpen?.();
+    setOpen(true);
+  };
+
+  const closeDropdownWithDelay = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpen(false);
+      closeTimeoutRef.current = null;
+    }, 180);
+  };
 
   useEffect(() => {
     if (!open || variant !== "dropdown") {
@@ -96,13 +113,27 @@ export default function MenuLocationTrigger({
 
   if (variant === "dropdown") {
     return (
-      <div ref={containerRef} className="relative">
+      <div
+        ref={containerRef}
+        className="relative"
+        onMouseEnter={openDropdown}
+        onMouseLeave={closeDropdownWithDelay}
+      >
         <button
           type="button"
           onClick={() => {
-            onBeforeOpen?.();
-            setOpen((prev) => !prev);
+            if (open) {
+              if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+                closeTimeoutRef.current = null;
+              }
+              setOpen(false);
+              return;
+            }
+
+            openDropdown();
           }}
+          onFocus={openDropdown}
           className={`appearance-none border-0 p-0 ${className ?? ""}`}
           aria-haspopup="menu"
           aria-expanded={open}
@@ -116,6 +147,8 @@ export default function MenuLocationTrigger({
               ? "visible translate-y-0 opacity-100"
               : "invisible -translate-y-2 opacity-0 pointer-events-none"
           }`}
+          onMouseEnter={openDropdown}
+          onMouseLeave={closeDropdownWithDelay}
         >
           <div className="border-b border-white/8 px-3 pb-3 pt-1">
             <p className="text-[0.68rem] uppercase tracking-[0.28em] text-white/48">
@@ -141,12 +174,17 @@ export default function MenuLocationTrigger({
 
             {locations.map((location) => (
               <button
-                key={location}
+                key={location.key}
                 type="button"
-                onClick={() => handleSelect(location)}
-                className="flex min-h-[48px] w-full items-center justify-between px-3 text-left text-[0.95rem] text-white transition hover:bg-white/[0.06]"
+                onClick={() => handleSelect(location.label)}
+                className="flex min-h-[48px] w-full items-center justify-between gap-4 px-3 py-3 text-left text-[0.95rem] text-white transition hover:bg-white/[0.06]"
               >
-                <span>{location}</span>
+                <span>
+                  <span className="block">{location.label}</span>
+                  {location.address ? (
+                    <span className="mt-1 block text-xs text-white/45">{location.address}</span>
+                  ) : null}
+                </span>
                 <span className="text-xs text-white/45" aria-hidden="true">
                   -&gt;
                 </span>

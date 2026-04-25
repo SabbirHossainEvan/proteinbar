@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { buildRestaurantOptions } from "@/components/menu/restaurantOptions";
 import { useGetRestaurantsQuery } from "@/redux/api/publicApi";
 import type { RestaurantInfo } from "@/types";
 
@@ -25,23 +26,10 @@ export default function MenuLocationModal({
     skip: !open,
   });
 
-  const locations = useMemo(() => {
-    const restaurants = (data?.data ?? []) as RestaurantInfo[];
-    const seen = new Set<string>();
-
-    return restaurants.reduce<string[]>((acc, restaurant) => {
-      const name = String(restaurant.name ?? "").trim();
-      const normalizedName = name.toLowerCase();
-
-      if (!name || seen.has(normalizedName)) {
-        return acc;
-      }
-
-      seen.add(normalizedName);
-      acc.push(name);
-      return acc;
-    }, []);
-  }, [data]);
+  const locations = useMemo(
+    () => buildRestaurantOptions((data?.data ?? []) as RestaurantInfo[]),
+    [data]
+  );
 
   if (!open) {
     return null;
@@ -99,12 +87,17 @@ export default function MenuLocationModal({
 
           {locations.map((location) => (
             <button
-              key={location}
+              key={location.key}
               type="button"
-              onClick={() => onSelect(location)}
-              className="flex min-h-[52px] w-full items-center justify-between border border-white/14 bg-white/[0.03] px-4 text-left text-[0.95rem] text-white transition hover:border-white/28 hover:bg-white/[0.07]"
+              onClick={() => onSelect(location.label)}
+              className="flex min-h-[52px] w-full items-center justify-between gap-4 border border-white/14 bg-white/[0.03] px-4 py-3 text-left text-[0.95rem] text-white transition hover:border-white/28 hover:bg-white/[0.07]"
             >
-              <span>{location}</span>
+              <span>
+                <span className="block">{location.label}</span>
+                {location.address ? (
+                  <span className="mt-1 block text-xs text-white/55">{location.address}</span>
+                ) : null}
+              </span>
               <span className="text-sm text-white/55" aria-hidden="true">
                 -&gt;
               </span>

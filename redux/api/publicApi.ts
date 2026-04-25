@@ -20,7 +20,7 @@ export const publicApi = createApi({
       providesTags: ["Menu"],
     }),
     getRestaurants: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/restaurants",
+      query: () => "/public/restaurants",
       providesTags: ["Locations"],
     }),
     getMonthlyPlans: builder.query<ApiResponse<any[]>, void>({
