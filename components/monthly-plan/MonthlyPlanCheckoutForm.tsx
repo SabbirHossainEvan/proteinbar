@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { mapApiLocation } from "@/lib/api-mappers";
 import {
   useCheckoutMutation,
   useGetLocationsQuery,
+  useValidatePromoCodeMutation,
 } from "@/redux/api/publicApi";
 import type {
   DeliveryOptionId,
@@ -41,6 +42,16 @@ type SelectedMealOption = {
   id: string;
   title: string;
   date?: string;
+};
+
+type AppliedPromoCode = {
+  code: string;
+  description: string;
+  discountType: "percent" | "fixed";
+  discountValue: number;
+  discountAmount: number;
+  maxDiscount: number | null;
+  eligibilityNote: string;
 };
 
 const deliveryOptions: DeliveryOptionConfig[] = [
@@ -151,7 +162,10 @@ export default function MonthlyPlanCheckoutForm({
   planDetails,
 }: MonthlyPlanCheckoutFormProps) {
   const [giftCode, setGiftCode] = useState("");
-  const [giftApplied, setGiftApplied] = useState(false);
+  const [appliedPromoCode, setAppliedPromoCode] =
+    useState<AppliedPromoCode | null>(null);
+  const [promoFeedback, setPromoFeedback] = useState("");
+  const [promoError, setPromoError] = useState("");
   const [cutlery, setCutlery] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
@@ -171,10 +185,11 @@ export default function MonthlyPlanCheckoutForm({
   const [submitSuccess, setSubmitSuccess] = useState("");
 
   const { data: locationsResponse } = useGetLocationsQuery();
+  const [validatePromoCode, { isLoading: isValidatingPromoCode }] =
+    useValidatePromoCodeMutation();
   const [checkout, { isLoading }] = useCheckoutMutation();
 
   const locations = (locationsResponse?.data ?? []).map(mapApiLocation);
-  const pricing = planDetails?.pricing;
   const rules = planDetails?.rules;
   const selectedMeals = useMemo(
     () => parseSelectedMeals(selection.selectedMeals),
@@ -194,44 +209,63 @@ export default function MonthlyPlanCheckoutForm({
 
     return deliveryOptions;
   }, [rules]);
-
-  useEffect(() => {
-    if (!enabledDeliveryOptions.length) return;
-    if (
-      !deliveryOption ||
-      !enabledDeliveryOptions.some((item) => item.id === deliveryOption)
-    ) {
-      setDeliveryOption(enabledDeliveryOptions[0].id);
-    }
-  }, [deliveryOption, enabledDeliveryOptions]);
+  const effectiveDeliveryOption =
+    deliveryOption &&
+    enabledDeliveryOptions.some((item) => item.id === deliveryOption)
+      ? deliveryOption
+      : (enabledDeliveryOptions[0]?.id ?? "");
 
   const subtotal = useMemo(
     () => computeBasePrice(selection, planDetails),
     [planDetails, selection],
   );
-  const giftRule = pricing?.giftCodeRule;
   const giftDiscount = useMemo(() => {
-    if (!giftApplied) return 0;
-    if (!giftCode.trim()) return 0;
-    if (giftRule && !giftRule.enabled) return 0;
-
-    const type = giftRule?.type ?? "percent";
-    const value = Number(giftRule?.value ?? 10);
-    const maxDiscount = Number(
-      giftRule?.maxDiscount ?? Number.MAX_SAFE_INTEGER,
-    );
-    const calculated = type === "fixed" ? value : (subtotal * value) / 100;
-
-    return Math.max(0, Math.min(calculated, maxDiscount));
-  }, [giftApplied, giftCode, giftRule, subtotal]);
+    return appliedPromoCode?.discountAmount ?? 0;
+  }, [appliedPromoCode]);
+  const pricing = planDetails?.pricing;
   const vatPercent = Number(pricing?.vatPercent ?? 5);
   const vat = ((subtotal - giftDiscount) * vatPercent) / 100;
   const safetyBagFee = Number(pricing?.safetyBagFee ?? 5);
   const safetyBag = cutlery ? safetyBagFee : 0;
   const grandTotal = subtotal - giftDiscount + vat + safetyBag;
 
-  const needsAddress = isDeliveryOption(deliveryOption);
-  const needsPickupLocation = isPickupOption(deliveryOption);
+  const needsAddress = isDeliveryOption(effectiveDeliveryOption);
+  const needsPickupLocation = isPickupOption(effectiveDeliveryOption);
+
+  async function handleApplyPromoCode() {
+    setPromoError("");
+    setPromoFeedback("");
+
+    if (!giftCode.trim()) {
+      setAppliedPromoCode(null);
+      setPromoError("Enter a promo code first.");
+      return;
+    }
+
+    try {
+      const response = await validatePromoCode({
+        code: giftCode.trim(),
+        subtotal,
+        scope: "monthly-plan",
+      }).unwrap();
+
+      setAppliedPromoCode(response.data);
+      setGiftCode(response.data.code);
+      setPromoFeedback(
+        `${response.data.code} applied. Discount: ${response.data.discountAmount.toFixed(2)} MAD.`,
+      );
+    } catch (error) {
+      const message =
+        error && typeof error === "object" && "data" in error
+          ? String(
+              (error as { data?: { message?: string } }).data?.message ??
+                "Promo code is invalid.",
+            )
+          : "Promo code is invalid.";
+      setAppliedPromoCode(null);
+      setPromoError(message);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -239,8 +273,10 @@ export default function MonthlyPlanCheckoutForm({
     setSubmitSuccess("");
 
     if (
-      !deliveryOption ||
-      !enabledDeliveryOptions.some((option) => option.id === deliveryOption)
+      !effectiveDeliveryOption ||
+      !enabledDeliveryOptions.some(
+        (option) => option.id === effectiveDeliveryOption,
+      )
     ) {
       setSubmitError("Please select a delivery option.");
       return;
@@ -276,7 +312,7 @@ export default function MonthlyPlanCheckoutForm({
     }
 
     const delivery = {
-      optionId: deliveryOption,
+      optionId: effectiveDeliveryOption,
       address: needsAddress ? address.trim() : undefined,
       pickupLocation: pickupLocation
         ? {
@@ -310,6 +346,11 @@ export default function MonthlyPlanCheckoutForm({
             area: area.trim(),
           },
           selectedMeals,
+          promoCode: appliedPromoCode
+            ? {
+                code: appliedPromoCode.code,
+              }
+            : undefined,
           delivery,
           totals: {
             subtotal,
@@ -328,8 +369,15 @@ export default function MonthlyPlanCheckoutForm({
       setSubmitSuccess(
         `Checkout completed. Subscription ${subscriptionId} and order ${orderId} saved.`,
       );
-    } catch {
-      setSubmitError("Failed to complete checkout.");
+    } catch (error) {
+      const message =
+        error && typeof error === "object" && "data" in error
+          ? String(
+              (error as { data?: { message?: string } }).data?.message ??
+                "Failed to complete checkout.",
+            )
+          : "Failed to complete checkout.";
+      setSubmitError(message);
     }
   }
 
@@ -373,18 +421,36 @@ export default function MonthlyPlanCheckoutForm({
             <input
               type="text"
               value={giftCode}
-              onChange={(event) => setGiftCode(event.target.value)}
+              onChange={(event) => {
+                setGiftCode(event.target.value);
+                setAppliedPromoCode(null);
+                setPromoError("");
+                setPromoFeedback("");
+              }}
               placeholder="Enter Gift Code"
               className="h-12 rounded-lg border border-zinc-300 bg-zinc-50 px-4 text-sm text-zinc-800 outline-none focus:border-zinc-500"
             />
             <button
               type="button"
-              onClick={() => setGiftApplied(giftCode.trim().length > 0)}
+              onClick={() => void handleApplyPromoCode()}
               className="h-12 rounded-sm bg-black px-6 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
-              Apply
+              {isValidatingPromoCode ? "Checking..." : "Apply"}
             </button>
           </div>
+          {promoError ? (
+            <p className="mt-3 text-sm text-red-600">{promoError}</p>
+          ) : null}
+          {promoFeedback ? (
+            <p className="mt-3 text-sm font-medium text-emerald-700">
+              {promoFeedback}
+            </p>
+          ) : null}
+          {appliedPromoCode?.eligibilityNote ? (
+            <p className="mt-2 text-xs text-zinc-500">
+              {appliedPromoCode.eligibilityNote}
+            </p>
+          ) : null}
 
           <div className="mt-5 border-t border-zinc-200 pt-4 text-sm">
             <div className="flex items-center justify-between py-2">
@@ -505,7 +571,7 @@ export default function MonthlyPlanCheckoutForm({
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {enabledDeliveryOptions.map((option) => {
-                const active = deliveryOption === option.id;
+                const active = effectiveDeliveryOption === option.id;
                 return (
                   <label
                     key={option.id}

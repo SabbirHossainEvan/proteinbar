@@ -68,6 +68,20 @@ export const publicApi = createApi({
     >({
       query: (body) => ({ url: "/contact", method: "POST", body }),
     }),
+    validatePromoCode: builder.mutation<
+      ApiResponse<{
+        code: string;
+        description: string;
+        discountType: "percent" | "fixed";
+        discountValue: number;
+        discountAmount: number;
+        maxDiscount: number | null;
+        eligibilityNote: string;
+      }>,
+      { code: string; subtotal: number; scope?: "monthly-plan" | "direct-order" }
+    >({
+      query: (body) => ({ url: "/promo-codes/validate", method: "POST", body }),
+    }),
     checkout: builder.mutation<ApiResponse<any>, any>({
       query: (body) => ({ url: "/checkout", method: "POST", body }),
     }),
@@ -90,6 +104,7 @@ export const {
   useSendCodeMutation,
   useVerifyCodeMutation,
   useSendContactMutation,
+  useValidatePromoCodeMutation,
   useCheckoutMutation,
   useCreateStoreOrderMutation,
 } = publicApi;
