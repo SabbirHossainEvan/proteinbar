@@ -12,7 +12,7 @@ type ApiResponse<T> = {
 
 export const publicApi = createApi({
   reducerPath: "publicApi",
-  baseQuery: fetchBaseQuery({ baseUrl }),
+  baseQuery: fetchBaseQuery({ baseUrl, credentials: "include" }),
   tagTypes: ["Menu", "Plans", "Products", "Locations", "Builder"],
   endpoints: (builder) => ({
     getWebsiteNavigation: builder.query<
@@ -62,6 +62,15 @@ export const publicApi = createApi({
     >({
       query: (body) => ({ url: "/auth/verify-code", method: "POST", body }),
     }),
+    getCurrentCustomer: builder.query<
+      ApiResponse<{ user: { id: string; email: string; role: string } }>,
+      void
+    >({
+      query: () => "/auth/me",
+    }),
+    logoutCustomer: builder.mutation<ApiResponse<{ loggedOut: boolean }>, void>({
+      query: () => ({ url: "/auth/logout", method: "POST" }),
+    }),
     sendContact: builder.mutation<
       ApiResponse<any>,
       { name: string; phone: string; email: string; message: string }
@@ -103,6 +112,8 @@ export const {
   useGetBuilderIngredientsQuery,
   useSendCodeMutation,
   useVerifyCodeMutation,
+  useGetCurrentCustomerQuery,
+  useLogoutCustomerMutation,
   useSendContactMutation,
   useValidatePromoCodeMutation,
   useCheckoutMutation,

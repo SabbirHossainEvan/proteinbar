@@ -618,7 +618,7 @@ export default function MonthlyPlanShowMeals({
       (item) => item.name.toUpperCase() === activeCategory,
     );
     if (customCategory) {
-      const customMeals = customCategory.mealIds
+      const customMeals = (customCategory.mealIds ?? [])
         .map((mealId) => mealById.get(mealId))
         .filter((item): item is MealLibraryItem => Boolean(item))
         .map(toDayMeal);
