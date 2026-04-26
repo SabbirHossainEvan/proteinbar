@@ -22,6 +22,11 @@ type SelectedMealOption = {
   id: string;
   title: string;
   date?: string;
+  extrasSummary?: string;
+  calories?: number;
+  protein?: number;
+  carb?: number;
+  fat?: number;
 };
 
 type SummaryMealCard = {
@@ -34,6 +39,7 @@ type SummaryMealCard = {
   protein: number;
   carb: number;
   fat: number;
+  extrasSummary?: string;
 };
 
 type GroupedMealCollection = {
@@ -76,6 +82,11 @@ function parseSelectedMeals(value?: string): SelectedMealOption[] {
         id: String(item?.id ?? ""),
         title: String(item?.title ?? ""),
         date: item?.date ? String(item.date) : undefined,
+        extrasSummary: item?.extrasSummary ? String(item.extrasSummary) : undefined,
+        calories: Number(item?.calories ?? 0),
+        protein: Number(item?.protein ?? 0),
+        carb: Number(item?.carb ?? 0),
+        fat: Number(item?.fat ?? 0),
       }))
       .filter((item) => item.id && item.title);
   } catch {
@@ -150,10 +161,11 @@ export default function MonthlyPlanSelectedMealsSummary({
         title: meal.title,
         date: meal.date,
         image: normalizeMealImage(linkedMeal?.image),
-        calories: Number(linkedMeal?.calories ?? 0),
-        protein: Number(linkedMeal?.protein ?? 0),
-        carb: Number(linkedMeal?.carbs ?? 0),
-        fat: Number(linkedMeal?.fat ?? 0),
+        calories: Number(meal.calories ?? linkedMeal?.calories ?? 0),
+        protein: Number(meal.protein ?? linkedMeal?.protein ?? 0),
+        carb: Number(meal.carb ?? linkedMeal?.carbs ?? 0),
+        fat: Number(meal.fat ?? linkedMeal?.fat ?? 0),
+        extrasSummary: meal.extrasSummary,
       };
 
       groups.set(groupKey, [...(groups.get(groupKey) ?? []), nextItem]);
@@ -341,6 +353,11 @@ export default function MonthlyPlanSelectedMealsSummary({
                       <h4 className="text-xl font-semibold uppercase leading-tight text-zinc-950">
                         {meal.title}
                       </h4>
+                      {meal.extrasSummary ? (
+                        <p className="mt-2 text-xs font-medium uppercase tracking-[0.14em] text-emerald-700">
+                          Extras: {meal.extrasSummary}
+                        </p>
+                      ) : null}
                       <p className="mt-2 text-sm leading-6 text-zinc-500">
                         Balanced meal selection prepared for your current delivery
                         schedule.

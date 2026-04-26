@@ -42,6 +42,13 @@ type SelectedMealOption = {
   id: string;
   title: string;
   date?: string;
+  extrasSummary?: string;
+  calories?: number;
+  protein?: number;
+  carb?: number;
+  fat?: number;
+  basePrice?: number;
+  totalPrice?: number;
 };
 
 type AppliedPromoCode = {
@@ -148,7 +155,14 @@ function parseSelectedMeals(value?: string): SelectedMealOption[] {
       .map((item) => ({
         id: String(item?.id ?? ""),
         title: String(item?.title ?? ""),
-        date: item?.date ? String(item.date) : undefined
+        date: item?.date ? String(item.date) : undefined,
+        extrasSummary: item?.extrasSummary ? String(item.extrasSummary) : undefined,
+        calories: Number(item?.calories ?? 0),
+        protein: Number(item?.protein ?? 0),
+        carb: Number(item?.carb ?? 0),
+        fat: Number(item?.fat ?? 0),
+        basePrice: Number(item?.basePrice ?? 0),
+        totalPrice: Number(item?.totalPrice ?? 0),
       }))
       .filter((item) => item.id && item.title);
   } catch {

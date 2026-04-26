@@ -57,6 +57,9 @@ type SelectedMealOption = {
   protein: number;
   carb: number;
   fat: number;
+  extrasSummary?: string;
+  basePrice?: number;
+  totalPrice?: number;
 };
 
 function parseSelectedMeals(value?: string): SelectedMealOption[] {
@@ -76,6 +79,11 @@ function parseSelectedMeals(value?: string): SelectedMealOption[] {
         protein: Number(item?.protein ?? 0),
         carb: Number(item?.carb ?? 0),
         fat: Number(item?.fat ?? 0),
+        extrasSummary: item?.extrasSummary
+          ? String(item.extrasSummary)
+          : undefined,
+        basePrice: Number(item?.basePrice ?? 0),
+        totalPrice: Number(item?.totalPrice ?? 0),
       }))
       .filter((item) => item.id && item.title);
   } catch {
@@ -457,7 +465,12 @@ export default function MonthlyPlanShowMeals({
         mealSelectionKey(item.id, item.date) === mealSelectionKey(mealId, date),
     ).length;
 
-  const addMealSelection = (meal: DayMeal, quantity: number, date?: string) => {
+  const addMealSelection = (
+    meal: DayMeal,
+    quantity: number,
+    date?: string,
+    overrides?: Partial<SelectedMealOption>,
+  ) => {
     setSelectedMeals((prev) => {
       const requestedCount = Math.max(1, quantity);
       const now = Date.now();
@@ -490,12 +503,15 @@ export default function MonthlyPlanShowMeals({
           additions.push({
             instanceId: `${meal.id}-${nextDate ?? "custom"}-${now}-${index}`,
             id: meal.id,
-            title: meal.title,
+            title: overrides?.title ?? meal.title,
             date: nextDate,
-            calories: meal.calories,
-            protein: meal.protein,
-            carb: meal.carb,
-            fat: meal.fat,
+            calories: Number(overrides?.calories ?? meal.calories),
+            protein: Number(overrides?.protein ?? meal.protein),
+            carb: Number(overrides?.carb ?? meal.carb),
+            fat: Number(overrides?.fat ?? meal.fat),
+            extrasSummary: overrides?.extrasSummary,
+            basePrice: overrides?.basePrice,
+            totalPrice: overrides?.totalPrice,
           });
         }
       } else {
@@ -503,12 +519,15 @@ export default function MonthlyPlanShowMeals({
           ...Array.from({ length: requestedCount }, (_, index) => ({
             instanceId: `${meal.id}-${date ?? "custom"}-${now}-${index}`,
             id: meal.id,
-            title: meal.title,
+            title: overrides?.title ?? meal.title,
             date,
-            calories: meal.calories,
-            protein: meal.protein,
-            carb: meal.carb,
-            fat: meal.fat,
+            calories: Number(overrides?.calories ?? meal.calories),
+            protein: Number(overrides?.protein ?? meal.protein),
+            carb: Number(overrides?.carb ?? meal.carb),
+            fat: Number(overrides?.fat ?? meal.fat),
+            extrasSummary: overrides?.extrasSummary,
+            basePrice: overrides?.basePrice,
+            totalPrice: overrides?.totalPrice,
           })),
         );
       }
@@ -648,6 +667,9 @@ export default function MonthlyPlanShowMeals({
     .filter((addOn) => (detailAddOnCounts[addOn] ?? 0) > 0)
     .map((addOn) => `${addOn} x${detailAddOnCounts[addOn]}`)
     .join(", ");
+  const mealUnitPrice = Number(
+    planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0,
+  );
   const detailMultiplier = isCustomDetail
     ? Math.max(1, detailSelectedOptionCount)
     : detailQty;
@@ -1374,7 +1396,19 @@ export default function MonthlyPlanShowMeals({
                   <button
                     type="button"
                     onClick={() => {
-                      addMealSelection(detailMeal, detailMultiplier);
+                      if (isCustomDetail) {
+                        addMealSelection(detailMeal, 1, undefined, {
+                          calories: detailMeal.calories * detailMultiplier,
+                          protein: detailMeal.protein * detailMultiplier,
+                          carb: detailMeal.carb * detailMultiplier,
+                          fat: detailMeal.fat * detailMultiplier,
+                          extrasSummary: detailSelectedOptionSummary || undefined,
+                          basePrice: mealUnitPrice,
+                          totalPrice: mealUnitPrice * detailMultiplier,
+                        });
+                      } else {
+                        addMealSelection(detailMeal, detailMultiplier);
+                      }
                       setDetailMeal(null);
                     }}
                     className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-7 text-sm font-semibold text-white transition hover:bg-emerald-700"
