@@ -7,6 +7,7 @@ import type { MonthlyPlan } from "@/data/monthlyPlans";
 import { mapApiLocation } from "@/lib/api-mappers";
 import {
   useCheckoutMutation,
+  useGetCurrentCustomerQuery,
   useGetLocationsQuery,
   useValidatePromoCodeMutation,
 } from "@/redux/api/publicApi";
@@ -39,6 +40,7 @@ type DeliveryOptionConfig = {
 };
 
 type SelectedMealOption = {
+  instanceId?: string;
   id: string;
   title: string;
   date?: string;
@@ -153,6 +155,7 @@ function parseSelectedMeals(value?: string): SelectedMealOption[] {
 
     return parsed
       .map((item) => ({
+        instanceId: item?.instanceId ? String(item.instanceId) : undefined,
         id: String(item?.id ?? ""),
         title: String(item?.title ?? ""),
         date: item?.date ? String(item.date) : undefined,
@@ -202,6 +205,7 @@ export default function MonthlyPlanCheckoutForm({
   const [validatePromoCode, { isLoading: isValidatingPromoCode }] =
     useValidatePromoCodeMutation();
   const [checkout, { isLoading }] = useCheckoutMutation();
+  const { data: currentCustomer } = useGetCurrentCustomerQuery();
 
   const locations = (locationsResponse?.data ?? []).map(mapApiLocation);
   const rules = planDetails?.rules;
@@ -245,6 +249,8 @@ export default function MonthlyPlanCheckoutForm({
 
   const needsAddress = isDeliveryOption(effectiveDeliveryOption);
   const needsPickupLocation = isPickupOption(effectiveDeliveryOption);
+  const accountEmail = currentCustomer?.data?.user?.email?.trim() ?? "";
+  const effectiveEmail = email.trim() || accountEmail;
 
   async function handleApplyPromoCode() {
     setPromoError("");
@@ -296,7 +302,7 @@ export default function MonthlyPlanCheckoutForm({
       return;
     }
 
-    if (!firstName || !lastName || !email || !phone || !emirate || !area) {
+    if (!firstName || !lastName || !effectiveEmail || !phone || !emirate || !area) {
       setSubmitError("Please fill all required customer fields.");
       return;
     }
@@ -354,7 +360,7 @@ export default function MonthlyPlanCheckoutForm({
           customer: {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
-            email: email.trim(),
+            email: effectiveEmail,
             phone: phone.trim(),
             emirate,
             area: area.trim(),
@@ -535,8 +541,8 @@ export default function MonthlyPlanCheckoutForm({
               <label className="text-sm font-medium text-zinc-700">Email</label>
               <input
                 type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                    value={effectiveEmail}
+                    onChange={(event) => setEmail(event.target.value)}
                 className="mt-2 h-11 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm outline-none focus:border-zinc-500"
               />
             </div>

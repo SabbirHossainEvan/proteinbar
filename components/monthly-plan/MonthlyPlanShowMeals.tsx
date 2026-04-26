@@ -923,10 +923,13 @@ export default function MonthlyPlanShowMeals({
             id: item.id,
             title: item.title,
             date: item.date,
+            extrasSummary: item.extrasSummary,
             calories: item.calories,
             protein: item.protein,
             carb: item.carb,
             fat: item.fat,
+            basePrice: item.basePrice,
+            totalPrice: item.totalPrice,
           })),
         ),
       );
@@ -995,7 +998,6 @@ export default function MonthlyPlanShowMeals({
                 {visibleMeals.map((meal) => (
                   <article
                     key={`${meal.id}-${activeCategory}`}
-                    style={{ border: "1px solid red" }}
                     className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
                   >
                     <div className="flex justify-center">
