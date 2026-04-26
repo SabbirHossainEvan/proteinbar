@@ -39,6 +39,7 @@ type DayMeal = {
   fat: number;
   protein: number;
   carb: number;
+  addOnOptions: string[];
 };
 
 type CustomCard = {
@@ -205,7 +206,15 @@ function toDayMeal(item: MealLibraryItem): DayMeal {
     fat: Number(item.fat ?? 0),
     protein: Number(item.protein ?? 0),
     carb: Number(item.carbs ?? 0),
+    addOnOptions: item.addOnOptions ?? [],
   };
+}
+
+function normalizeMealLookupValue(value?: string) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 }
 
 export default function MonthlyPlanShowMeals({
@@ -237,6 +246,11 @@ export default function MonthlyPlanShowMeals({
 
   const mealById = useMemo(() => {
     return new Map(mealLibrary.map((item) => [item.id, item]));
+  }, [mealLibrary]);
+  const mealByNormalizedName = useMemo(() => {
+    return new Map(
+      mealLibrary.map((item) => [normalizeMealLookupValue(item.name), item]),
+    );
   }, [mealLibrary]);
   const customMealSlotCount = toPositiveInt(selection.meals, 1);
 
@@ -279,9 +293,7 @@ export default function MonthlyPlanShowMeals({
     () =>
       (planDetails?.customPlanBuilder?.foodItems ?? [])
         .filter(
-          (item) =>
-            item.isActive &&
-            item.sizes.some((size) => size.isActive),
+          (item) => item.isActive && item.sizes.some((size) => size.isActive),
         )
         .sort((a, b) => a.displayOrder - b.displayOrder),
     [planDetails],
@@ -297,9 +309,7 @@ export default function MonthlyPlanShowMeals({
     () =>
       (planDetails?.plan?.content?.regularStepTwo?.foodItems ?? [])
         .filter(
-          (item) =>
-            item.isActive &&
-            item.sizes.some((size) => size.isActive),
+          (item) => item.isActive && item.sizes.some((size) => size.isActive),
         )
         .sort((a, b) => a.displayOrder - b.displayOrder),
     [planDetails],
@@ -665,28 +675,39 @@ export default function MonthlyPlanShowMeals({
     if (customCategory) {
       const customMeals = regularFoodItems
         .filter((item) => item.categoryId === customCategory.id)
-        .map((item) => ({
-          id: item.id,
-          title: item.name.toUpperCase(),
-          subtitle: item.description?.trim() || activeCategory,
-          image: normalizeMealImage(item.imageUrl),
-          calories: Number(item.sizes[0]?.calories ?? 0),
-          fat: Number(item.sizes[0]?.fat ?? 0),
-          protein: Number(item.sizes[0]?.protein ?? 0),
-          carb: Number(item.sizes[0]?.carbs ?? 0),
-        }));
+        .map((item) => {
+          const linkedMeal =
+            mealById.get(item.sourceMealId ?? "") ??
+            mealByNormalizedName.get(normalizeMealLookupValue(item.name));
+
+          return {
+            id: item.id,
+            title: item.name.toUpperCase(),
+            subtitle: item.description?.trim() || activeCategory,
+            image: normalizeMealImage(item.imageUrl),
+            calories: Number(item.sizes[0]?.calories ?? 0),
+            fat: Number(item.sizes[0]?.fat ?? 0),
+            protein: Number(item.sizes[0]?.protein ?? 0),
+            carb: Number(item.sizes[0]?.carbs ?? 0),
+            addOnOptions: linkedMeal?.addOnOptions ?? [],
+          };
+        });
       if (customMeals.length > 0) return customMeals;
     }
 
     return [];
-  }, [activeCategory, allMeals, regularCategories, regularFoodItems]);
+  }, [
+    activeCategory,
+    allMeals,
+    mealById,
+    mealByNormalizedName,
+    regularCategories,
+    regularFoodItems,
+  ]);
 
   const activeDateIso = tabs[activeTab]?.date ?? "";
   const isCustomDetail = isCustom && Boolean(detailMeal);
-  const customDetailAddOnOptions = [
-    "Extra Chicken",
-    "Extra Potatoes",
-  ];
+  const customDetailAddOnOptions = detailMeal?.addOnOptions ?? [];
   const detailSelectedOptionCount = Object.values(detailAddOnCounts).reduce(
     (sum, count) => sum + count,
     0,
@@ -719,6 +740,7 @@ export default function MonthlyPlanShowMeals({
           fat: 0,
           protein: 0,
           carb: 0,
+          addOnOptions: [],
         } as DayMeal;
       }
 
@@ -850,6 +872,7 @@ export default function MonthlyPlanShowMeals({
           fat: selectionItem.fat,
           protein: selectionItem.protein,
           carb: selectionItem.carb,
+          addOnOptions: [],
         };
 
     setSelectedCardMealDetail({
@@ -972,6 +995,7 @@ export default function MonthlyPlanShowMeals({
                 {visibleMeals.map((meal) => (
                   <article
                     key={`${meal.id}-${activeCategory}`}
+                    style={{ border: "1px solid red" }}
                     className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
                   >
                     <div className="flex justify-center">
@@ -1163,16 +1187,16 @@ export default function MonthlyPlanShowMeals({
                     }
                     type="button"
                     onClick={() =>
-                          setSelectedMeals((prev) =>
-                            prev.filter(
-                              (selected) =>
-                                (selected.instanceId ??
-                                  mealSelectionKey(selected.id, selected.date)) !==
-                                (item.instanceId ??
-                                  mealSelectionKey(item.id, item.date)),
-                            ),
-                          )
-                        }
+                      setSelectedMeals((prev) =>
+                        prev.filter(
+                          (selected) =>
+                            (selected.instanceId ??
+                              mealSelectionKey(selected.id, selected.date)) !==
+                            (item.instanceId ??
+                              mealSelectionKey(item.id, item.date)),
+                        ),
+                      )
+                    }
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title}
@@ -1245,49 +1269,55 @@ export default function MonthlyPlanShowMeals({
                       </div>
                       {isCustomDetail ? (
                         <div className="flex w-full flex-col gap-2 sm:items-end">
-                          {customDetailAddOnOptions.map((addOn) => {
-                            const count = detailAddOnCounts[addOn] ?? 0;
-                            return (
-                              <div
-                                key={addOn}
-                                className="inline-flex min-h-12 min-w-[260px] items-center justify-between rounded-md border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-900"
-                              >
-                                <span>{addOn}</span>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setDetailAddOnCounts((prev) => ({
-                                        ...prev,
-                                        [addOn]: Math.max(
-                                          0,
-                                          (prev[addOn] ?? 0) - 1,
-                                        ),
-                                      }))
-                                    }
-                                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 text-lg leading-none text-zinc-900 transition hover:bg-zinc-100"
-                                  >
-                                    -
-                                  </button>
-                                  <span className="inline-flex min-w-8 items-center justify-center text-base font-bold text-zinc-900">
-                                    {count}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setDetailAddOnCounts((prev) => ({
-                                        ...prev,
-                                        [addOn]: (prev[addOn] ?? 0) + 1,
-                                      }))
-                                    }
-                                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 text-lg leading-none text-white transition hover:bg-zinc-800"
-                                  >
-                                    +
-                                  </button>
+                          {customDetailAddOnOptions.length ? (
+                            customDetailAddOnOptions.map((addOn) => {
+                              const count = detailAddOnCounts[addOn] ?? 0;
+                              return (
+                                <div
+                                  key={addOn}
+                                  className="inline-flex min-h-12 min-w-[260px] items-center justify-between rounded-md border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-900"
+                                >
+                                  <span>{addOn}</span>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setDetailAddOnCounts((prev) => ({
+                                          ...prev,
+                                          [addOn]: Math.max(
+                                            0,
+                                            (prev[addOn] ?? 0) - 1,
+                                          ),
+                                        }))
+                                      }
+                                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 text-lg leading-none text-zinc-900 transition hover:bg-zinc-100"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="inline-flex min-w-8 items-center justify-center text-base font-bold text-zinc-900">
+                                      {count}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setDetailAddOnCounts((prev) => ({
+                                          ...prev,
+                                          [addOn]: (prev[addOn] ?? 0) + 1,
+                                        }))
+                                      }
+                                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 text-lg leading-none text-white transition hover:bg-zinc-800"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })
+                          ) : (
+                            <div className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-500">
+                              No extra options are configured for this meal.
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="flex items-center justify-start gap-3 sm:justify-end">
@@ -1430,7 +1460,8 @@ export default function MonthlyPlanShowMeals({
                           protein: detailMeal.protein * detailMultiplier,
                           carb: detailMeal.carb * detailMultiplier,
                           fat: detailMeal.fat * detailMultiplier,
-                          extrasSummary: detailSelectedOptionSummary || undefined,
+                          extrasSummary:
+                            detailSelectedOptionSummary || undefined,
                           basePrice: mealUnitPrice,
                           totalPrice: mealUnitPrice * detailMultiplier,
                         });
@@ -1792,9 +1823,9 @@ export default function MonthlyPlanShowMeals({
         </div>
 
         <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
-            <h4 className="text-2xl font-semibold text-zinc-900">
-              Selected Options
-            </h4>
+          <h4 className="text-2xl font-semibold text-zinc-900">
+            Selected Options
+          </h4>
           {slotWarning ? (
             <p className="mt-3 text-sm font-medium text-amber-700">
               {slotWarning}
@@ -1805,14 +1836,18 @@ export default function MonthlyPlanShowMeals({
               {selectedMealsForCheckout.map((item) =>
                 isNormalPlan ? (
                   <span
-                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
+                    key={
+                      item.instanceId ?? mealSelectionKey(item.id, item.date)
+                    }
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title} {item.date ? `(${item.date})` : ""}
                   </span>
                 ) : (
                   <button
-                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
+                    key={
+                      item.instanceId ?? mealSelectionKey(item.id, item.date)
+                    }
                     type="button"
                     onClick={() =>
                       setSelectedMeals((prev) =>
