@@ -67,6 +67,11 @@ export type CustomPlanBuilder = {
   foodItems: CustomPlanFoodItem[];
 };
 
+export type RegularMealBuilder = {
+  categories: CustomPlanCategory[];
+  foodItems: CustomPlanFoodItem[];
+};
+
 export type AssignedMeal = {
   id: string;
   mealId: string;
@@ -148,6 +153,7 @@ export type MonthlyPlanDetails = {
       heroSubtitle?: string;
       selectMealsText?: string;
       checkoutText?: string;
+      regularStepTwo?: RegularMealBuilder;
       customStepTwo?: {
         categories: Array<{ name: string; mealIds: string[] }>;
       };

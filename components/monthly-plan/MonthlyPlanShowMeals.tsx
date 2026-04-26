@@ -268,25 +268,51 @@ export default function MonthlyPlanShowMeals({
     return Array.from(new Set(dates)).sort((a, b) => a.localeCompare(b));
   }, [planDetails]);
 
-  const customCategoryDefs = useMemo(
-    () => planDetails?.plan?.content?.customStepTwo?.categories ?? [],
+  const builderCategories = useMemo(
+    () =>
+      (planDetails?.customPlanBuilder?.categories ?? [])
+        .filter((category) => category.isActive)
+        .sort((a, b) => a.displayOrder - b.displayOrder),
+    [planDetails],
+  );
+  const builderFoodItems = useMemo(
+    () =>
+      (planDetails?.customPlanBuilder?.foodItems ?? [])
+        .filter(
+          (item) =>
+            item.isActive &&
+            item.sizes.some((size) => size.isActive),
+        )
+        .sort((a, b) => a.displayOrder - b.displayOrder),
+    [planDetails],
+  );
+  const regularCategories = useMemo(
+    () =>
+      (planDetails?.plan?.content?.regularStepTwo?.categories ?? [])
+        .filter((category) => category.isActive)
+        .sort((a, b) => a.displayOrder - b.displayOrder),
+    [planDetails],
+  );
+  const regularFoodItems = useMemo(
+    () =>
+      (planDetails?.plan?.content?.regularStepTwo?.foodItems ?? [])
+        .filter(
+          (item) =>
+            item.isActive &&
+            item.sizes.some((size) => size.isActive),
+        )
+        .sort((a, b) => a.displayOrder - b.displayOrder),
     [planDetails],
   );
   const customCategories = useMemo(() => {
-    const fromCustomConfig = customCategoryDefs.map((item) =>
-      item.name.toUpperCase(),
-    );
-    const fromLibrary = mealLibrary.flatMap((item) =>
-      item.tags.length > 0
-        ? item.tags.map((tag) => tag.toUpperCase())
-        : [item.mealType.toUpperCase()],
-    );
+    const categoriesWithItems = regularCategories
+      .filter((category) =>
+        regularFoodItems.some((item) => item.categoryId === category.id),
+      )
+      .map((category) => category.name.toUpperCase());
 
-    const merged = Array.from(new Set([...fromCustomConfig, ...fromLibrary]));
-    return merged.length > 0
-      ? merged
-      : ["BREAKFAST", "CHICKEN", "STEAK BEEF", "MINCED BEEF"];
-  }, [customCategoryDefs, mealLibrary]);
+    return categoriesWithItems;
+  }, [regularCategories, regularFoodItems]);
 
   const customCards = useMemo(() => {
     if (weekDates.length > 0) {
@@ -633,25 +659,27 @@ export default function MonthlyPlanShowMeals({
     if (allMeals.length === 0) return [];
     if (activeCategory === "ALL") return allMeals;
 
-    const customCategory = customCategoryDefs.find(
+    const customCategory = regularCategories.find(
       (item) => item.name.toUpperCase() === activeCategory,
     );
     if (customCategory) {
-      const customMeals = (customCategory.mealIds ?? [])
-        .map((mealId) => mealById.get(mealId))
-        .filter((item): item is MealLibraryItem => Boolean(item))
-        .map(toDayMeal);
+      const customMeals = regularFoodItems
+        .filter((item) => item.categoryId === customCategory.id)
+        .map((item) => ({
+          id: item.id,
+          title: item.name.toUpperCase(),
+          subtitle: item.description?.trim() || activeCategory,
+          image: normalizeMealImage(item.imageUrl),
+          calories: Number(item.sizes[0]?.calories ?? 0),
+          fat: Number(item.sizes[0]?.fat ?? 0),
+          protein: Number(item.sizes[0]?.protein ?? 0),
+          carb: Number(item.sizes[0]?.carbs ?? 0),
+        }));
       if (customMeals.length > 0) return customMeals;
     }
 
-    return mealLibrary
-      .filter(
-        (item) =>
-          item.mealType.toUpperCase() === activeCategory ||
-          item.tags.map((tag) => tag.toUpperCase()).includes(activeCategory),
-      )
-      .map(toDayMeal);
-  }, [activeCategory, allMeals, customCategoryDefs, mealById, mealLibrary]);
+    return [];
+  }, [activeCategory, allMeals, regularCategories, regularFoodItems]);
 
   const activeDateIso = tabs[activeTab]?.date ?? "";
   const isCustomDetail = isCustom && Boolean(detailMeal);
