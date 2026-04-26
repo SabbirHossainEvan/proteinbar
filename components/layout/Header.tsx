@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
+import { useGetWebsiteNavigationQuery } from "@/redux/api/publicApi";
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/pages/locations", label: "Locations" },
-  { href: "/pages/about-us", label: "About us" },
-  { href: "/pages/contact", label: "Contact us" },
+const fallbackNavLinks = [
+  { href: "/", label: "Home", slug: "home" },
+  { href: "/pages/locations", label: "Locations", slug: "locations" },
+  { href: "/pages/menu", label: "Menu", slug: "menu" },
+  { href: "/pages/about-us", label: "About us", slug: "about-us" },
+  { href: "/pages/contact", label: "Contact us", slug: "contact" },
 ];
 
 const actionLinks = [
@@ -31,16 +33,56 @@ function BrandLogo() {
   );
 }
 
+const navHrefBySlug: Record<string, string> = {
+  home: "/",
+  locations: "/pages/locations",
+  menu: "/pages/menu",
+  "about-us": "/pages/about-us",
+  contact: "/pages/contact",
+  "meal-prep": "/plans",
+  "terms-and-conditions": "/pages/terms-and-conditions",
+  "privacy-policy": "/pages/privacy-policy",
+};
+
+const allowedHeaderNavSlugs = new Set(["home", "locations", "menu", "about-us", "contact"]);
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { data } = useGetWebsiteNavigationQuery();
   const pathname = usePathname();
   const isMenuActive = pathname === "/pages/menu";
   const lastScrollYRef = useRef(0);
   const isHeaderVisibleRef = useRef(true);
   const isScrolledRef = useRef(false);
   const menuOpenRef = useRef(false);
+  const navLinks = useMemo(() => {
+    const apiLinks =
+      data?.data
+        ?.map((item) => {
+          if (!allowedHeaderNavSlugs.has(item.slug)) {
+            return null;
+          }
+
+          const href = navHrefBySlug[item.slug];
+          if (!href) {
+            return null;
+          }
+
+          return {
+            href,
+            label: item.navLabel || item.title,
+            slug: item.slug,
+          };
+        })
+        .filter((item): item is { href: string; label: string; slug: string } => Boolean(item)) ?? [];
+
+    return apiLinks.length ? apiLinks : fallbackNavLinks;
+  }, [data]);
+  const leadingNavLinks = navLinks.filter((item) => item.slug !== "menu").slice(0, 2);
+  const trailingNavLinks = navLinks.filter((item) => item.slug !== "menu").slice(2);
+  const menuNavItem = navLinks.find((item) => item.slug === "menu");
 
   useEffect(() => {
     menuOpenRef.current = menuOpen;
@@ -134,7 +176,7 @@ export default function Header() {
 
           <nav className="hidden items-center justify-center lg:flex">
             <div className="flex items-center gap-8 xl:gap-12">
-              {navLinks.slice(0, 2).map((item) => {
+              {leadingNavLinks.map((item) => {
                 const linkPath = item.href.split("#")[0];
                 const isActive = pathname === linkPath;
                 return (
@@ -150,15 +192,17 @@ export default function Header() {
                   </Link>
                 );
               })}
-              <MenuLocationTrigger
-                className={`nav-link-hover !text-white text-[0.98rem] font-normal tracking-[0.01em] ${
-                  isMenuActive ? "after:scale-x-100" : ""
-                }`}
-                variant="dropdown"
-              >
-                Menu
-              </MenuLocationTrigger>
-              {navLinks.slice(2).map((item) => {
+              {menuNavItem ? (
+                <MenuLocationTrigger
+                  className={`nav-link-hover !text-white text-[0.98rem] font-normal tracking-[0.01em] ${
+                    isMenuActive ? "after:scale-x-100" : ""
+                  }`}
+                  variant="dropdown"
+                >
+                  {menuNavItem.label}
+                </MenuLocationTrigger>
+              ) : null}
+              {trailingNavLinks.map((item) => {
                 const linkPath = item.href.split("#")[0];
                 const isActive = pathname === linkPath;
                 return (
@@ -199,7 +243,7 @@ export default function Header() {
       {menuOpen && (
         <nav className="animate-fade-down mx-auto mt-3 max-w-[1500px] border border-white/12 bg-black/88 px-4 py-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.28)] lg:hidden">
           <div className="flex w-full flex-col gap-2">
-            {navLinks.slice(0, 2).map((item) => {
+            {leadingNavLinks.map((item) => {
               const linkPath = item.href.split("#")[0];
               const isActive = pathname === linkPath;
               return (
@@ -215,15 +259,17 @@ export default function Header() {
                 </Link>
               );
             })}
-            <MenuLocationTrigger
-              className={`rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/10 ${
-                isMenuActive ? "bg-white/10 text-white" : "text-white/90"
-              }`}
-              onAfterSelect={() => setMenuOpen(false)}
-            >
-              Menu
-            </MenuLocationTrigger>
-            {navLinks.slice(2).map((item) => {
+            {menuNavItem ? (
+              <MenuLocationTrigger
+                className={`rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/10 ${
+                  isMenuActive ? "bg-white/10 text-white" : "text-white/90"
+                }`}
+                onAfterSelect={() => setMenuOpen(false)}
+              >
+                {menuNavItem.label}
+              </MenuLocationTrigger>
+            ) : null}
+            {trailingNavLinks.map((item) => {
               const linkPath = item.href.split("#")[0];
               const isActive = pathname === linkPath;
               return (

@@ -15,6 +15,12 @@ export const publicApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl }),
   tagTypes: ["Menu", "Plans", "Products", "Locations", "Builder"],
   endpoints: (builder) => ({
+    getWebsiteNavigation: builder.query<
+      ApiResponse<Array<{ id: string; slug: string; title: string; navLabel: string; kind: string }>>,
+      void
+    >({
+      query: () => "/website-navigation",
+    }),
     getMenuCategories: builder.query<ApiResponse<any[]>, void>({
       query: () => "/menu-categories",
       providesTags: ["Menu"],
@@ -72,6 +78,7 @@ export const publicApi = createApi({
 });
 
 export const {
+  useGetWebsiteNavigationQuery,
   useGetMenuCategoriesQuery,
   useGetRestaurantsQuery,
   useGetMonthlyPlansQuery,

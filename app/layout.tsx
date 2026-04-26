@@ -6,6 +6,10 @@ import Footer from "@/components/layout/Footer";
 import Container from "@/components/ui/Container";
 import Providers from "./providers";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -14,17 +18,19 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Proteinbar",
-  description: "Proteinbar storefront"
+  description: "Proteinbar storefront",
 };
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en" className="overflow-x-hidden">
-      <body className={`${poppins.className} min-h-screen overflow-x-hidden bg-white text-zinc-900 antialiased`}>
+      <body
+        className={`${poppins.className} min-h-screen overflow-x-hidden bg-white text-zinc-900 antialiased`}
+      >
         <Providers>
           <div className="flex min-h-screen max-w-full flex-col overflow-x-hidden">
             <Header />
