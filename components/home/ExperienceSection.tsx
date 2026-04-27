@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
+import type { WebsitePageSection } from "@/types/cms";
 
-const experienceCards = [
+const defaultExperienceCards = [
   {
     title: "See Our Menu",
     cta: "see Menu",
@@ -23,13 +24,25 @@ const experienceCards = [
   },
 ];
 
-export default function ExperienceSection() {
+export default function ExperienceSection({ section }: { section?: WebsitePageSection }) {
+  if (section && !section.isVisible) return null;
+
+  const heading = section?.heading || "THE PROTEINBAR EXPERIENCE";
+  const experienceCards = section?.items.length
+    ? section.items.map((item, index) => ({
+        title: item.title,
+        cta: item.label || "Learn More",
+        href: item.link || "/",
+        image: item.image || defaultExperienceCards[index]?.image || "/hero.png",
+      }))
+    : defaultExperienceCards;
+
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[#111111] px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-[980px]">
         <div className="mb-12 text-center">
           <h2 className="text-[2rem] font-semibold tracking-[0.02em] text-white sm:text-[2.5rem]">
-            THE PROTEINBAR EXPERIENCE
+            {heading}
           </h2>
           <div className="mx-auto mt-4 h-px w-[140px] bg-[#b8942c]" />
         </div>

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { WebsitePageSection } from "@/types/cms";
 
 const healthyImages = [
   "/healthy/image-1.png",
@@ -15,7 +16,15 @@ const healthyImages = [
   "/healthy/image-2.png",
 ];
 
-export default function HealthyCustomersSection() {
+export default function HealthyCustomersSection({ section }: { section?: WebsitePageSection }) {
+  if (section && !section.isVisible) return null;
+
+  const heading = section?.heading || "6 Years Of Happy Healthy Customers And Counting...";
+  const images =
+    section?.items.length
+      ? section.items.map((item) => item.image).filter((image): image is string => Boolean(image))
+      : healthyImages;
+
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen  px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
       <div className="mx-auto w-full max-w-[1800px]">
@@ -23,11 +32,11 @@ export default function HealthyCustomersSection() {
           className="px-2 text-center text-3xl font-semibold tracking-tight text-zinc-800 sm:text-5xl lg:text-5xl"
           style={{ animation: "fadeUp 0.8s ease-out both" }}
         >
-          6 Years Of Happy Healthy Customers And Counting...
+          {heading}
         </h2>
 
         <div className="mt-10 grid grid-cols-2 gap-2 sm:mt-12 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {healthyImages.map((src, index) => (
+          {images.map((src, index) => (
             <article
               key={`${src}-${index}`}
               className="group relative aspect-square overflow-hidden bg-zinc-200"

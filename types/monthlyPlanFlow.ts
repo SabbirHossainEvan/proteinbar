@@ -16,6 +16,7 @@ export type MealLibraryItem = {
   carbs: number;
   fat: number;
   tags: string[];
+  addOnOptions?: string[];
   status: "active" | "inactive";
   image?: string;
 };
@@ -54,6 +55,7 @@ export type CustomPlanFoodItem = {
   id: string;
   planId: string;
   categoryId: string;
+  sourceMealId?: string;
   name: string;
   imageUrl: string;
   description?: string;
@@ -63,6 +65,11 @@ export type CustomPlanFoodItem = {
 };
 
 export type CustomPlanBuilder = {
+  categories: CustomPlanCategory[];
+  foodItems: CustomPlanFoodItem[];
+};
+
+export type RegularMealBuilder = {
   categories: CustomPlanCategory[];
   foodItems: CustomPlanFoodItem[];
 };
@@ -148,6 +155,7 @@ export type MonthlyPlanDetails = {
       heroSubtitle?: string;
       selectMealsText?: string;
       checkoutText?: string;
+      regularStepTwo?: RegularMealBuilder;
       customStepTwo?: {
         categories: Array<{ name: string; mealIds: string[] }>;
       };

@@ -12,6 +12,7 @@ import {
 import Section from "@/components/ui/Section";
 import { useGetMenuCategoriesQuery, useGetRestaurantsQuery } from "@/redux/api/publicApi";
 import type { MenuCategory, MenuItem, RestaurantInfo } from "@/types";
+import type { WebsitePageRecord } from "@/types/cms";
 
 const categoryNotes: Record<string, string[]> = {
   "high-protein-breakfast": [
@@ -66,6 +67,12 @@ function matchesRestaurantFilter(
     restaurant.toLowerCase(),
   );
 
+  // If a category has no restaurant assignment yet, treat it as globally visible
+  // so the menu still works while admins finish wiring associations.
+  if (categoryRestaurants.length === 0) {
+    return true;
+  }
+
   return selectedRestaurantAliases.some((alias) =>
     categoryRestaurants.includes(alias.toLowerCase()),
   );
@@ -85,7 +92,7 @@ function toRestaurantAliases(restaurant: RestaurantInfo | null) {
   return Array.from(new Set(values));
 }
 
-export default function ManuPageContainer() {
+export default function ManuPageContainer({ page }: { page?: WebsitePageRecord | null }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data, isLoading } = useGetMenuCategoriesQuery();
@@ -232,7 +239,7 @@ export default function ManuPageContainer() {
         title="Select your Proteinbar location"
         description="Choose the location first, then we will load that location's menu only."
       />
-      <MenuHeroSection />
+      <MenuHeroSection page={page} />
       <MenuCategoryJumpSection
         categories={filteredCategories}
         selectedFilter={selectedFilter}

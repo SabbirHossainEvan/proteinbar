@@ -1,8 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
-import { useSendCodeMutation, useVerifyCodeMutation } from "@/redux/api/publicApi";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  useGetCurrentCustomerQuery,
+  useSendCodeMutation,
+  useVerifyCodeMutation
+} from "@/redux/api/publicApi";
 
 const CODE_LENGTH = 6;
 
@@ -14,16 +18,25 @@ function maskEmail(email: string) {
 }
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
-  const [step, setStep] = useState<"email" | "verify" | "success">("email");
+  const [step, setStep] = useState<"email" | "verify">("email");
   const [inputCode, setInputCode] = useState("");
   const [error, setError] = useState("");
-  const [sentCode, setSentCode] = useState("");
+  const returnTo = searchParams.get("returnTo") || "/";
 
   const [sendCode, { isLoading: sending }] = useSendCodeMutation();
   const [verifyCode, { isLoading: verifying }] = useVerifyCodeMutation();
+  const { data: currentCustomer } = useGetCurrentCustomerQuery();
 
   const maskedEmail = useMemo(() => maskEmail(email), [email]);
+
+  useEffect(() => {
+    if (currentCustomer?.data?.user?.email) {
+      router.replace(returnTo);
+    }
+  }, [currentCustomer, returnTo, router]);
 
   const handleSendCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,9 +50,8 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await sendCode({ email: normalizedEmail }).unwrap();
+      await sendCode({ email: normalizedEmail }).unwrap();
       setEmail(normalizedEmail);
-      setSentCode(response.data?.code ?? "");
       setInputCode("");
       setStep("verify");
     } catch {
@@ -58,7 +70,7 @@ export default function LoginPage() {
 
     try {
       await verifyCode({ email, code: inputCode }).unwrap();
-      setStep("success");
+      router.replace(returnTo);
     } catch {
       setError("Incorrect or expired verification code.");
     }
@@ -122,21 +134,7 @@ export default function LoginPage() {
             >
               Log in with a different email address
             </button>
-            {sentCode ? <p className="text-xs text-zinc-500">Demo code: {sentCode}</p> : null}
           </form>
-        )}
-
-        {step === "success" && (
-          <div className="mt-7 space-y-4">
-            <h2 className="text-2xl font-semibold text-zinc-900">Email verified</h2>
-            <p className="text-sm text-zinc-600">You are now logged in as {email}.</p>
-            <Link
-              href="/"
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-700"
-            >
-              Go to Home
-            </Link>
-          </div>
         )}
       </div>
     </section>

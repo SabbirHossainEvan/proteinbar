@@ -39,6 +39,7 @@ type DayMeal = {
   fat: number;
   protein: number;
   carb: number;
+  addOnOptions: string[];
 };
 
 type CustomCard = {
@@ -57,6 +58,9 @@ type SelectedMealOption = {
   protein: number;
   carb: number;
   fat: number;
+  extrasSummary?: string;
+  basePrice?: number;
+  totalPrice?: number;
 };
 
 function parseSelectedMeals(value?: string): SelectedMealOption[] {
@@ -76,6 +80,11 @@ function parseSelectedMeals(value?: string): SelectedMealOption[] {
         protein: Number(item?.protein ?? 0),
         carb: Number(item?.carb ?? 0),
         fat: Number(item?.fat ?? 0),
+        extrasSummary: item?.extrasSummary
+          ? String(item.extrasSummary)
+          : undefined,
+        basePrice: Number(item?.basePrice ?? 0),
+        totalPrice: Number(item?.totalPrice ?? 0),
       }))
       .filter((item) => item.id && item.title);
   } catch {
@@ -197,7 +206,15 @@ function toDayMeal(item: MealLibraryItem): DayMeal {
     fat: Number(item.fat ?? 0),
     protein: Number(item.protein ?? 0),
     carb: Number(item.carbs ?? 0),
+    addOnOptions: item.addOnOptions ?? [],
   };
+}
+
+function normalizeMealLookupValue(value?: string) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 }
 
 export default function MonthlyPlanShowMeals({
@@ -230,6 +247,11 @@ export default function MonthlyPlanShowMeals({
   const mealById = useMemo(() => {
     return new Map(mealLibrary.map((item) => [item.id, item]));
   }, [mealLibrary]);
+  const mealByNormalizedName = useMemo(() => {
+    return new Map(
+      mealLibrary.map((item) => [normalizeMealLookupValue(item.name), item]),
+    );
+  }, [mealLibrary]);
   const customMealSlotCount = toPositiveInt(selection.meals, 1);
 
   const weekDates = useMemo(() => {
@@ -260,25 +282,47 @@ export default function MonthlyPlanShowMeals({
     return Array.from(new Set(dates)).sort((a, b) => a.localeCompare(b));
   }, [planDetails]);
 
-  const customCategoryDefs = useMemo(
-    () => planDetails?.plan?.content?.customStepTwo?.categories ?? [],
+  const builderCategories = useMemo(
+    () =>
+      (planDetails?.customPlanBuilder?.categories ?? [])
+        .filter((category) => category.isActive)
+        .sort((a, b) => a.displayOrder - b.displayOrder),
+    [planDetails],
+  );
+  const builderFoodItems = useMemo(
+    () =>
+      (planDetails?.customPlanBuilder?.foodItems ?? [])
+        .filter(
+          (item) => item.isActive && item.sizes.some((size) => size.isActive),
+        )
+        .sort((a, b) => a.displayOrder - b.displayOrder),
+    [planDetails],
+  );
+  const regularCategories = useMemo(
+    () =>
+      (planDetails?.plan?.content?.regularStepTwo?.categories ?? [])
+        .filter((category) => category.isActive)
+        .sort((a, b) => a.displayOrder - b.displayOrder),
+    [planDetails],
+  );
+  const regularFoodItems = useMemo(
+    () =>
+      (planDetails?.plan?.content?.regularStepTwo?.foodItems ?? [])
+        .filter(
+          (item) => item.isActive && item.sizes.some((size) => size.isActive),
+        )
+        .sort((a, b) => a.displayOrder - b.displayOrder),
     [planDetails],
   );
   const customCategories = useMemo(() => {
-    const fromCustomConfig = customCategoryDefs.map((item) =>
-      item.name.toUpperCase(),
-    );
-    const fromLibrary = mealLibrary.flatMap((item) =>
-      item.tags.length > 0
-        ? item.tags.map((tag) => tag.toUpperCase())
-        : [item.mealType.toUpperCase()],
-    );
+    const categoriesWithItems = regularCategories
+      .filter((category) =>
+        regularFoodItems.some((item) => item.categoryId === category.id),
+      )
+      .map((category) => category.name.toUpperCase());
 
-    const merged = Array.from(new Set([...fromCustomConfig, ...fromLibrary]));
-    return merged.length > 0
-      ? merged
-      : ["BREAKFAST", "CHICKEN", "STEAK BEEF", "MINCED BEEF"];
-  }, [customCategoryDefs, mealLibrary]);
+    return categoriesWithItems;
+  }, [regularCategories, regularFoodItems]);
 
   const customCards = useMemo(() => {
     if (weekDates.length > 0) {
@@ -457,7 +501,12 @@ export default function MonthlyPlanShowMeals({
         mealSelectionKey(item.id, item.date) === mealSelectionKey(mealId, date),
     ).length;
 
-  const addMealSelection = (meal: DayMeal, quantity: number, date?: string) => {
+  const addMealSelection = (
+    meal: DayMeal,
+    quantity: number,
+    date?: string,
+    overrides?: Partial<SelectedMealOption>,
+  ) => {
     setSelectedMeals((prev) => {
       const requestedCount = Math.max(1, quantity);
       const now = Date.now();
@@ -490,12 +539,15 @@ export default function MonthlyPlanShowMeals({
           additions.push({
             instanceId: `${meal.id}-${nextDate ?? "custom"}-${now}-${index}`,
             id: meal.id,
-            title: meal.title,
+            title: overrides?.title ?? meal.title,
             date: nextDate,
-            calories: meal.calories,
-            protein: meal.protein,
-            carb: meal.carb,
-            fat: meal.fat,
+            calories: Number(overrides?.calories ?? meal.calories),
+            protein: Number(overrides?.protein ?? meal.protein),
+            carb: Number(overrides?.carb ?? meal.carb),
+            fat: Number(overrides?.fat ?? meal.fat),
+            extrasSummary: overrides?.extrasSummary,
+            basePrice: overrides?.basePrice,
+            totalPrice: overrides?.totalPrice,
           });
         }
       } else {
@@ -503,12 +555,15 @@ export default function MonthlyPlanShowMeals({
           ...Array.from({ length: requestedCount }, (_, index) => ({
             instanceId: `${meal.id}-${date ?? "custom"}-${now}-${index}`,
             id: meal.id,
-            title: meal.title,
+            title: overrides?.title ?? meal.title,
             date,
-            calories: meal.calories,
-            protein: meal.protein,
-            carb: meal.carb,
-            fat: meal.fat,
+            calories: Number(overrides?.calories ?? meal.calories),
+            protein: Number(overrides?.protein ?? meal.protein),
+            carb: Number(overrides?.carb ?? meal.carb),
+            fat: Number(overrides?.fat ?? meal.fat),
+            extrasSummary: overrides?.extrasSummary,
+            basePrice: overrides?.basePrice,
+            totalPrice: overrides?.totalPrice,
           })),
         );
       }
@@ -614,32 +669,45 @@ export default function MonthlyPlanShowMeals({
     if (allMeals.length === 0) return [];
     if (activeCategory === "ALL") return allMeals;
 
-    const customCategory = customCategoryDefs.find(
+    const customCategory = regularCategories.find(
       (item) => item.name.toUpperCase() === activeCategory,
     );
     if (customCategory) {
-      const customMeals = customCategory.mealIds
-        .map((mealId) => mealById.get(mealId))
-        .filter((item): item is MealLibraryItem => Boolean(item))
-        .map(toDayMeal);
+      const customMeals = regularFoodItems
+        .filter((item) => item.categoryId === customCategory.id)
+        .map((item) => {
+          const linkedMeal =
+            mealById.get(item.sourceMealId ?? "") ??
+            mealByNormalizedName.get(normalizeMealLookupValue(item.name));
+
+          return {
+            id: item.id,
+            title: item.name.toUpperCase(),
+            subtitle: item.description?.trim() || activeCategory,
+            image: normalizeMealImage(item.imageUrl),
+            calories: Number(item.sizes[0]?.calories ?? 0),
+            fat: Number(item.sizes[0]?.fat ?? 0),
+            protein: Number(item.sizes[0]?.protein ?? 0),
+            carb: Number(item.sizes[0]?.carbs ?? 0),
+            addOnOptions: linkedMeal?.addOnOptions ?? [],
+          };
+        });
       if (customMeals.length > 0) return customMeals;
     }
 
-    return mealLibrary
-      .filter(
-        (item) =>
-          item.mealType.toUpperCase() === activeCategory ||
-          item.tags.map((tag) => tag.toUpperCase()).includes(activeCategory),
-      )
-      .map(toDayMeal);
-  }, [activeCategory, allMeals, customCategoryDefs, mealById, mealLibrary]);
+    return [];
+  }, [
+    activeCategory,
+    allMeals,
+    mealById,
+    mealByNormalizedName,
+    regularCategories,
+    regularFoodItems,
+  ]);
 
   const activeDateIso = tabs[activeTab]?.date ?? "";
   const isCustomDetail = isCustom && Boolean(detailMeal);
-  const customDetailAddOnOptions = [
-    "Extra Chicken",
-    "Extra Potatoes",
-  ];
+  const customDetailAddOnOptions = detailMeal?.addOnOptions ?? [];
   const detailSelectedOptionCount = Object.values(detailAddOnCounts).reduce(
     (sum, count) => sum + count,
     0,
@@ -648,6 +716,9 @@ export default function MonthlyPlanShowMeals({
     .filter((addOn) => (detailAddOnCounts[addOn] ?? 0) > 0)
     .map((addOn) => `${addOn} x${detailAddOnCounts[addOn]}`)
     .join(", ");
+  const mealUnitPrice = Number(
+    planDetails?.pricing?.basePriceFormula?.pricePerMeal ?? 0,
+  );
   const detailMultiplier = isCustomDetail
     ? Math.max(1, detailSelectedOptionCount)
     : detailQty;
@@ -669,6 +740,7 @@ export default function MonthlyPlanShowMeals({
           fat: 0,
           protein: 0,
           carb: 0,
+          addOnOptions: [],
         } as DayMeal;
       }
 
@@ -800,6 +872,7 @@ export default function MonthlyPlanShowMeals({
           fat: selectionItem.fat,
           protein: selectionItem.protein,
           carb: selectionItem.carb,
+          addOnOptions: [],
         };
 
     setSelectedCardMealDetail({
@@ -850,10 +923,13 @@ export default function MonthlyPlanShowMeals({
             id: item.id,
             title: item.title,
             date: item.date,
+            extrasSummary: item.extrasSummary,
             calories: item.calories,
             protein: item.protein,
             carb: item.carb,
             fat: item.fat,
+            basePrice: item.basePrice,
+            totalPrice: item.totalPrice,
           })),
         ),
       );
@@ -1113,16 +1189,16 @@ export default function MonthlyPlanShowMeals({
                     }
                     type="button"
                     onClick={() =>
-                          setSelectedMeals((prev) =>
-                            prev.filter(
-                              (selected) =>
-                                (selected.instanceId ??
-                                  mealSelectionKey(selected.id, selected.date)) !==
-                                (item.instanceId ??
-                                  mealSelectionKey(item.id, item.date)),
-                            ),
-                          )
-                        }
+                      setSelectedMeals((prev) =>
+                        prev.filter(
+                          (selected) =>
+                            (selected.instanceId ??
+                              mealSelectionKey(selected.id, selected.date)) !==
+                            (item.instanceId ??
+                              mealSelectionKey(item.id, item.date)),
+                        ),
+                      )
+                    }
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title}
@@ -1195,49 +1271,55 @@ export default function MonthlyPlanShowMeals({
                       </div>
                       {isCustomDetail ? (
                         <div className="flex w-full flex-col gap-2 sm:items-end">
-                          {customDetailAddOnOptions.map((addOn) => {
-                            const count = detailAddOnCounts[addOn] ?? 0;
-                            return (
-                              <div
-                                key={addOn}
-                                className="inline-flex min-h-12 min-w-[260px] items-center justify-between rounded-md border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-900"
-                              >
-                                <span>{addOn}</span>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setDetailAddOnCounts((prev) => ({
-                                        ...prev,
-                                        [addOn]: Math.max(
-                                          0,
-                                          (prev[addOn] ?? 0) - 1,
-                                        ),
-                                      }))
-                                    }
-                                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 text-lg leading-none text-zinc-900 transition hover:bg-zinc-100"
-                                  >
-                                    -
-                                  </button>
-                                  <span className="inline-flex min-w-8 items-center justify-center text-base font-bold text-zinc-900">
-                                    {count}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setDetailAddOnCounts((prev) => ({
-                                        ...prev,
-                                        [addOn]: (prev[addOn] ?? 0) + 1,
-                                      }))
-                                    }
-                                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 text-lg leading-none text-white transition hover:bg-zinc-800"
-                                  >
-                                    +
-                                  </button>
+                          {customDetailAddOnOptions.length ? (
+                            customDetailAddOnOptions.map((addOn) => {
+                              const count = detailAddOnCounts[addOn] ?? 0;
+                              return (
+                                <div
+                                  key={addOn}
+                                  className="inline-flex min-h-12 min-w-[260px] items-center justify-between rounded-md border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-900"
+                                >
+                                  <span>{addOn}</span>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setDetailAddOnCounts((prev) => ({
+                                          ...prev,
+                                          [addOn]: Math.max(
+                                            0,
+                                            (prev[addOn] ?? 0) - 1,
+                                          ),
+                                        }))
+                                      }
+                                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-50 text-lg leading-none text-zinc-900 transition hover:bg-zinc-100"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="inline-flex min-w-8 items-center justify-center text-base font-bold text-zinc-900">
+                                      {count}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setDetailAddOnCounts((prev) => ({
+                                          ...prev,
+                                          [addOn]: (prev[addOn] ?? 0) + 1,
+                                        }))
+                                      }
+                                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 text-lg leading-none text-white transition hover:bg-zinc-800"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })
+                          ) : (
+                            <div className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-500">
+                              No extra options are configured for this meal.
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="flex items-center justify-start gap-3 sm:justify-end">
@@ -1374,7 +1456,20 @@ export default function MonthlyPlanShowMeals({
                   <button
                     type="button"
                     onClick={() => {
-                      addMealSelection(detailMeal, detailMultiplier);
+                      if (isCustomDetail) {
+                        addMealSelection(detailMeal, 1, undefined, {
+                          calories: detailMeal.calories * detailMultiplier,
+                          protein: detailMeal.protein * detailMultiplier,
+                          carb: detailMeal.carb * detailMultiplier,
+                          fat: detailMeal.fat * detailMultiplier,
+                          extrasSummary:
+                            detailSelectedOptionSummary || undefined,
+                          basePrice: mealUnitPrice,
+                          totalPrice: mealUnitPrice * detailMultiplier,
+                        });
+                      } else {
+                        addMealSelection(detailMeal, detailMultiplier);
+                      }
                       setDetailMeal(null);
                     }}
                     className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-7 text-sm font-semibold text-white transition hover:bg-emerald-700"
@@ -1730,9 +1825,9 @@ export default function MonthlyPlanShowMeals({
         </div>
 
         <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
-            <h4 className="text-2xl font-semibold text-zinc-900">
-              Selected Options
-            </h4>
+          <h4 className="text-2xl font-semibold text-zinc-900">
+            Selected Options
+          </h4>
           {slotWarning ? (
             <p className="mt-3 text-sm font-medium text-amber-700">
               {slotWarning}
@@ -1743,14 +1838,18 @@ export default function MonthlyPlanShowMeals({
               {selectedMealsForCheckout.map((item) =>
                 isNormalPlan ? (
                   <span
-                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
+                    key={
+                      item.instanceId ?? mealSelectionKey(item.id, item.date)
+                    }
                     className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700"
                   >
                     {item.title} {item.date ? `(${item.date})` : ""}
                   </span>
                 ) : (
                   <button
-                    key={item.instanceId ?? mealSelectionKey(item.id, item.date)}
+                    key={
+                      item.instanceId ?? mealSelectionKey(item.id, item.date)
+                    }
                     type="button"
                     onClick={() =>
                       setSelectedMeals((prev) =>

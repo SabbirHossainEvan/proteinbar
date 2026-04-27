@@ -59,6 +59,51 @@ export default function MenuCategoryJumpSection({
     Sat: "Samedi",
     Sun: "Dimanche",
   };
+  const formatWorkingDays = (days: string[]) => {
+    if (!days.length) {
+      return "N/A";
+    }
+
+    const uniqueSortedDays = [...new Set(days)].sort(
+      (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b),
+    );
+
+    const dayRanges: string[] = [];
+    let rangeStart = uniqueSortedDays[0];
+    let previousDay = uniqueSortedDays[0];
+
+    for (let index = 1; index < uniqueSortedDays.length; index += 1) {
+      const currentDay = uniqueSortedDays[index];
+      const isConsecutive =
+        dayOrder.indexOf(currentDay) === dayOrder.indexOf(previousDay) + 1;
+
+      if (isConsecutive) {
+        previousDay = currentDay;
+        continue;
+      }
+
+      dayRanges.push(
+        rangeStart === previousDay
+          ? (dayLabels[rangeStart] ?? rangeStart)
+          : `${dayLabels[rangeStart] ?? rangeStart} - ${
+              dayLabels[previousDay] ?? previousDay
+            }`,
+      );
+
+      rangeStart = currentDay;
+      previousDay = currentDay;
+    }
+
+    dayRanges.push(
+      rangeStart === previousDay
+        ? (dayLabels[rangeStart] ?? rangeStart)
+        : `${dayLabels[rangeStart] ?? rangeStart} - ${
+            dayLabels[previousDay] ?? previousDay
+          }`,
+    );
+
+    return dayRanges.join(", ");
+  };
 
   const workingDays = [...(selectedRestaurantInfo?.workingDays ?? [])].sort(
     (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b),
@@ -66,7 +111,7 @@ export default function MenuCategoryJumpSection({
   const isOpenDaily = workingDays.length === 7;
   const workingDaysLabel = isOpenDaily
     ? "Lundi - Dimanche"
-    : workingDays.map((day) => dayLabels[day] ?? day).join(" - ") || "N/A";
+    : formatWorkingDays(workingDays);
   const workingDaysTitle = isOpenDaily
     ? "Ouvert tous les jours"
     : "Jours d'ouverture";
@@ -113,7 +158,9 @@ export default function MenuCategoryJumpSection({
             <path d="M8 3v4M16 3v4M4 10h16" />
           </svg>
           <p className="mt-3 text-2xl text-zinc-500">{workingDaysTitle}</p>
-          <p className="text-3xl font-semibold text-zinc-900">{workingDaysLabel}</p>
+          <p className="max-w-[18rem] text-2xl font-semibold leading-snug text-zinc-900 text-balance sm:max-w-full sm:text-3xl">
+            {workingDaysLabel}
+          </p>
         </div>
 
         <div className="text-center sm:text-left">
@@ -128,7 +175,9 @@ export default function MenuCategoryJumpSection({
             <path d="M12 8v5l3 2M9 2h6" />
           </svg>
           <p className="mt-3 text-2xl text-zinc-500">Horaire</p>
-          <p className="text-3xl font-semibold text-zinc-900">{openingHoursLabel}</p>
+          <p className="text-3xl font-semibold text-zinc-900">
+            {openingHoursLabel}
+          </p>
         </div>
       </div>
 
@@ -140,7 +189,8 @@ export default function MenuCategoryJumpSection({
 
       {!selectedFilter ? (
         <div className="mt-10 rounded-2xl border border-[#b8942c]/30 bg-[#b8942c]/5 px-6 py-10 text-center text-sm text-zinc-700 sm:mt-12">
-          Select a restaurant from the dropdown first. We will then show only that location&apos;s menu.
+          Select a restaurant from the dropdown first. We will then show only
+          that location&apos;s menu.
         </div>
       ) : null}
 
