@@ -35,7 +35,6 @@ export default function HeroSection({ page }: HeroSectionProps) {
     },
   };
   const primaryUsesMenuTrigger = heroContent.ctaPrimary.href.includes("menu");
-
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] -mt-8 w-screen overflow-hidden sm:-mt-10">
       <div className="relative min-h-[92vh] w-full">
@@ -54,7 +53,10 @@ export default function HeroSection({ page }: HeroSectionProps) {
             {heroContent.eyebrow}
           </p>
           <h1 className="fade-up-delay mt-4 max-w-[980px] text-[2.9rem] font-normal tracking-[-0.05em] sm:text-[4.4rem] lg:text-[5.1rem] lg:leading-[1.02]">
-            {heroContent.title}
+            <span className="inline-flex items-baseline">
+              <span className="font-semibold">PROTEIN</span>
+              <span className="font-extralight text-white/70">BAR</span>
+            </span>
           </h1>
           <p className="fade-up-delay-2 mt-5 max-w-[760px] text-[1.05rem] leading-8 text-white/84 sm:text-[1.2rem] sm:leading-9">
             {heroContent.subtitle}
