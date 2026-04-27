@@ -151,7 +151,7 @@ async function fetchWebsitePage(slug: string, fallback: WebsitePageRecord): Prom
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
 
   try {
-    const response = await fetch(`${baseUrl}/website-pages/${slug}`, {
+    const response = await fetch(`${baseUrl}/public/website-pages/${slug}`, {
       cache: "no-store"
     });
 

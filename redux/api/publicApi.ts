@@ -19,7 +19,7 @@ export const publicApi = createApi({
       ApiResponse<Array<{ id: string; slug: string; title: string; navLabel: string; kind: string }>>,
       void
     >({
-      query: () => "/website-navigation",
+      query: () => "/public/website-navigation",
     }),
     getMenuCategories: builder.query<ApiResponse<any[]>, void>({
       query: () => "/menu-categories",
@@ -38,19 +38,19 @@ export const publicApi = createApi({
       providesTags: ["Plans"],
     }),
     getProducts: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/products",
+      query: () => "/public/products",
       providesTags: ["Products"],
     }),
     getProductByHandle: builder.query<ApiResponse<any>, string>({
-      query: (handle) => `/products/${handle}`,
+      query: (handle) => `/public/products/${handle}`,
       providesTags: ["Products"],
     }),
     getLocations: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/locations",
+      query: () => "/public/locations",
       providesTags: ["Locations"],
     }),
     getBuilderIngredients: builder.query<ApiResponse<any[]>, void>({
-      query: () => "/ingredients",
+      query: () => "/public/ingredients",
       providesTags: ["Builder"],
     }),
     sendCode: builder.mutation<ApiResponse<any>, { email: string }>({
@@ -89,7 +89,7 @@ export const publicApi = createApi({
       }>,
       { code: string; subtotal: number; scope?: "monthly-plan" | "direct-order" }
     >({
-      query: (body) => ({ url: "/promo-codes/validate", method: "POST", body }),
+      query: (body) => ({ url: "/public/promo-codes/validate", method: "POST", body }),
     }),
     checkout: builder.mutation<ApiResponse<any>, any>({
       query: (body) => ({ url: "/checkout", method: "POST", body }),
