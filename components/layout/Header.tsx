@@ -26,9 +26,9 @@ function BrandLogo() {
         <span className="font-semibold">PROTEIN</span>
         <span className="ml-[0.08em] font-light tracking-[0.12em]">BAR</span>
       </p>
-      <p className="mt-1.5 text-[0.4rem] font-medium uppercase tracking-[0.28em] text-white/92 sm:text-[0.5rem]">
+      {/* <p className="mt-1.5 text-[0.4rem] font-medium uppercase tracking-[0.28em] text-white/92 sm:text-[0.5rem]">
         THE REAL FOOD REVOLUTION
-      </p>
+      </p> */}
     </div>
   );
 }
