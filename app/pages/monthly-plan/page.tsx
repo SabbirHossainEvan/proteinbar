@@ -48,7 +48,7 @@ export default function MonthlyPlanPage() {
               className="group relative flex h-full flex-col overflow-hidden rounded-md bg-white px-8 pb-10 pt-6 shadow-[0_20px_45px_rgba(0,0,0,0.12)] transition hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.16)]"
             >
               {plan.badge ? (
-                <span className="absolute right-[-36px] top-[18px] z-10 rotate-45 bg-[#e73345] px-10 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+                <span className="absolute right-[-36px] top-[18px] z-10 rotate-45 bg-black px-10 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white">
                   {plan.badge}
                 </span>
               ) : null}

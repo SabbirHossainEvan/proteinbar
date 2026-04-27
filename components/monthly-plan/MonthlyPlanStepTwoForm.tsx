@@ -122,7 +122,9 @@ export default function MonthlyPlanStepTwoForm({
       ? rules.allowedMealsPerDay.map((value) => String(value))
       : defaultMealOptions;
 
-    return Array.from(new Set(options));
+    return Array.from(new Set([...options, "3", "4", "5", "6"])).sort(
+      (left, right) => Number(left) - Number(right),
+    );
   }, [rules]);
   const dayOptions = useMemo(() => {
     const options = rules?.allowedDays?.length
@@ -441,7 +443,7 @@ export default function MonthlyPlanStepTwoForm({
                 <button
                   type="button"
                   onClick={openDatePicker}
-                  className="flex h-12 items-center justify-center rounded-lg bg-[#f04b23] text-white"
+                  className="flex h-12 items-center justify-center rounded-lg bg-black text-white"
                 >
                   <svg
                     viewBox="0 0 24 24"
