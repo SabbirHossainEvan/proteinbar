@@ -798,15 +798,18 @@ export default function MonthlyPlanShowMeals({
       return items;
     }
 
-    return normalMeals.map((meal) => ({
+    return normalMeals.map<SelectedMealOption>((meal) => ({
       instanceId: undefined,
       id: meal.id,
       title: meal.title,
       date: undefined,
+      extrasSummary: undefined,
       calories: meal.calories,
       protein: meal.protein,
       carb: meal.carb,
       fat: meal.fat,
+      basePrice: undefined,
+      totalPrice: undefined,
     }));
   }, [
     hasNormalDateAssignments,
