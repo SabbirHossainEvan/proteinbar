@@ -541,8 +541,8 @@ export default function MonthlyPlanCheckoutForm({
               <label className="text-sm font-medium text-zinc-700">Email</label>
               <input
                 type="email"
-                    value={effectiveEmail}
-                    onChange={(event) => setEmail(event.target.value)}
+                value={effectiveEmail}
+                readOnly
                 className="mt-2 h-11 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 text-sm outline-none focus:border-zinc-500"
               />
             </div>

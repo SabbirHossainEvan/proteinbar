@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
+const baseUrl = "/api/v1";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -13,7 +12,7 @@ type ApiResponse<T> = {
 export const publicApi = createApi({
   reducerPath: "publicApi",
   baseQuery: fetchBaseQuery({ baseUrl, credentials: "include" }),
-  tagTypes: ["Menu", "Plans", "Products", "Locations", "Builder"],
+  tagTypes: ["Menu", "Plans", "Products", "Locations", "Builder", "Auth"],
   endpoints: (builder) => ({
     getWebsiteNavigation: builder.query<
       ApiResponse<Array<{ id: string; slug: string; title: string; navLabel: string; kind: string }>>,
@@ -61,15 +60,18 @@ export const publicApi = createApi({
       { email: string; code: string }
     >({
       query: (body) => ({ url: "/auth/verify-code", method: "POST", body }),
+      invalidatesTags: ["Auth"],
     }),
     getCurrentCustomer: builder.query<
       ApiResponse<{ user: { id: string; email: string; role: string } }>,
       void
     >({
       query: () => "/auth/me",
+      providesTags: ["Auth"],
     }),
     logoutCustomer: builder.mutation<ApiResponse<{ loggedOut: boolean }>, void>({
       query: () => ({ url: "/auth/logout", method: "POST" }),
+      invalidatesTags: ["Auth"],
     }),
     sendContact: builder.mutation<
       ApiResponse<any>,
