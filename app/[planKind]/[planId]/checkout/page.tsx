@@ -2,19 +2,28 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import MonthlyPlanCheckoutForm from "@/components/monthly-plan/MonthlyPlanCheckoutForm";
 import { mapApiPlan } from "@/lib/api-mappers";
-import { useGetMonthlyPlanByIdQuery } from "@/redux/api/publicApi";
+import { useGetCurrentCustomerQuery, useGetMonthlyPlanByIdQuery } from "@/redux/api/publicApi";
 import type { MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
+const CUSTOMER_RETURN_TO_KEY = "proteinbar_customer_return_to";
+
 export default function PlanCheckoutPage() {
+  const router = useRouter();
+  const pathname = usePathname();
   const params = useParams<{ planId: string; planKind: string }>();
-  const planKind = typeof params?.planKind === "string" ? params.planKind : "normal";
-  const isCustomPlan = planKind === "custom";
   const searchParams = useSearchParams();
   const planId = typeof params?.planId === "string" ? params.planId : "";
   const { data, isLoading } = useGetMonthlyPlanByIdQuery(planId, { skip: !planId });
+  const {
+    data: currentCustomer,
+    isLoading: isCheckingCustomer,
+    isFetching: isFetchingCustomer,
+    isError: hasCustomerError,
+  } = useGetCurrentCustomerQuery();
   const details = (data?.data ?? null) as MonthlyPlanDetails | null;
   const matchedPlan = details ? mapApiPlan(details.plan) : null;
 
@@ -28,6 +37,37 @@ export default function PlanCheckoutPage() {
     planType: searchParams.get("planType") ?? "",
     selectedMeals: searchParams.get("selectedMeals") ?? "[]"
   };
+
+  useEffect(() => {
+    if (isCheckingCustomer || isFetchingCustomer) return;
+    if (currentCustomer?.data?.user?.email) return;
+    if (!hasCustomerError) return;
+
+    const query = searchParams.toString();
+    const returnTo = `${pathname}${query ? `?${query}` : ""}`;
+
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem(CUSTOMER_RETURN_TO_KEY, returnTo);
+    }
+
+    router.replace(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+  }, [
+    currentCustomer,
+    hasCustomerError,
+    isCheckingCustomer,
+    isFetchingCustomer,
+    pathname,
+    router,
+    searchParams,
+  ]);
+
+  if (isCheckingCustomer || isFetchingCustomer) {
+    return <section className="py-10">Checking your account...</section>;
+  }
+
+  if (!currentCustomer?.data?.user?.email) {
+    return <section className="py-10">Redirecting to login...</section>;
+  }
 
   return (
     <>

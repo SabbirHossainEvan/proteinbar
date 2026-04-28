@@ -9,12 +9,43 @@ import {
 } from "@/redux/api/publicApi";
 
 const CODE_LENGTH = 6;
+const CUSTOMER_RETURN_TO_KEY = "proteinbar_customer_return_to";
+const CUSTOMER_SESSION_COOKIE_NAME = "proteinbar_customer_session";
 
 function maskEmail(email: string) {
   const [name, domain] = email.split("@");
   if (!name || !domain) return email;
   if (name.length <= 2) return `${name[0] ?? ""}*@${domain}`;
   return `${name.slice(0, 2)}${"*".repeat(Math.max(1, name.length - 2))}@${domain}`;
+}
+
+function normalizeReturnTo(returnTo: string | null) {
+  if (!returnTo || !returnTo.startsWith("/") || returnTo.startsWith("//")) {
+    return "/";
+  }
+
+  return returnTo;
+}
+
+function setCustomerSessionCookie(token: string, expiresAt: string) {
+  if (typeof document === "undefined" || !token) return;
+
+  const expires = new Date(expiresAt);
+  const cookieParts = [
+    `${CUSTOMER_SESSION_COOKIE_NAME}=${encodeURIComponent(token)}`,
+    "Path=/",
+    "SameSite=Lax",
+  ];
+
+  if (!Number.isNaN(expires.getTime())) {
+    cookieParts.push(`Expires=${expires.toUTCString()}`);
+  }
+
+  if (window.location.protocol === "https:") {
+    cookieParts.push("Secure");
+  }
+
+  document.cookie = cookieParts.join("; ");
 }
 
 export default function LoginPage() {
@@ -24,16 +55,32 @@ export default function LoginPage() {
   const [step, setStep] = useState<"email" | "verify">("email");
   const [inputCode, setInputCode] = useState("");
   const [error, setError] = useState("");
-  const returnTo = searchParams.get("returnTo") || "/";
+  const [storedReturnTo] = useState(() => {
+    if (typeof window === "undefined") return "/";
+    return normalizeReturnTo(
+      window.sessionStorage.getItem(CUSTOMER_RETURN_TO_KEY)
+    );
+  });
+  const queryReturnTo = normalizeReturnTo(searchParams.get("returnTo"));
+  const returnTo = queryReturnTo !== "/" ? queryReturnTo : storedReturnTo;
 
   const [sendCode, { isLoading: sending }] = useSendCodeMutation();
   const [verifyCode, { isLoading: verifying }] = useVerifyCodeMutation();
-  const { data: currentCustomer } = useGetCurrentCustomerQuery();
+  const { data: currentCustomer, refetch } = useGetCurrentCustomerQuery();
 
   const maskedEmail = useMemo(() => maskEmail(email), [email]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    window.sessionStorage.setItem(CUSTOMER_RETURN_TO_KEY, returnTo);
+  }, [returnTo]);
+
+  useEffect(() => {
     if (currentCustomer?.data?.user?.email) {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem(CUSTOMER_RETURN_TO_KEY);
+      }
       router.replace(returnTo);
     }
   }, [currentCustomer, returnTo, router]);
@@ -69,7 +116,17 @@ export default function LoginPage() {
     }
 
     try {
-      await verifyCode({ email, code: inputCode }).unwrap();
+      const response = await verifyCode({ email, code: inputCode }).unwrap();
+      const session = response?.data?.session;
+      if (session?.token && session?.expiresAt) {
+        setCustomerSessionCookie(session.token, session.expiresAt);
+      }
+      await refetch();
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem(CUSTOMER_RETURN_TO_KEY);
+        window.location.replace(returnTo);
+        return;
+      }
       router.replace(returnTo);
     } catch {
       setError("Incorrect or expired verification code.");
