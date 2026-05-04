@@ -822,6 +822,14 @@ export default function MonthlyPlanShowMeals({
   const selectedMealsForCheckout = isNormalPlan
     ? normalAutoSelectedMeals
     : selectedMeals;
+
+  // Total meal slot capacity = cards × meals-per-card
+  const totalMealSlotCapacity = customCards.length * customMealSlotCount;
+  const allSlotsFull =
+    isCustom &&
+    customCards.length > 0 &&
+    selectedMeals.length >= totalMealSlotCapacity;
+
   const pageSize = 3;
 
   const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
@@ -1063,11 +1071,18 @@ export default function MonthlyPlanShowMeals({
                       <button
                         type="button"
                         onClick={() => openSelectionPopup(meal)}
-                        className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
+                        disabled={allSlotsFull && !selectedMealCount(meal.id)}
+                        className={`h-10 rounded-md text-sm font-semibold transition ${
+                          allSlotsFull && !selectedMealCount(meal.id)
+                            ? "cursor-not-allowed bg-zinc-300 text-zinc-500"
+                            : "bg-black text-white hover:bg-zinc-800"
+                        }`}
                       >
-                        {selectedMealCount(meal.id)
-                          ? `Selected x${selectedMealCount(meal.id)}`
-                          : "Select"}
+                        {allSlotsFull && !selectedMealCount(meal.id)
+                          ? "Slots Full"
+                          : selectedMealCount(meal.id)
+                            ? `Selected x${selectedMealCount(meal.id)}`
+                            : "Select"}
                       </button>
                     </div>
                   </article>
