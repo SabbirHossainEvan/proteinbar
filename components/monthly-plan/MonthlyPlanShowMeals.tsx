@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
@@ -407,6 +407,7 @@ export default function MonthlyPlanShowMeals({
   );
   const [activeCategory, setActiveCategory] = useState(makeYourPlanTabId);
   const [sliderPage, setSliderPage] = useState(0);
+  const tabScrollRef = useRef<HTMLDivElement>(null);
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
   const [detailAddOnCounts, setDetailAddOnCounts] = useState<
@@ -953,28 +954,56 @@ export default function MonthlyPlanShowMeals({
             achieve your own goals.
           </p>
 
-          <div className="mt-6 overflow-x-auto pb-2">
-            <div className="flex min-w-max gap-3">
-              {customTabs.map((category) => {
-                const active = activeCategory === category;
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => setActiveCategory(category)}
-                    className={`h-12 min-w-[220px] rounded-md px-5 text-sm font-semibold transition ${
-                      active
-                        ? "bg-black text-white"
-                        : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
-                    }`}
-                  >
-                    {category === makeYourPlanTabId
-                      ? "Make Your Meal"
-                      : category}
-                  </button>
-                );
-              })}
+          <div className="relative mt-6 flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Scroll tabs left"
+              onClick={() =>
+                tabScrollRef.current?.scrollBy({ left: -240, behavior: "smooth" })
+              }
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition hover:bg-zinc-100 hover:text-black"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <div ref={tabScrollRef} className="flex-1 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex min-w-max gap-3">
+                {customTabs.map((category) => {
+                  const active = activeCategory === category;
+                  return (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => setActiveCategory(category)}
+                      className={`h-12 min-w-[220px] rounded-md px-5 text-sm font-semibold transition ${
+                        active
+                          ? "bg-black text-white"
+                          : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {category === makeYourPlanTabId
+                        ? "Make Your Meal"
+                        : category}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
+            <button
+              type="button"
+              aria-label="Scroll tabs right"
+              onClick={() =>
+                tabScrollRef.current?.scrollBy({ left: 240, behavior: "smooth" })
+              }
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition hover:bg-zinc-100 hover:text-black"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
 
           {activeCategory === makeYourPlanTabId ? (
