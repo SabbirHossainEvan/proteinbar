@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
@@ -407,6 +407,7 @@ export default function MonthlyPlanShowMeals({
   );
   const [activeCategory, setActiveCategory] = useState(makeYourPlanTabId);
   const [sliderPage, setSliderPage] = useState(0);
+  const tabScrollRef = useRef<HTMLDivElement>(null);
   const [detailMeal, setDetailMeal] = useState<DayMeal | null>(null);
   const [detailQty, setDetailQty] = useState(1);
   const [detailAddOnCounts, setDetailAddOnCounts] = useState<
@@ -428,6 +429,7 @@ export default function MonthlyPlanShowMeals({
     parseSelectedMeals(selection.selectedMeals),
   );
   const [slotWarning, setSlotWarning] = useState("");
+  const [addedMealMsg, setAddedMealMsg] = useState("");
   const [selectionPopupMeal, setSelectionPopupMeal] = useState<DayMeal | null>(
     null,
   );
@@ -821,6 +823,14 @@ export default function MonthlyPlanShowMeals({
   const selectedMealsForCheckout = isNormalPlan
     ? normalAutoSelectedMeals
     : selectedMeals;
+
+  // Total meal slot capacity = cards × meals-per-card
+  const totalMealSlotCapacity = customCards.length * customMealSlotCount;
+  const allSlotsFull =
+    isCustom &&
+    customCards.length > 0 &&
+    selectedMeals.length >= totalMealSlotCapacity;
+
   const pageSize = 3;
 
   const totalPages = Math.max(1, Math.ceil(categoryMeals.length / pageSize));
@@ -953,28 +963,56 @@ export default function MonthlyPlanShowMeals({
             achieve your own goals.
           </p>
 
-          <div className="mt-6 overflow-x-auto pb-2">
-            <div className="flex min-w-max gap-3">
-              {customTabs.map((category) => {
-                const active = activeCategory === category;
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => setActiveCategory(category)}
-                    className={`h-12 min-w-[220px] rounded-md px-5 text-sm font-semibold transition ${
-                      active
-                        ? "bg-black text-white"
-                        : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
-                    }`}
-                  >
-                    {category === makeYourPlanTabId
-                      ? "Make Your Meal"
-                      : category}
-                  </button>
-                );
-              })}
+          <div className="relative mt-6 flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Scroll tabs left"
+              onClick={() =>
+                tabScrollRef.current?.scrollBy({ left: -240, behavior: "smooth" })
+              }
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition hover:bg-zinc-100 hover:text-black"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <div ref={tabScrollRef} className="flex-1 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex min-w-max gap-3">
+                {customTabs.map((category) => {
+                  const active = activeCategory === category;
+                  return (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => setActiveCategory(category)}
+                      className={`h-12 min-w-[220px] rounded-md px-5 text-sm font-semibold transition ${
+                        active
+                          ? "bg-black text-white"
+                          : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {category === makeYourPlanTabId
+                        ? "Make Your Meal"
+                        : category}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
+            <button
+              type="button"
+              aria-label="Scroll tabs right"
+              onClick={() =>
+                tabScrollRef.current?.scrollBy({ left: 240, behavior: "smooth" })
+              }
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition hover:bg-zinc-100 hover:text-black"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
 
           {activeCategory === makeYourPlanTabId ? (
@@ -1033,12 +1071,24 @@ export default function MonthlyPlanShowMeals({
                       </button>
                       <button
                         type="button"
-                        onClick={() => openSelectionPopup(meal)}
-                        className="h-10 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
+                        onClick={() => {
+                          if (allSlotsFull) return;
+                          addMealSelection(meal, 1);
+                          setAddedMealMsg(`✓ ${meal.title} added!`);
+                          setTimeout(() => setAddedMealMsg(""), 2000);
+                        }}
+                        disabled={allSlotsFull && !selectedMealCount(meal.id)}
+                        className={`h-10 rounded-md text-sm font-semibold transition ${
+                          allSlotsFull && !selectedMealCount(meal.id)
+                            ? "cursor-not-allowed bg-zinc-300 text-zinc-500"
+                            : "bg-black text-white hover:bg-zinc-800"
+                        }`}
                       >
-                        {selectedMealCount(meal.id)
-                          ? `Selected x${selectedMealCount(meal.id)}`
-                          : "Select"}
+                        {allSlotsFull && !selectedMealCount(meal.id)
+                          ? "Slots Full"
+                          : selectedMealCount(meal.id)
+                            ? `Selected x${selectedMealCount(meal.id)}`
+                            : "Select"}
                       </button>
                     </div>
                   </article>
@@ -1484,82 +1534,9 @@ export default function MonthlyPlanShowMeals({
             </div>
           </div>
         ) : null}
-        {selectionPopupMeal ? (
-          <div
-            className="fixed inset-0 z-[125] flex items-center justify-center bg-black/60 p-4"
-            onClick={closeSelectionPopup}
-          >
-            <div
-              className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                    Select Meal
-                  </p>
-                  <h4 className="mt-2 text-2xl font-semibold text-zinc-900">
-                    {selectionPopupMeal.title}
-                  </h4>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    Add this meal multiple times to your custom plan.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={closeSelectionPopup}
-                  className="text-3xl leading-none text-zinc-500 transition hover:text-zinc-700"
-                >
-                  &times;
-                </button>
-              </div>
-
-              <div className="mt-6 flex items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectionPopupQty((prev) => Math.max(1, prev - 1))
-                  }
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 text-2xl text-zinc-900"
-                >
-                  -
-                </button>
-                <div className="flex h-12 min-w-24 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-xl font-semibold text-zinc-900">
-                  {selectionPopupQty}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectionPopupQty((prev) => prev + 1)}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 text-2xl text-zinc-900"
-                >
-                  +
-                </button>
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={closeSelectionPopup}
-                  className="h-11 rounded-md border border-zinc-300 bg-white text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    addMealSelection(
-                      selectionPopupMeal,
-                      selectionPopupQty,
-                      selectionPopupDate,
-                    );
-                    closeSelectionPopup();
-                  }}
-                  className="h-11 rounded-md bg-black text-sm font-semibold text-white transition hover:bg-zinc-800"
-                >
-                  Add To Plan
-                </button>
-              </div>
-            </div>
+        {addedMealMsg ? (
+          <div className="fixed bottom-6 left-1/2 z-[125] -translate-x-1/2 animate-[fadeInUp_0.25s_ease] rounded-xl bg-zinc-900 px-5 py-3 text-sm font-medium text-white shadow-xl">
+            {addedMealMsg}
           </div>
         ) : null}
         {selectedCardMealDetail ? (
