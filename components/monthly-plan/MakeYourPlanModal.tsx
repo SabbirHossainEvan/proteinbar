@@ -33,7 +33,7 @@ type SavedCustomMeal = {
   id: string;
   title: string;
   createdAt: string;
-  selections: Record<string, BuilderOption>;
+  selections: Record<string, BuilderOption[]>;
   selectionCounts?: Record<string, number>;
   totals: {
     calories: number;
@@ -128,44 +128,84 @@ function getSavedMealsFromStorage() {
   }
 }
 
-function getSelectedOption(
-  categories: CategoryConfig[],
-  selectedCounts: Record<string, number>,
-  categoryId: string,
-) {
-  const category = categories.find((item) => item.id === categoryId);
-  return category?.options.find((option) => selectedCounts[option.id] > 0) ?? null;
-}
-
 function CategorySection({
   category,
-  selectedValue,
-  onChange,
+  selectedOptionIds,
+  draftValue,
+  onDraftChange,
+  onAdd,
+  onRemove,
 }: {
   category: CategoryConfig;
-  selectedValue: string;
-  onChange: (optionId: string) => void;
+  selectedOptionIds: string[];
+  draftValue: string;
+  onDraftChange: (optionId: string) => void;
+  onAdd: () => void;
+  onRemove: (optionId: string) => void;
 }) {
+  const selectedOptions = category.options.filter((option) =>
+    selectedOptionIds.includes(option.id),
+  );
+
   return (
     <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <label className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
           {category.label}
         </label>
-        <select
-          value={selectedValue}
-          onChange={(event) => onChange(event.target.value)}
-          className="mt-1 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-500"
-        >
-          <option value="">
-            Choose {extractCategoryName(category.label)}
-          </option>
-          {category.options.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.label} - {option.price.toFixed(2)} MAD
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <select
+            value={draftValue}
+            onChange={(event) => onDraftChange(event.target.value)}
+            className="mt-1 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-500"
+          >
+            <option value="">
+              Choose {extractCategoryName(category.label)}
             </option>
-          ))}
-        </select>
+            {category.options.map((option) => (
+              <option
+                key={option.id}
+                value={option.id}
+                disabled={selectedOptionIds.includes(option.id)}
+              >
+                {option.label} - {option.price.toFixed(2)} MAD
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={onAdd}
+            disabled={!draftValue}
+            className="inline-flex h-12 shrink-0 items-center justify-center rounded-lg bg-black px-5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add
+          </button>
+        </div>
+
+        {selectedOptions.length ? (
+          <div className="flex flex-wrap gap-2">
+            {selectedOptions.map((option) => (
+              <span
+                key={option.id}
+                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-800"
+              >
+                <span>{option.label}</span>
+                <button
+                  type="button"
+                  onClick={() => onRemove(option.id)}
+                  className="text-base leading-none text-zinc-500 transition hover:text-zinc-800"
+                  aria-label={`Remove ${option.label}`}
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-zinc-500">
+            No items added yet.
+          </p>
+        )}
       </div>
     </section>
   );
@@ -217,10 +257,8 @@ function MealSummaryPanel({
       <h3 className="text-2xl font-semibold text-zinc-900">Your Meal Summary</h3>
       <div className="mt-5 space-y-3 text-sm text-zinc-700">
         {categories.map((category) => {
-          const selectedOption = getSelectedOption(
-            categories,
-            selectedCounts,
-            category.id,
+          const selectedOptions = category.options.filter(
+            (option) => (selectedCounts[option.id] ?? 0) > 0,
           );
 
           return (
@@ -232,7 +270,9 @@ function MealSummaryPanel({
                 {extractCategoryName(category.label)}
               </p>
               <p className="mt-1 font-medium text-zinc-900">
-                {selectedOption?.label || "Not selected"}
+                {selectedOptions.length
+                  ? selectedOptions.map((option) => option.label).join(", ")
+                  : "Not selected"}
               </p>
             </div>
           );
@@ -282,7 +322,7 @@ function MealSummaryPanel({
 
       {missingCategories.length ? (
         <p className="mt-4 text-sm text-amber-700">
-          Select one item from: {missingCategories.join(", ")}.
+          Add at least one item from: {missingCategories.join(", ")}.
         </p>
       ) : null}
     </aside>
@@ -296,14 +336,15 @@ export default function MakeYourPlanModal({
   builder,
 }: MakeYourPlanModalProps) {
   const categories = useMemo(() => buildCategoryConfigs(builder), [builder]);
-  const [categorySelections, setCategorySelections] = useState<Record<string, string>>(
-    {},
-  );
+  const [categorySelections, setCategorySelections] = useState<Record<string, string[]>>({});
+  const [categoryDrafts, setCategoryDrafts] = useState<Record<string, string>>({});
 
   const selectedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    Object.values(categorySelections).forEach((optionId) => {
-      if (optionId) counts[optionId] = 1;
+    Object.values(categorySelections).forEach((optionIds) => {
+      optionIds.forEach((optionId) => {
+        if (optionId) counts[optionId] = (counts[optionId] ?? 0) + 1;
+      });
     });
     return counts;
   }, [categorySelections]);
@@ -342,7 +383,10 @@ export default function MakeYourPlanModal({
   const missingCategories = useMemo(
     () =>
       categories
-        .filter((category) => !categorySelections[category.id])
+        .filter(
+          (category) =>
+            category.isRequired && !(categorySelections[category.id] ?? []).length,
+        )
         .map((category) => extractCategoryName(category.label)),
     [categories, categorySelections],
   );
@@ -355,6 +399,7 @@ export default function MakeYourPlanModal({
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setCategorySelections({});
+        setCategoryDrafts({});
         onClose();
       }
     };
@@ -367,6 +412,7 @@ export default function MakeYourPlanModal({
 
   const handleModalClose = () => {
     setCategorySelections({});
+    setCategoryDrafts({});
     onClose();
   };
 
@@ -384,11 +430,11 @@ export default function MakeYourPlanModal({
       id: `custom-meal-${Date.now()}`,
       title,
       createdAt: new Date().toISOString(),
-      selections: categories.reduce<Record<string, BuilderOption>>((acc, category) => {
-        const firstSelected = category.options.find(
+      selections: categories.reduce<Record<string, BuilderOption[]>>((acc, category) => {
+        const selected = category.options.filter(
           (option) => (selectedCounts[option.id] ?? 0) > 0,
         );
-        if (firstSelected) acc[category.id] = firstSelected;
+        if (selected.length) acc[category.id] = selected;
         return acc;
       }, {}),
       selectionCounts: selectedCounts,
@@ -416,7 +462,7 @@ export default function MakeYourPlanModal({
               Make Your Own Meal
             </h2>
             <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-              Select one item from each category and build your custom meal.
+              Add one or more items from each category and build your custom meal.
             </p>
           </div>
           <button
@@ -441,11 +487,40 @@ export default function MakeYourPlanModal({
                   <CategorySection
                     key={category.id}
                     category={category}
-                    selectedValue={categorySelections[category.id] ?? ""}
-                    onChange={(optionId) =>
-                      setCategorySelections((prev) => ({
+                    selectedOptionIds={categorySelections[category.id] ?? []}
+                    draftValue={categoryDrafts[category.id] ?? ""}
+                    onDraftChange={(optionId) =>
+                      setCategoryDrafts((prev) => ({
                         ...prev,
                         [category.id]: optionId,
+                      }))
+                    }
+                    onAdd={() => {
+                      const draftValue = categoryDrafts[category.id];
+                      if (!draftValue) return;
+
+                      setCategorySelections((prev) => {
+                        const current = prev[category.id] ?? [];
+                        if (current.includes(draftValue)) {
+                          return prev;
+                        }
+
+                        return {
+                          ...prev,
+                          [category.id]: [...current, draftValue],
+                        };
+                      });
+                      setCategoryDrafts((prev) => ({
+                        ...prev,
+                        [category.id]: "",
+                      }));
+                    }}
+                    onRemove={(optionId) =>
+                      setCategorySelections((prev) => ({
+                        ...prev,
+                        [category.id]: (prev[category.id] ?? []).filter(
+                          (selectedId) => selectedId !== optionId,
+                        ),
                       }))
                     }
                   />

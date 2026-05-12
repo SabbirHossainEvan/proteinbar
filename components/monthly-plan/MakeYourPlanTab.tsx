@@ -63,6 +63,7 @@ export default function MakeYourPlanTab({
 
   const getSavedMealPreview = (meal: SavedCustomMeal) => {
     const labels = Object.values(meal.selections ?? {})
+      .flatMap((selection) => selection ?? [])
       .map((selection) => selection?.shortLabel || selection?.label || "")
       .filter(Boolean);
 
