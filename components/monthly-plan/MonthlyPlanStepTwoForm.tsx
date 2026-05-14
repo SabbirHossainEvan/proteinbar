@@ -76,6 +76,10 @@ function getMonthStart(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
+function getDateOnly(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function getCalendarDays(date: Date) {
   const monthStart = getMonthStart(date);
   const startDay = monthStart.getDay();
@@ -106,6 +110,7 @@ export default function MonthlyPlanStepTwoForm({
   const [calendarMonth, setCalendarMonth] = useState(() => getMonthStart(new Date()));
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const today = useMemo(() => getDateOnly(new Date()), []);
 
   const rules = planDetails?.rules;
 
@@ -169,6 +174,14 @@ export default function MonthlyPlanStepTwoForm({
     setSelectedDays((prev) => prev.slice(0, requiredDeliveryDayCount));
   }, [requiredDeliveryDayCount]);
 
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    if (getDateOnly(selectedDate) < today) {
+      setStartDate("");
+    }
+  }, [selectedDate, today]);
+
 
 
   useEffect(() => {
@@ -213,15 +226,24 @@ export default function MonthlyPlanStepTwoForm({
 
   const openDatePicker = () => {
     const nextMonth = selectedDate ? getMonthStart(selectedDate) : getMonthStart(new Date());
-    setCalendarMonth(nextMonth);
+    setCalendarMonth(nextMonth < getMonthStart(today) ? getMonthStart(today) : nextMonth);
     setCalendarOpen(true);
   };
 
   const moveCalendarMonth = (offset: number) => {
-    setCalendarMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + offset, 1));
+    setCalendarMonth((prev) => {
+      const nextMonth = new Date(prev.getFullYear(), prev.getMonth() + offset, 1);
+      const currentMonthStart = getMonthStart(today);
+
+      return nextMonth < currentMonthStart ? currentMonthStart : nextMonth;
+    });
   };
 
   const selectCalendarDate = (date: Date) => {
+    if (getDateOnly(date) < today) {
+      return;
+    }
+
     setStartDate(formatDateValue(date));
     setCalendarMonth(getMonthStart(date));
     setCalendarOpen(false);
@@ -247,14 +269,13 @@ export default function MonthlyPlanStepTwoForm({
     );
   };
 
-  const isToday = (date: Date) => {
-    const today = new Date();
-    return isSameDate(today, date);
-  };
+  const isToday = (date: Date) => isSameDate(today, date);
 
   const isCurrentMonth = (date: Date) => {
     return date.getMonth() === calendarMonth.getMonth();
   };
+
+  const isPastDate = (date: Date) => getDateOnly(date) < today;
 
   const monthHeading = useMemo(() => {
     return calendarMonth.toLocaleDateString("en-US", {
@@ -262,6 +283,13 @@ export default function MonthlyPlanStepTwoForm({
       year: "numeric",
     });
   }, [calendarMonth]);
+  const isAtCurrentMonth = useMemo(() => {
+    const currentMonthStart = getMonthStart(today);
+    return (
+      calendarMonth.getFullYear() === currentMonthStart.getFullYear() &&
+      calendarMonth.getMonth() === currentMonthStart.getMonth()
+    );
+  }, [calendarMonth, today]);
 
   const handleDateFieldKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -462,7 +490,12 @@ export default function MonthlyPlanStepTwoForm({
                       <button
                         type="button"
                         onClick={() => moveCalendarMonth(-1)}
-                        className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 text-xl text-zinc-700 transition hover:bg-zinc-100"
+                        disabled={isAtCurrentMonth}
+                        className={`flex h-11 w-11 items-center justify-center rounded-full border text-xl transition ${
+                          isAtCurrentMonth
+                            ? "cursor-not-allowed border-zinc-200 text-zinc-300"
+                            : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                        }`}
                         aria-label="Previous month"
                       >
                         {"<"}
@@ -493,18 +526,23 @@ export default function MonthlyPlanStepTwoForm({
                         const selected = isSameDate(selectedDate, date);
                         const inMonth = isCurrentMonth(date);
                         const today = isToday(date);
+                        const isPast = isPastDate(date);
 
                         return (
                           <button
                             key={date.toISOString()}
                             type="button"
+                            disabled={isPast}
                             onClick={() => selectCalendarDate(date)}
-                            className={`flex h-12 items-center justify-center rounded-xl text-base font-medium transition sm:h-14 sm:text-lg ${selected
-                              ? "bg-[#f04b23] text-white shadow-md"
-                              : inMonth
-                                ? "bg-zinc-50 text-zinc-900 hover:bg-zinc-100"
-                                : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
-                              } ${today && !selected ? "ring-2 ring-zinc-300" : ""}`}
+                            className={`flex h-12 items-center justify-center rounded-xl text-base font-medium transition sm:h-14 sm:text-lg ${
+                              selected
+                                ? "bg-[#f04b23] text-white shadow-md"
+                                : isPast
+                                  ? "cursor-not-allowed bg-zinc-50 text-zinc-300"
+                                  : inMonth
+                                    ? "bg-zinc-50 text-zinc-900 hover:bg-zinc-100"
+                                    : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
+                            } ${today && !selected ? "ring-2 ring-zinc-300" : ""}`}
                           >
                             {date.getDate()}
                           </button>

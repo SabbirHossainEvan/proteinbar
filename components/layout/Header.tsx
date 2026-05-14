@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import MenuLocationModal from "@/components/menu/MenuLocationModal";
+import { MENU_LOCATION_STORAGE_KEY } from "@/components/menu/menuLocation";
 import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 import { useGetWebsiteNavigationQuery } from "@/redux/api/publicApi";
 
@@ -48,10 +50,12 @@ const allowedHeaderNavSlugs = new Set(["home", "locations", "menu", "about-us", 
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileLocationModalOpen, setMobileLocationModalOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const { data } = useGetWebsiteNavigationQuery();
   const pathname = usePathname();
+  const router = useRouter();
   const isMenuActive = pathname === "/pages/menu";
   const lastScrollYRef = useRef(0);
   const isHeaderVisibleRef = useRef(true);
@@ -133,6 +137,28 @@ export default function Header() {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleMobileMenuOpen = () => {
+    setMenuOpen(false);
+    setMobileLocationModalOpen(true);
+  };
+
+  const handleMobileLocationSelect = (locationName: string) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(MENU_LOCATION_STORAGE_KEY, locationName);
+    }
+
+    setMobileLocationModalOpen(false);
+
+    const targetUrl = `/pages/menu?location=${encodeURIComponent(locationName)}`;
+
+    if (pathname === "/pages/menu") {
+      router.replace(targetUrl, { scroll: false });
+      return;
+    }
+
+    router.push(targetUrl);
+  };
 
   return (
     <header
@@ -260,14 +286,15 @@ export default function Header() {
               );
             })}
             {menuNavItem ? (
-              <MenuLocationTrigger
+              <button
+                type="button"
+                onClick={handleMobileMenuOpen}
                 className={`rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/10 ${
                   isMenuActive ? "bg-white/10 text-white" : "text-white/90"
                 }`}
-                onAfterSelect={() => setMenuOpen(false)}
               >
                 {menuNavItem.label}
-              </MenuLocationTrigger>
+              </button>
             ) : null}
             {trailingNavLinks.map((item) => {
               const linkPath = item.href.split("#")[0];
@@ -304,6 +331,12 @@ export default function Header() {
           </div>
         </nav>
       )}
+
+      <MenuLocationModal
+        open={mobileLocationModalOpen}
+        onClose={() => setMobileLocationModalOpen(false)}
+        onSelect={handleMobileLocationSelect}
+      />
     </header>
   );
 }
