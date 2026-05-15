@@ -63,6 +63,12 @@ type AppliedPromoCode = {
   eligibilityNote: string;
 };
 
+type CmiPaymentResponse = {
+  gatewayUrl: string;
+  method: "POST";
+  fields: Record<string, string>;
+};
+
 const deliveryOptions: DeliveryOptionConfig[] = [
   {
     id: "daily-delivery",
@@ -188,7 +194,6 @@ export default function MonthlyPlanCheckoutForm({
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [emirate, setEmirate] = useState("");
   const [area, setArea] = useState("");
@@ -250,7 +255,7 @@ export default function MonthlyPlanCheckoutForm({
   const needsAddress = isDeliveryOption(effectiveDeliveryOption);
   const needsPickupLocation = isPickupOption(effectiveDeliveryOption);
   const accountEmail = currentCustomer?.data?.user?.email?.trim() ?? "";
-  const effectiveEmail = email.trim() || accountEmail;
+  const effectiveEmail = accountEmail;
 
   async function handleApplyPromoCode() {
     setPromoError("");
@@ -381,14 +386,29 @@ export default function MonthlyPlanCheckoutForm({
           },
         },
       }).unwrap();
+      const payment = response.data?.payment as CmiPaymentResponse | undefined;
 
-      const subscriptionId =
-        response.data?.subscription?.subscriptionId ?? "created";
-      const orderId = response.data?.order?.orderId ?? "created";
+      if (!payment?.gatewayUrl || !payment?.fields) {
+        throw new Error("CMI payment payload was not returned.");
+      }
 
-      setSubmitSuccess(
-        `Checkout completed. Subscription ${subscriptionId} and order ${orderId} saved.`,
-      );
+      setSubmitSuccess("Redirecting to the secure CMI payment page...");
+
+      const form = document.createElement("form");
+      form.method = payment.method || "POST";
+      form.action = payment.gatewayUrl;
+      form.style.display = "none";
+
+      Object.entries(payment.fields).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = String(value ?? "");
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
     } catch (error) {
       const message =
         error && typeof error === "object" && "data" in error
@@ -676,7 +696,9 @@ export default function MonthlyPlanCheckoutForm({
               />
               Cutlery
             </label>
-            <p className="text-zinc-500">We Accept: Visa, Mastercard</p>
+            <p className="text-zinc-500">
+              Secure card payments are processed by CMI.
+            </p>
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -711,7 +733,7 @@ export default function MonthlyPlanCheckoutForm({
               disabled={isLoading}
               className="inline-flex h-12 min-w-44 items-center justify-center rounded-sm bg-black px-8 text-base font-medium text-white transition hover:bg-zinc-800 disabled:opacity-60"
             >
-              {isLoading ? "Processing..." : "Checkout"}
+              {isLoading ? "Preparing Payment..." : "Pay with CMI"}
             </button>
           </div>
         </form>
