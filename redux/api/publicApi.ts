@@ -9,6 +9,19 @@ type ApiResponse<T> = {
   message?: string;
 };
 
+type CheckoutResponse = {
+  order: {
+    orderId: string;
+    subscriptionId: string;
+  };
+  payment: {
+    provider: "CMI";
+    gatewayUrl: string;
+    method: "POST";
+    fields: Record<string, string>;
+  };
+};
+
 export const publicApi = createApi({
   reducerPath: "publicApi",
   baseQuery: fetchBaseQuery({ baseUrl, credentials: "include" }),
@@ -93,7 +106,7 @@ export const publicApi = createApi({
     >({
       query: (body) => ({ url: "/public/promo-codes/validate", method: "POST", body }),
     }),
-    checkout: builder.mutation<ApiResponse<any>, any>({
+    checkout: builder.mutation<ApiResponse<CheckoutResponse>, any>({
       query: (body) => ({ url: "/checkout", method: "POST", body }),
     }),
     createStoreOrder: builder.mutation<ApiResponse<any>, any>({
