@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const baseUrl = "/api/v1";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "/api/v1";
 
 type ApiResponse<T> = {
   success: boolean;

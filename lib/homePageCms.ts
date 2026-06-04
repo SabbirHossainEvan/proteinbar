@@ -148,7 +148,8 @@ export function getHomeSection(page: WebsitePageRecord, sectionKey: string): Web
 }
 
 async function fetchWebsitePage(slug: string, fallback: WebsitePageRecord): Promise<WebsitePageRecord> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:5000/api/v1";
 
   try {
     const response = await fetch(`${baseUrl}/public/website-pages/${slug}`, {
