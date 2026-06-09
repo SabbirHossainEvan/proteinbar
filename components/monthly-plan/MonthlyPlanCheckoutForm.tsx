@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
 import type { MonthlyPlan } from "@/data/monthlyPlans";
+import AcceptedCards from "@/components/payments/AcceptedCards";
 import { mapApiLocation } from "@/lib/api-mappers";
 import {
   useCheckoutMutation,
@@ -699,6 +700,7 @@ export default function MonthlyPlanCheckoutForm({
             <p className="text-zinc-500">
               Secure card payments are processed by CMI.
             </p>
+            <AcceptedCards compact />
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"

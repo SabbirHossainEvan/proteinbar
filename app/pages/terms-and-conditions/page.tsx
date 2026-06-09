@@ -19,8 +19,8 @@ export default async function TermsAndConditionsPage() {
           "These terms explain the basic rules, responsibilities, and service conditions that apply when using Proteinbar, placing orders, or purchasing meal plans through our website."
         }
       />
-      <section className="py-12 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-4xl">
+      <section className="overflow-x-auto py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-4xl min-w-0">
           <div className="space-y-8">
             {sections.map((sectionItem) => (
               <Section
@@ -28,7 +28,7 @@ export default async function TermsAndConditionsPage() {
                 className="border-b border-zinc-200 py-0 pb-8 sm:pb-10"
                 title={sectionItem.heading}
               >
-                <p className="max-w-3xl text-sm leading-7 text-zinc-600 sm:text-base sm:leading-8">
+                <p className="max-w-3xl overflow-x-auto whitespace-pre-wrap break-words text-sm leading-7 text-zinc-600 sm:text-base sm:leading-8">
                   {sectionItem.body}
                 </p>
               </Section>

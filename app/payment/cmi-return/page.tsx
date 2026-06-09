@@ -22,6 +22,7 @@ export default async function CmiReturnPage({
   const isSuccess = status === "success";
   const orderId = readParam(params.orderId);
   const subscriptionId = readParam(params.subscriptionId);
+  const amount = readParam(params.amount);
   const message = readParam(
     params.message,
     isSuccess
@@ -53,6 +54,14 @@ export default async function CmiReturnPage({
               {subscriptionId || "N/A"}
             </span>
           </p>
+          {amount ? (
+            <p className="mt-2">
+              Amount:{" "}
+              <span className="font-semibold text-zinc-900">
+                {amount} MAD
+              </span>
+            </p>
+          ) : null}
           <p className="mt-2">
             Status:{" "}
             <span

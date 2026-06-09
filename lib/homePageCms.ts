@@ -148,7 +148,8 @@ export function getHomeSection(page: WebsitePageRecord, sectionKey: string): Web
 }
 
 async function fetchWebsitePage(slug: string, fallback: WebsitePageRecord): Promise<WebsitePageRecord> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:5000/api/v1";
 
   try {
     const response = await fetch(`${baseUrl}/public/website-pages/${slug}`, {
@@ -341,54 +342,65 @@ export async function fetchWebsitePageContent(slug: string): Promise<WebsitePage
         },
         {
           id: "terms-section-4",
-          sectionKey: "meal-plans-and-custom-selections",
+          sectionKey: "card-payments",
           sectionType: "richText",
           isVisible: true,
           sortOrder: 3,
+          heading: "Card Payments",
+          body:
+            "Online card payments are processed securely by CMI. Proteinbar accepts eligible Visa, Mastercard, and other card brands displayed at checkout. By paying online, you confirm that you are authorized to use the selected card and that the billing information provided is accurate. Payment may be authorized and captured according to the CMI transaction mode configured for the order. If a payment is refused, cancelled, reversed, or cannot be verified, the order may remain unpaid and may not be confirmed. Proteinbar does not store full card numbers, CVV codes, or sensitive card authentication data on its website.",
+          items: []
+        },
+        {
+          id: "terms-section-5",
+          sectionKey: "meal-plans-and-custom-selections",
+          sectionType: "richText",
+          isVisible: true,
+          sortOrder: 4,
           heading: "Meal Plans And Custom Selections",
           body:
             "Meal plan and custom meal selections are based on the options available at the time of purchase. Product composition, macros, and ingredients may vary when supply or operational needs require substitutions.",
           items: []
         },
         {
-          id: "terms-section-5",
+          id: "terms-section-6",
           sectionKey: "cancellations-and-changes",
           sectionType: "richText",
           isVisible: true,
-          sortOrder: 4,
+          sortOrder: 5,
           heading: "Cancellations And Changes",
           body:
             "Requests to change or cancel an order are handled based on preparation status, delivery scheduling, and operational feasibility. Once preparation has started, changes may be limited or unavailable.",
           items: []
         },
         {
-          id: "terms-section-6",
+          id: "terms-section-7",
           sectionKey: "allergies-and-dietary-responsibility",
           sectionType: "richText",
           isVisible: true,
-          sortOrder: 5,
+          sortOrder: 6,
           heading: "Allergies And Dietary Responsibility",
           body:
             "Customers are responsible for reviewing ingredient and nutrition information before ordering. If you have allergies, intolerances, or specific dietary restrictions, please contact us before completing your purchase.",
           items: []
         },
         {
-          id: "terms-section-7",
+          id: "terms-section-8",
           sectionKey: "liability",
           sectionType: "richText",
           isVisible: true,
-          sortOrder: 6,
+          sortOrder: 7,
           heading: "Liability",
           body:
             "Proteinbar is not liable for indirect, incidental, or consequential damages resulting from use of the website, order delays, third-party service interruptions, or circumstances outside our reasonable control.",
           items: []
         },
         {
-          id: "terms-section-8",
+          id: "terms-section-9",
           sectionKey: "changes-to-these-terms",
           sectionType: "richText",
           isVisible: true,
-          sortOrder: 7,
+          sortOrder: 8,
           heading: "Changes To These Terms",
           body:
             "We may revise these Terms & Conditions from time to time. Continued use of the website or services after updates means you agree to the revised terms.",
