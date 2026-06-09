@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AcceptedCards from "@/components/payments/AcceptedCards";
 
 export default function Footer() {
   return (
@@ -30,6 +31,10 @@ export default function Footer() {
           <span className="mr-2 text-[#c79a33]">E:</span>
           Proteinbarmaroc@gmail.com
         </p>
+
+        <div className="mt-7">
+          <AcceptedCards />
+        </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm uppercase tracking-[0.16em] text-white/72">
           <Link
