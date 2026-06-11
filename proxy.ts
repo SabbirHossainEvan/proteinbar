@@ -11,7 +11,7 @@ function isProtectedCheckoutPath(pathname: string) {
   );
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (!isProtectedCheckoutPath(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
@@ -24,12 +24,17 @@ export function middleware(request: NextRequest) {
   const loginUrl = new URL("/login", request.url);
   loginUrl.searchParams.set(
     "returnTo",
-    `${request.nextUrl.pathname}${request.nextUrl.search}`
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
   );
 
   return NextResponse.redirect(loginUrl);
 }
 
 export const config = {
-  matcher: ["/checkout", "/normal/:path*", "/custom/:path*", "/pages/monthly-plan/:path*"]
+  matcher: [
+    "/checkout",
+    "/normal/:path*",
+    "/custom/:path*",
+    "/pages/monthly-plan/:path*",
+  ],
 };
