@@ -1,24 +1,41 @@
+import Image from "next/image";
+
 const cards = [
   {
-    name: "Visa",
-    className: "bg-white text-[#1434cb]",
-    mark: "VISA",
-  },
-  {
-    name: "Mastercard",
-    className: "bg-white text-zinc-900",
-    mark: "Mastercard",
-    symbol: (
-      <span className="relative mr-1.5 inline-flex h-4 w-6 items-center">
-        <span className="absolute left-0 h-4 w-4 rounded-full bg-[#eb001b]" />
-        <span className="absolute right-0 h-4 w-4 rounded-full bg-[#f79e1b] mix-blend-multiply" />
-      </span>
-    ),
-  },
-  {
     name: "CMI",
-    className: "bg-white text-[#0067b1]",
-    mark: "CMI",
+    src: "/payment-security/cmi.png",
+    width: 203,
+    height: 160,
+  },
+  {
+    name: "Verified by Visa",
+    src: "/payment-security/verified-by-visa.png",
+    width: 600,
+    height: 265,
+  },
+  {
+    name: "Mastercard SecureCode",
+    src: "/payment-security/mastercard-securecode.png",
+    width: 500,
+    height: 230,
+  },
+  {
+    name: "American Express",
+    src: "/payment-security/amex.png",
+    width: 167,
+    height: 169,
+  },
+  {
+    name: "UnionPay",
+    src: "/payment-security/unionpay.png",
+    width: 920,
+    height: 639,
+  },
+  {
+    name: "MarocPay",
+    src: "/payment-security/marocpay.png",
+    width: 800,
+    height: 688,
   },
 ];
 
@@ -30,7 +47,7 @@ export default function AcceptedCards({ compact = false }: AcceptedCardsProps) {
   return (
     <div
       className={`flex flex-wrap items-center ${
-        compact ? "gap-2" : "justify-center gap-2.5"
+        compact ? "gap-2" : "justify-center gap-3"
       }`}
       aria-label="Accepted card brands"
     >
@@ -38,10 +55,17 @@ export default function AcceptedCards({ compact = false }: AcceptedCardsProps) {
         <span
           key={card.name}
           title={card.name}
-          className={`inline-flex h-8 min-w-14 items-center justify-center rounded border border-zinc-300 px-2 text-[0.7rem] font-black leading-none shadow-sm ${card.className}`}
+          className={`inline-flex items-center justify-center rounded border border-zinc-200 bg-white shadow-sm ${
+            compact ? "h-8 min-w-14 px-2" : "h-11 min-w-20 px-3"
+          }`}
         >
-          {card.symbol}
-          {card.mark}
+          <Image
+            src={card.src}
+            alt={card.name}
+            width={card.width}
+            height={card.height}
+            className={compact ? "max-h-5 w-auto" : "max-h-7 w-auto"}
+          />
         </span>
       ))}
     </div>
