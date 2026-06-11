@@ -1,4 +1,5 @@
 import LegalHeroSection from "@/components/legal/LegalHeroSection";
+import AcceptedCards from "@/components/payments/AcceptedCards";
 import Section from "@/components/ui/Section";
 import { fetchWebsitePageContent } from "@/lib/homePageCms";
 
@@ -21,6 +22,9 @@ export default async function TermsAndConditionsPage() {
       />
       <section className="overflow-x-auto py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-4xl min-w-0">
+          <div className="mb-10 border-b border-zinc-200 pb-8">
+            <AcceptedCards />
+          </div>
           <div className="space-y-8">
             {sections.map((sectionItem) => (
               <Section
