@@ -1,1 +1,5 @@
-export { default } from "@/app/pages/monthly-plan/page";
+import { redirect } from "next/navigation";
+
+export default function PlansPage() {
+  redirect("/mealprep");
+}

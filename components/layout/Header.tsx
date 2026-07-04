@@ -18,7 +18,7 @@ const fallbackNavLinks = [
 
 const actionLinks = [
   { href: "/login", label: "Log in" },
-  { href: "/plans", label: "Meal Prep" },
+  { href: "/mealprep", label: "Meal Prep" },
 ];
 
 function BrandLogo() {
@@ -41,7 +41,7 @@ const navHrefBySlug: Record<string, string> = {
   menu: "/pages/menu",
   "about-us": "/pages/about-us",
   contact: "/pages/contact",
-  "meal-prep": "/plans",
+  "meal-prep": "/mealprep",
   "terms-and-conditions": "/pages/terms-and-conditions",
   "privacy-policy": "/pages/privacy-policy",
 };

@@ -76,7 +76,7 @@ export default async function CmiReturnPage({
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/plans"
+            href="/mealprep"
             className="inline-flex h-11 items-center justify-center rounded-xl bg-black px-5 text-sm font-medium text-white transition hover:bg-zinc-800"
           >
             Back to Plans
