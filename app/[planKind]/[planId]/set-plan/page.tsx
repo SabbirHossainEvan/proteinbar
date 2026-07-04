@@ -39,7 +39,7 @@ export default function SetPlanPage() {
               </h1>
               <p className="mt-8 text-sm text-white/90">
                 <Link href="/" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
-                <Link href="/plans" className="hover:text-white">Monthly Plans</Link>
+                <Link href="/mealprep" className="hover:text-white">Monthly Plans</Link>
               </p>
             </div>
           </div>

@@ -58,7 +58,7 @@ export default function SelectedMealsPage() {
                   Home
                 </Link>{" "}
                 <span className="px-1">{">"}</span>
-                <Link href="/plans" className="hover:text-white">
+                <Link href="/mealprep" className="hover:text-white">
                   Monthly Plans
                 </Link>
               </p>

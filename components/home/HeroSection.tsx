@@ -11,7 +11,7 @@ const defaultHeroContent = {
   body: "",
   image: "/hero.png",
   ctaPrimary: { href: "/pages/menu", label: "See Our Menu" },
-  ctaSecondary: { href: "/plans", label: "Start A Monthly Plan" },
+  ctaSecondary: { href: "/mealprep", label: "Start A Monthly Plan" },
 };
 
 type HeroSectionProps = {
