@@ -8,14 +8,6 @@ import { MENU_LOCATION_STORAGE_KEY } from "@/components/menu/menuLocation";
 import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
 import { useGetWebsiteNavigationQuery } from "@/redux/api/publicApi";
 
-const fallbackNavLinks = [
-  { href: "/", label: "Home", slug: "home" },
-  { href: "/pages/locations", label: "Locations", slug: "locations" },
-  { href: "/pages/menu", label: "Menu", slug: "menu" },
-  { href: "/pages/about-us", label: "About us", slug: "about-us" },
-  { href: "/pages/contact", label: "Contact us", slug: "contact" },
-];
-
 const actionLinks = [
   { href: "/login", label: "Log in" },
   { href: "/mealprep", label: "Meal Prep" },
@@ -46,7 +38,13 @@ const navHrefBySlug: Record<string, string> = {
   "privacy-policy": "/pages/privacy-policy",
 };
 
-const allowedHeaderNavSlugs = new Set(["home", "locations", "menu", "about-us", "contact"]);
+const allowedHeaderNavSlugs = new Set([
+  "home",
+  "locations",
+  "menu",
+  "about-us",
+  "contact",
+]);
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,30 +60,35 @@ export default function Header() {
   const isScrolledRef = useRef(false);
   const menuOpenRef = useRef(false);
   const navLinks = useMemo(() => {
-    const apiLinks =
-      data?.data
-        ?.map((item) => {
-          if (!allowedHeaderNavSlugs.has(item.slug)) {
-            return null;
-          }
+    if (!data?.data) return [];
 
-          const href = navHrefBySlug[item.slug];
-          if (!href) {
-            return null;
-          }
+    return data.data
+      .map((item) => {
+        if (!allowedHeaderNavSlugs.has(item.slug)) {
+          return null;
+        }
 
-          return {
-            href,
-            label: item.navLabel || item.title,
-            slug: item.slug,
-          };
-        })
-        .filter((item): item is { href: string; label: string; slug: string } => Boolean(item)) ?? [];
+        const href = navHrefBySlug[item.slug];
+        if (!href) {
+          return null;
+        }
 
-    return apiLinks.length ? apiLinks : fallbackNavLinks;
+        return {
+          href,
+          label: item.navLabel || item.title,
+          slug: item.slug,
+        };
+      })
+      .filter((item): item is { href: string; label: string; slug: string } =>
+        Boolean(item),
+      );
   }, [data]);
-  const leadingNavLinks = navLinks.filter((item) => item.slug !== "menu").slice(0, 2);
-  const trailingNavLinks = navLinks.filter((item) => item.slug !== "menu").slice(2);
+  const leadingNavLinks = navLinks
+    .filter((item) => item.slug !== "menu")
+    .slice(0, 2);
+  const trailingNavLinks = navLinks
+    .filter((item) => item.slug !== "menu")
+    .slice(2);
   const menuNavItem = navLinks.find((item) => item.slug === "menu");
 
   useEffect(() => {
@@ -340,4 +343,3 @@ export default function Header() {
     </header>
   );
 }
-
