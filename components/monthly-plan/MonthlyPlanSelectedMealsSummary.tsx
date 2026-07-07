@@ -94,6 +94,14 @@ function parseSelectedMeals(value?: string): SelectedMealOption[] {
   }
 }
 
+function parseIsoDateUtc(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return null;
+
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 function formatDateTab(date?: string) {
   if (!date) {
     return {
@@ -102,8 +110,8 @@ function formatDateTab(date?: string) {
     };
   }
 
-  const parsed = new Date(`${date}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) {
+  const parsed = parseIsoDateUtc(date);
+  if (!parsed || Number.isNaN(parsed.getTime())) {
     return {
       label: date.toUpperCase(),
       value: date,
@@ -114,6 +122,7 @@ function formatDateTab(date?: string) {
     label: parsed
       .toLocaleDateString("en-US", {
         weekday: "long",
+        timeZone: "UTC",
       })
       .toUpperCase(),
     value: date,
@@ -123,14 +132,15 @@ function formatDateTab(date?: string) {
 function formatReadableDate(date?: string) {
   if (!date) return "Your selected meals";
 
-  const parsed = new Date(`${date}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) return date;
+  const parsed = parseIsoDateUtc(date);
+  if (!parsed || Number.isNaN(parsed.getTime())) return date;
 
   return parsed.toLocaleDateString("en-US", {
     weekday: "long",
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 

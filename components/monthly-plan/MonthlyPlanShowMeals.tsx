@@ -116,10 +116,34 @@ function toDateInputValue(value: string) {
   return parsed.toISOString().split("T")[0];
 }
 
+function parseIsoDateUtc(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return null;
+
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatIsoDateLabel(value: string) {
+  const parsed = parseIsoDateUtc(value);
+  if (!parsed) return value;
+
+  return parsed.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "UTC",
+  });
+}
+
 function formatTabLabel(dateValue: string) {
-  const date = new Date(dateValue);
+  const date =
+    parseIsoDateUtc(dateValue.split("T")[0]) ?? new Date(dateValue);
   return {
-    day: date.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase(),
+    day: date
+      .toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" })
+      .toUpperCase(),
     date: date.toISOString().split("T")[0],
   };
 }
@@ -336,15 +360,7 @@ export default function MonthlyPlanShowMeals({
         const snackCount = items.filter(
           (item) => item.mealType === "Snack",
         ).length;
-        const label = new Date(`${dateIso}T00:00:00`).toLocaleDateString(
-          "en-US",
-          {
-            weekday: "long",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          },
-        );
+        const label = formatIsoDateLabel(dateIso);
 
         return {
           id: `card-${dateIso}`,
@@ -363,13 +379,7 @@ export default function MonthlyPlanShowMeals({
     });
 
     return deliveryDates.map((dateIso, index) => {
-      const date = new Date(`${dateIso}T00:00:00`);
-      const label = date.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
+      const label = formatIsoDateLabel(dateIso);
       return {
         id: `card-${index}`,
         label,
