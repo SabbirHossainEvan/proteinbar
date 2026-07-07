@@ -3,15 +3,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import MenuLocationModal from "@/components/menu/MenuLocationModal";
 import { MENU_LOCATION_STORAGE_KEY } from "@/components/menu/menuLocation";
 import MenuLocationTrigger from "@/components/menu/MenuLocationTrigger";
-import { useGetWebsiteNavigationQuery } from "@/redux/api/publicApi";
+import {
+  publicApi,
+  useGetCurrentCustomerQuery,
+  useGetWebsiteNavigationQuery,
+  useLogoutCustomerMutation,
+} from "@/redux/api/publicApi";
+import type { AppDispatch } from "@/redux/store";
 
-const actionLinks = [
-  { href: "/login", label: "Log in" },
-  { href: "/mealprep", label: "Meal Prep" },
-];
+const CUSTOMER_SESSION_COOKIE_NAME = "proteinbar_customer_session";
+
+function clearCustomerSessionCookie() {
+  if (typeof document === "undefined") return;
+
+  document.cookie = `${CUSTOMER_SESSION_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax`;
+  document.cookie = `${CUSTOMER_SESSION_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+}
 
 function BrandLogo() {
   return (
@@ -51,7 +62,14 @@ export default function Header() {
   const [mobileLocationModalOpen, setMobileLocationModalOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLocallyLoggedOut, setIsLocallyLoggedOut] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
   const { data } = useGetWebsiteNavigationQuery();
+  const { data: currentCustomer } = useGetCurrentCustomerQuery(undefined, {
+    skip: isLocallyLoggedOut,
+  });
+  const [logoutCustomer, { isLoading: isLoggingOut }] =
+    useLogoutCustomerMutation();
   const pathname = usePathname();
   const router = useRouter();
   const isMenuActive = pathname === "/pages/menu";
@@ -90,6 +108,25 @@ export default function Header() {
     .filter((item) => item.slug !== "menu")
     .slice(2);
   const menuNavItem = navLinks.find((item) => item.slug === "menu");
+  const customerEmail = isLocallyLoggedOut
+    ? ""
+    : (currentCustomer?.data?.user?.email?.trim() ?? "");
+  const isCustomerLoggedIn = Boolean(customerEmail);
+
+  const handleLogout = async () => {
+    setIsLocallyLoggedOut(true);
+    setMenuOpen(false);
+    clearCustomerSessionCookie();
+
+    try {
+      await logoutCustomer().unwrap();
+    } finally {
+      clearCustomerSessionCookie();
+      dispatch(publicApi.util.resetApiState());
+      router.replace("/");
+      router.refresh();
+    }
+  };
 
   useEffect(() => {
     menuOpenRef.current = menuOpen;
@@ -251,20 +288,44 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center justify-end gap-5">
-            {actionLinks.map((item) => (
+            {isCustomerLoggedIn ? (
+              <button
+                type="button"
+                className="hidden max-w-[220px] truncate text-[0.98rem] font-normal !text-white transition-colors hover:!text-white sm:inline-flex"
+                style={{ color: "#ffffff" }}
+                title={customerEmail}
+              >
+                {customerEmail}
+              </button>
+            ) : (
               <Link
-                key={item.href}
-                href={item.href}
-                className={`hidden text-[0.98rem] font-normal transition-colors hover:text-white sm:inline-flex ${
-                  item.label === "Meal Prep"
-                    ? "h-[46px] min-w-[146px] items-center justify-center border border-white/35 bg-white/[0.06] px-6 text-[0.98rem] font-normal shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur-[1.5px]"
-                    : ""
-                }`}
+                href="/login"
+                className="hidden text-[0.98rem] font-normal !text-white transition-colors hover:!text-white sm:inline-flex"
                 style={{ color: "#ffffff" }}
               >
-                {item.label}
+                Log in
               </Link>
-            ))}
+            )}
+            {isCustomerLoggedIn ? (
+              <>
+                {/* <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  disabled={isLoggingOut}
+                  className="hidden h-[46px] min-w-[110px] items-center justify-center rounded-full border border-white/35 bg-white/[0.06] px-5 text-[0.92rem] !text-white transition hover:bg-white/10 disabled:opacity-60 sm:inline-flex"
+                  style={{ color: "#ffffff", border: "1px solid red" }}
+                >
+                  {isLoggingOut ? "Logging out..." : "Log out"}
+                </button> */}
+              </>
+            ) : null}
+            <Link
+              href="/mealprep"
+              className="hidden h-[46px] min-w-[146px] items-center justify-center border border-white/35 bg-white/[0.06] px-6 text-[0.98rem] font-normal !text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur-[1.5px] transition hover:bg-white/[0.1] sm:inline-flex"
+              style={{ color: "#ffffff" }}
+            >
+              Meal Prep
+            </Link>
           </div>
         </div>
       </div>
@@ -316,20 +377,46 @@ export default function Header() {
               );
             })}
             <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
-              {actionLinks.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`inline-flex h-11 items-center justify-center text-sm font-medium transition ${
-                    item.label === "Meal Prep"
-                      ? "border border-white text-white hover:bg-white/10"
-                      : "rounded-lg border border-white/15 text-white/90 hover:bg-white/10"
-                  }`}
+              {isCustomerLoggedIn ? (
+                <button
+                  type="button"
+                  className="inline-flex h-11 items-center justify-center rounded-lg border border-white/15 px-3 text-sm font-medium !text-white transition hover:bg-white/10"
+                  style={{ color: "#ffffff" }}
+                  title={customerEmail}
                 >
-                  {item.label}
+                  <span className="truncate">{customerEmail}</span>
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-lg border border-white/15 text-sm font-medium !text-white transition hover:bg-white/10"
+                  style={{ color: "#ffffff" }}
+                >
+                  Log in
                 </Link>
-              ))}
+              )}
+              {isCustomerLoggedIn ? (
+                <>
+                  {/* <button
+                    type="button"
+                    onClick={() => void handleLogout()}
+                    disabled={isLoggingOut}
+                    className="inline-flex h-11 items-center justify-center rounded-lg border border-white text-sm font-medium !text-white transition hover:bg-white/10 disabled:opacity-60"
+                    style={{ color: "#ffffff", border: "1px solid red" }}
+                  >
+                    {isLoggingOut ? "Logging out..." : "Log out"}
+                  </button> */}
+                </>
+              ) : null}
+              <Link
+                href="/mealprep"
+                onClick={() => setMenuOpen(false)}
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-white text-sm font-medium !text-white transition hover:bg-white/10"
+                style={{ color: "#ffffff" }}
+              >
+                Meal Prep
+              </Link>
             </div>
           </div>
         </nav>
