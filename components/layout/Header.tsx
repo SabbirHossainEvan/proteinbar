@@ -368,8 +368,8 @@ export default function Header() {
               </>
             ) : null}
             <Link
-              href={MEAL_PREP_URL}
-              target="_blank"
+              href={"/mealprep"}
+              // target="_blank"
               rel="noopener noreferrer"
               className="hidden h-[46px] min-w-[146px] items-center justify-center border border-white/35 bg-white/[0.06] px-6 text-[0.98rem] font-normal !text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur-[1.5px] transition hover:bg-white/[0.1] sm:inline-flex"
               style={{ color: "#ffffff" }}
