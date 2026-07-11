@@ -171,7 +171,7 @@ export default function ManuPageContainer({ page }: { page?: WebsitePageRecord |
     }
 
     if (!resolvedParamLocation && nextLocation) {
-      router.replace(`/pages/menu?location=${encodeURIComponent(nextLocation)}`, {
+      router.replace(`/menu?location=${encodeURIComponent(nextLocation)}`, {
         scroll: false,
       });
     }
@@ -224,7 +224,7 @@ export default function ManuPageContainer({ page }: { page?: WebsitePageRecord |
     }
 
     setStoredLocation(locationName);
-    router.replace(`/pages/menu?location=${encodeURIComponent(locationName)}`, {
+    router.replace(`/menu?location=${encodeURIComponent(locationName)}`, {
       scroll: false,
     });
   };

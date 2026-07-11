@@ -28,7 +28,21 @@ export const publicApi = createApi({
   tagTypes: ["Menu", "Plans", "Products", "Locations", "Builder", "Auth"],
   endpoints: (builder) => ({
     getWebsiteNavigation: builder.query<
-      ApiResponse<Array<{ id: string; slug: string; title: string; navLabel: string; kind: string }>>,
+      ApiResponse<
+        Array<{
+          id: string;
+          slug: string;
+          title: string;
+          navLabel: string;
+          kind: string;
+          href?: string;
+          url?: string;
+          link?: string;
+          navUrl?: string;
+          externalUrl?: string;
+          targetUrl?: string;
+        }>
+      >,
       void
     >({
       query: () => "/public/website-navigation",
