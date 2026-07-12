@@ -22,6 +22,10 @@ type CheckoutResponse = {
   };
 };
 
+type CmiPaymentRetryResponse = CheckoutResponse & {
+  message?: string;
+};
+
 export const publicApi = createApi({
   reducerPath: "publicApi",
   baseQuery: fetchBaseQuery({ baseUrl, credentials: "include" }),
@@ -123,6 +127,12 @@ export const publicApi = createApi({
     checkout: builder.mutation<ApiResponse<CheckoutResponse>, any>({
       query: (body) => ({ url: "/checkout", method: "POST", body }),
     }),
+    retryCmiPayment: builder.mutation<
+      ApiResponse<CmiPaymentRetryResponse>,
+      { orderId: string; retryToken: string }
+    >({
+      query: (body) => ({ url: "/payments/cmi/retry", method: "POST", body }),
+    }),
     createStoreOrder: builder.mutation<ApiResponse<any>, any>({
       query: (body) => ({ url: "/store-orders", method: "POST", body }),
     }),
@@ -146,5 +156,6 @@ export const {
   useSendContactMutation,
   useValidatePromoCodeMutation,
   useCheckoutMutation,
+  useRetryCmiPaymentMutation,
   useCreateStoreOrderMutation,
 } = publicApi;
