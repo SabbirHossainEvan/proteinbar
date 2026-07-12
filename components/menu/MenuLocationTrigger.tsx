@@ -101,9 +101,9 @@ export default function MenuLocationTrigger({
     setOpen(false);
     onAfterSelect?.();
 
-    const targetUrl = `/pages/menu?location=${encodeURIComponent(locationName)}`;
+    const targetUrl = `/menu?location=${encodeURIComponent(locationName)}`;
 
-    if (pathname === "/pages/menu") {
+    if (pathname === "/menu" || pathname === "/pages/menu") {
       router.replace(targetUrl, { scroll: false });
       return;
     }

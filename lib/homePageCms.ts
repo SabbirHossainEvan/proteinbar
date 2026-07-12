@@ -22,7 +22,7 @@ const defaultHomePage: WebsitePageRecord = {
     "Manage homepage text, images, CTAs, and every major section from the admin dashboard.",
   heroImage: "/hero.png",
   heroPrimaryCtaLabel: "See Our Menu",
-  heroPrimaryCtaLink: "/pages/menu",
+  heroPrimaryCtaLink: "/menu",
   heroSecondaryCtaLabel: "Start A Monthly Plan",
   heroSecondaryCtaLink: "/mealprep",
   seoTitle: "Proteinbar | Healthy Meals & Meal Plans",
@@ -39,7 +39,7 @@ const defaultHomePage: WebsitePageRecord = {
       body:
         "Founded in 2018, Proteinbar is dedicated to offering a wide array of wholesome and nutritious meals. Our restaurant prides itself on crafting delicious dishes that prioritize health and well-being, catering to a diverse clientele seeking flavorful options that support a balanced lifestyle.",
       buttonLabel: "See Our Menu",
-      buttonLink: "/pages/menu",
+      buttonLink: "/menu",
       items: []
     },
     {
@@ -76,9 +76,9 @@ const defaultHomePage: WebsitePageRecord = {
       heading: "THE PROTEINBAR EXPERIENCE",
       body: "",
       items: [
-        { id: "experience-1", title: "See Our Menu", label: "see Menu", link: "/pages/menu", image: "/location-2.png" },
-        { id: "experience-2", title: "Need A Meal Plan", label: "Contact Us", link: "/pages/contact", image: "/location-1.png" },
-        { id: "experience-3", title: "Catering Experiences", label: "Contact Us", link: "/pages/contact", image: "/hero.png" }
+        { id: "experience-1", title: "See Our Menu", label: "see Menu", link: "/menu", image: "/location-2.png" },
+        { id: "experience-2", title: "Need A Meal Plan", label: "Contact Us", link: "/contact", image: "/location-1.png" },
+        { id: "experience-3", title: "Catering Experiences", label: "Contact Us", link: "/contact", image: "/hero.png" }
       ]
     },
     {

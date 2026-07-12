@@ -5,7 +5,7 @@ const defaultContent = {
   body:
     "Founded in 2018, Proteinbar is dedicated to offering a wide array of wholesome and nutritious meals. Our restaurant prides itself on crafting delicious dishes that prioritize health and well-being, catering to a diverse clientele seeking flavorful options that support a balanced lifestyle.",
   buttonLabel: "See Our Menu",
-  buttonLink: "/pages/menu",
+  buttonLink: "/menu",
 };
 
 export default function IntroStatementSection({ section }: { section?: WebsitePageSection }) {

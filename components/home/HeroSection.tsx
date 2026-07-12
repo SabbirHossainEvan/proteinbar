@@ -10,7 +10,7 @@ const defaultHeroContent = {
     "Fresh ingredients. No oil. No trans fat. Casablanca's favorite healthy restaurant since 2018.",
   body: "",
   image: "/hero.png",
-  ctaPrimary: { href: "/pages/menu", label: "See Our Menu" },
+  ctaPrimary: { href: "/menu", label: "See Our Menu" },
   ctaSecondary: { href: "/mealprep", label: "Start A Monthly Plan" },
 };
 

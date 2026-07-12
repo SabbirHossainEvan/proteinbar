@@ -16,6 +16,21 @@ import {
 import type { AppDispatch } from "@/redux/store";
 
 const CUSTOMER_SESSION_COOKIE_NAME = "proteinbar_customer_session";
+const MEAL_PREP_URL = "https://proteinbargroup.com/mealprep";
+
+type WebsiteNavigationItem = {
+  id: string;
+  slug: string;
+  title: string;
+  navLabel: string;
+  kind: string;
+  href?: string;
+  url?: string;
+  link?: string;
+  navUrl?: string;
+  externalUrl?: string;
+  targetUrl?: string;
+};
 
 function clearCustomerSessionCookie() {
   if (typeof document === "undefined") return;
@@ -40,11 +55,11 @@ function BrandLogo() {
 
 const navHrefBySlug: Record<string, string> = {
   home: "/",
-  locations: "/pages/locations",
-  menu: "/pages/menu",
-  "about-us": "/pages/about-us",
-  contact: "/pages/contact",
-  "meal-prep": "/mealprep",
+  locations: "/locations",
+  menu: "/menu",
+  "about-us": "/about-us",
+  contact: "/contact",
+  "meal-prep": MEAL_PREP_URL,
   "terms-and-conditions": "/pages/terms-and-conditions",
   "privacy-policy": "/pages/privacy-policy",
 };
@@ -56,6 +71,35 @@ const allowedHeaderNavSlugs = new Set([
   "about-us",
   "contact",
 ]);
+
+function getConfiguredNavHref(item: WebsiteNavigationItem) {
+  return (
+    item.href?.trim() ||
+    item.navUrl?.trim() ||
+    item.targetUrl?.trim() ||
+    item.externalUrl?.trim() ||
+    item.url?.trim() ||
+    item.link?.trim() ||
+    navHrefBySlug[item.slug] ||
+    ""
+  );
+}
+
+function isExternalHref(href: string) {
+  return /^(https?:|mailto:|tel:)/i.test(href);
+}
+
+function getPathOnly(href: string) {
+  if (isExternalHref(href)) return "";
+  return href.split(/[?#]/)[0] || "/";
+}
+
+function isNavActive(pathname: string, href: string) {
+  const linkPath = getPathOnly(href);
+  if (!linkPath) return false;
+  if (linkPath === "/") return pathname === "/";
+  return pathname === linkPath || pathname.startsWith(`${linkPath}/`);
+}
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -72,7 +116,7 @@ export default function Header() {
     useLogoutCustomerMutation();
   const pathname = usePathname();
   const router = useRouter();
-  const isMenuActive = pathname === "/pages/menu";
+  const isMenuActive = pathname === "/menu" || pathname === "/pages/menu";
   const lastScrollYRef = useRef(0);
   const isHeaderVisibleRef = useRef(true);
   const isScrolledRef = useRef(false);
@@ -86,7 +130,7 @@ export default function Header() {
           return null;
         }
 
-        const href = navHrefBySlug[item.slug];
+        const href = getConfiguredNavHref(item);
         if (!href) {
           return null;
         }
@@ -190,9 +234,9 @@ export default function Header() {
 
     setMobileLocationModalOpen(false);
 
-    const targetUrl = `/pages/menu?location=${encodeURIComponent(locationName)}`;
+    const targetUrl = `/menu?location=${encodeURIComponent(locationName)}`;
 
-    if (pathname === "/pages/menu") {
+    if (isMenuActive) {
       router.replace(targetUrl, { scroll: false });
       return;
     }
@@ -243,12 +287,14 @@ export default function Header() {
           <nav className="hidden items-center justify-center lg:flex">
             <div className="flex items-center gap-8 xl:gap-12">
               {leadingNavLinks.map((item) => {
-                const linkPath = item.href.split("#")[0];
-                const isActive = pathname === linkPath;
+                const isActive = isNavActive(pathname, item.href);
+                const external = isExternalHref(item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
                     className={`nav-link-hover !text-white text-[0.98rem] font-normal tracking-[0.01em] ${
                       isActive ? "after:scale-x-100" : ""
                     }`}
@@ -269,12 +315,14 @@ export default function Header() {
                 </MenuLocationTrigger>
               ) : null}
               {trailingNavLinks.map((item) => {
-                const linkPath = item.href.split("#")[0];
-                const isActive = pathname === linkPath;
+                const isActive = isNavActive(pathname, item.href);
+                const external = isExternalHref(item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
                     className={`nav-link-hover !text-white text-[0.98rem] font-normal tracking-[0.01em] ${
                       isActive ? "after:scale-x-100" : ""
                     }`}
@@ -320,7 +368,9 @@ export default function Header() {
               </>
             ) : null}
             <Link
-              href="/mealprep"
+              href={"/mealprep"}
+              // target="_blank"
+              rel="noopener noreferrer"
               className="hidden h-[46px] min-w-[146px] items-center justify-center border border-white/35 bg-white/[0.06] px-6 text-[0.98rem] font-normal !text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur-[1.5px] transition hover:bg-white/[0.1] sm:inline-flex"
               style={{ color: "#ffffff" }}
             >
@@ -334,12 +384,14 @@ export default function Header() {
         <nav className="animate-fade-down mx-auto mt-3 max-w-[1500px] border border-white/12 bg-black/88 px-4 py-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.28)] lg:hidden">
           <div className="flex w-full flex-col gap-2">
             {leadingNavLinks.map((item) => {
-              const linkPath = item.href.split("#")[0];
-              const isActive = pathname === linkPath;
+              const isActive = isNavActive(pathname, item.href);
+              const external = isExternalHref(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noopener noreferrer" : undefined}
                   onClick={() => setMenuOpen(false)}
                   className={`rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-white/10 ${
                     isActive ? "bg-white/10 text-white" : "text-white/90"
@@ -361,12 +413,14 @@ export default function Header() {
               </button>
             ) : null}
             {trailingNavLinks.map((item) => {
-              const linkPath = item.href.split("#")[0];
-              const isActive = pathname === linkPath;
+              const isActive = isNavActive(pathname, item.href);
+              const external = isExternalHref(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noopener noreferrer" : undefined}
                   onClick={() => setMenuOpen(false)}
                   className={`rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-white/10 ${
                     isActive ? "bg-white/10 text-white" : "text-white/90"
@@ -410,7 +464,9 @@ export default function Header() {
                 </>
               ) : null}
               <Link
-                href="/mealprep"
+                href={MEAL_PREP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setMenuOpen(false)}
                 className="inline-flex h-11 items-center justify-center rounded-lg border border-white text-sm font-medium !text-white transition hover:bg-white/10"
                 style={{ color: "#ffffff" }}

@@ -7,19 +7,19 @@ const defaultExperienceCards = [
   {
     title: "See Our Menu",
     cta: "see Menu",
-    href: "/pages/menu",
+    href: "/menu",
     image: "/location-2.png",
   },
   {
     title: "Need A Meal Plan",
     cta: "Contact Us",
-    href: "/pages/contact",
+    href: "/contact",
     image: "/location-1.png",
   },
   {
     title: "Catering Experiences",
     cta: "Contact Us",
-    href: "/pages/contact",
+    href: "/contact",
     image: "/hero.png",
   },
 ];
@@ -66,7 +66,7 @@ export default function ExperienceSection({ section }: { section?: WebsitePageSe
                   {card.title}
                 </h3>
 
-                {card.href === "/pages/menu" ? (
+                {card.href === "/menu" || card.href === "/pages/menu" ? (
                   <MenuLocationTrigger className="absolute bottom-4 left-4 text-sm lowercase tracking-[0.04em] !text-white/85 transition hover:!text-[#b8942c] sm:bottom-5 sm:left-5">
                     {card.cta}
                   </MenuLocationTrigger>
