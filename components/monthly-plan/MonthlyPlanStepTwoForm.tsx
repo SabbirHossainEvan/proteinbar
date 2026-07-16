@@ -131,6 +131,19 @@ export default function MonthlyPlanStepTwoForm({
       (left, right) => Number(left) - Number(right),
     );
   }, [rules]);
+  const fixedPreMadeMealCount = useMemo(() => {
+    const configuredDefault = Number(rules?.defaults?.meals);
+    if (Number.isFinite(configuredDefault) && configuredDefault > 0) {
+      return String(configuredDefault);
+    }
+
+    const firstAllowed = Number(rules?.allowedMealsPerDay?.[0]);
+    if (Number.isFinite(firstAllowed) && firstAllowed > 0) {
+      return String(firstAllowed);
+    }
+
+    return "3";
+  }, [rules]);
   const dayOptions = useMemo(() => {
     const options = rules?.allowedDays?.length
       ? rules.allowedDays.map((value) => String(value))
@@ -162,27 +175,15 @@ export default function MonthlyPlanStepTwoForm({
   );
   const selectedDate = useMemo(() => parseDateValue(startDate), [startDate]);
 
-  useEffect(() => {
-    setSelectedDays((prev) =>
-      prev.filter((day) => availableWeekDays.includes(day)),
+  const selectedDeliveryDays = useMemo(() => {
+    const allowedSelection = selectedDays.filter((day) =>
+      availableWeekDays.includes(day),
     );
-  }, [availableWeekDays]);
 
-  useEffect(() => {
-    if (requiredDeliveryDayCount === null) return;
-
-    setSelectedDays((prev) => prev.slice(0, requiredDeliveryDayCount));
-  }, [requiredDeliveryDayCount]);
-
-  useEffect(() => {
-    if (!selectedDate) return;
-
-    if (getDateOnly(selectedDate) < today) {
-      setStartDate("");
-    }
-  }, [selectedDate, today]);
-
-
+    return requiredDeliveryDayCount === null
+      ? allowedSelection
+      : allowedSelection.slice(0, requiredDeliveryDayCount);
+  }, [availableWeekDays, requiredDeliveryDayCount, selectedDays]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -200,18 +201,20 @@ export default function MonthlyPlanStepTwoForm({
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) => {
-      if (prev.includes(day)) {
-        return prev.filter((item) => item !== day);
+      const current = prev.filter((item) => availableWeekDays.includes(item));
+
+      if (current.includes(day)) {
+        return current.filter((item) => item !== day);
       }
 
       if (
         requiredDeliveryDayCount !== null &&
-        prev.length >= requiredDeliveryDayCount
+        current.length >= requiredDeliveryDayCount
       ) {
-        return prev;
+        return current;
       }
 
-      return [...prev, day];
+      return [...current, day];
     });
   };
 
@@ -300,7 +303,8 @@ export default function MonthlyPlanStepTwoForm({
 
   const goToShowMeals = () => {
     setSubmitAttempted(true);
-    const mealsValue = Number(meals);
+    const selectedMealCount = isCustomPlan ? meals : fixedPreMadeMealCount;
+    const mealsValue = Number(selectedMealCount);
     const weeksValue = Number(weeks);
     const derivedDays = requiresWeeks ? String(Math.max(1, weeksValue || 1) * 7) : days;
     const daysValue = Number(derivedDays);
@@ -308,11 +312,11 @@ export default function MonthlyPlanStepTwoForm({
 
 
     if (
-      !meals ||
+      (isCustomPlan && !meals) ||
       (!requiresWeeks && !days) ||
       (requiresWeeks && !weeks) ||
       !startDate ||
-      selectedDays.length === 0
+      selectedDeliveryDays.length === 0
     ) {
       return;
     }
@@ -327,17 +331,17 @@ export default function MonthlyPlanStepTwoForm({
     }
     if (
       requiredDeliveryDayCount !== null &&
-      selectedDays.length !== requiredDeliveryDayCount
+      selectedDeliveryDays.length !== requiredDeliveryDayCount
     ) {
       return;
     }
 
     const query = new URLSearchParams({
-      meals,
+      meals: selectedMealCount,
       days: derivedDays,
       snacks,
       startDate,
-      deliveryDays: selectedDays.join(","),
+      deliveryDays: selectedDeliveryDays.join(","),
     });
 
     if (requiresWeeks) query.set("weeks", weeks);
@@ -359,32 +363,34 @@ export default function MonthlyPlanStepTwoForm({
           <form className="mt-8 space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-7">
 
 
-            <div>
-              <label
-                htmlFor="meals"
-                className="text-base font-semibold text-zinc-800"
-              >
-                Number Of Meals <span className="text-black">*</span>
-              </label>
-              <select
-                id="meals"
-                value={meals}
-                onChange={(event) => setMeals(event.target.value)}
-                className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
-              >
-                <option value="">Select number of meals</option>
-                {mealOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {submitAttempted && !meals ? (
-                <p className="mt-2 text-sm text-red-600">
-                  Please select number of meals
-                </p>
-              ) : null}
-            </div>
+            {isCustomPlan ? (
+              <div>
+                <label
+                  htmlFor="meals"
+                  className="text-base font-semibold text-zinc-800"
+                >
+                  Number Of Meals <span className="text-black">*</span>
+                </label>
+                <select
+                  id="meals"
+                  value={meals}
+                  onChange={(event) => setMeals(event.target.value)}
+                  className="mt-2 h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-zinc-800 outline-none focus:border-zinc-500"
+                >
+                  <option value="">Select number of meals</option>
+                  {mealOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {submitAttempted && !meals ? (
+                  <p className="mt-2 text-sm text-red-600">
+                    Please select number of meals
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
 
             {!isCustomPlan ? (
               <div>
@@ -593,10 +599,10 @@ export default function MonthlyPlanStepTwoForm({
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {availableWeekDays.map((day) => {
-                  const active = selectedDays.includes(day);
+                  const active = selectedDeliveryDays.includes(day);
                   const limitReached =
                     requiredDeliveryDayCount !== null &&
-                    selectedDays.length >= requiredDeliveryDayCount;
+                    selectedDeliveryDays.length >= requiredDeliveryDayCount;
                   const disabled = !active && limitReached;
                   return (
                     <button
@@ -618,8 +624,8 @@ export default function MonthlyPlanStepTwoForm({
                   const allWeekTargetCount =
                     requiredDeliveryDayCount ?? availableWeekDays.length;
                   const allWeekActive =
-                    selectedDays.length === allWeekTargetCount &&
-                    selectedDays.every((day) =>
+                    selectedDeliveryDays.length === allWeekTargetCount &&
+                    selectedDeliveryDays.every((day) =>
                       availableWeekDays.slice(0, allWeekTargetCount).includes(day),
                     );
 
@@ -637,15 +643,15 @@ export default function MonthlyPlanStepTwoForm({
                   );
                 })()}
               </div>
-              {submitAttempted && selectedDays.length === 0 ? (
+              {submitAttempted && selectedDeliveryDays.length === 0 ? (
                 <p className="mt-2 text-sm text-red-600">
                   Please select at least one delivery day
                 </p>
               ) : null}
               {submitAttempted &&
               requiredDeliveryDayCount !== null &&
-              selectedDays.length > 0 &&
-              selectedDays.length !== requiredDeliveryDayCount ? (
+              selectedDeliveryDays.length > 0 &&
+              selectedDeliveryDays.length !== requiredDeliveryDayCount ? (
                 <p className="mt-2 text-sm text-red-600">
                   Please select exactly {requiredDeliveryDayCount} delivery day
                   {requiredDeliveryDayCount > 1 ? "s" : ""}.
