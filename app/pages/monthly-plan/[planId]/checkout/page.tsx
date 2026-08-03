@@ -40,7 +40,7 @@ function CheckoutPageContent() {
               <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-7xl">Checkout</h1>
               <p className="mt-3 text-sm text-white/85 sm:text-base">Complete your purchase order</p>
               <p className="mt-8 text-sm text-white/90">
-                <Link href="/" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
+                <Link href="https://proteinbargroup.com" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
                 <span>Checkout</span>
               </p>
             </div>

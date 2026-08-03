@@ -55,7 +55,7 @@ function SelectedMealsPageContent() {
                 Review the meals you selected before checkout
               </p>
               <p className="mt-8 text-sm text-white/90">
-                <Link href="/" className="hover:text-white">
+                <Link href="https://proteinbargroup.com" className="hover:text-white">
                   Home
                 </Link>{" "}
                 <span className="px-1">{">"}</span>

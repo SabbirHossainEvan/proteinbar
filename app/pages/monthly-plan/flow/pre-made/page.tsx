@@ -37,7 +37,7 @@ export default function PreMadePlanFlowPage() {
                 Select a category type to continue with its set-plan step.
               </p>
               <p className="mt-8 text-sm text-white/90">
-                <Link href="/" className="hover:text-white">
+                <Link href="https://proteinbargroup.com" className="hover:text-white">
                   Home
                 </Link>{" "}
                 <span className="px-1">{">"}</span>

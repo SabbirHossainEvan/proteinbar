@@ -38,7 +38,7 @@ export default function SetPlanPage() {
                 {heroTitle.toUpperCase()}
               </h1>
               <p className="mt-8 text-sm text-white/90">
-                <Link href="/" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
+                <Link href="https://proteinbargroup.com" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
                 <Link href="/mealprep" className="hover:text-white">Monthly Plans</Link>
               </p>
             </div>

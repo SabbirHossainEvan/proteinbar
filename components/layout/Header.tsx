@@ -16,7 +16,13 @@ import {
 import type { AppDispatch } from "@/redux/store";
 
 const CUSTOMER_SESSION_COOKIE_NAME = "proteinbar_customer_session";
+const PRIMARY_WEBSITE_URL = "https://proteinbargroup.com";
 const MEAL_PREP_URL = "https://mealprep.proteinbargroup.com";
+const proteinbarHostnames = new Set([
+  "proteinbargroup.com",
+  "www.proteinbargroup.com",
+  "mealprep.proteinbargroup.com",
+]);
 
 type WebsiteNavigationItem = {
   id: string;
@@ -54,7 +60,7 @@ function BrandLogo() {
 }
 
 const navHrefBySlug: Record<string, string> = {
-  home: "/",
+  home: PRIMARY_WEBSITE_URL,
   locations: "/locations",
   menu: "/menu",
   "about-us": "/about-us",
@@ -89,7 +95,28 @@ function isExternalHref(href: string) {
   return /^(https?:|mailto:|tel:)/i.test(href);
 }
 
+function shouldOpenInNewTab(href: string) {
+  if (!isExternalHref(href)) return false;
+  if (!/^https?:/i.test(href)) return true;
+
+  try {
+    return !proteinbarHostnames.has(new URL(href).hostname.toLowerCase());
+  } catch {
+    return true;
+  }
+}
+
 function getPathOnly(href: string) {
+  if (/^https?:/i.test(href)) {
+    try {
+      const url = new URL(href);
+      return proteinbarHostnames.has(url.hostname.toLowerCase())
+        ? url.pathname
+        : "";
+    } catch {
+      return "";
+    }
+  }
   if (isExternalHref(href)) return "";
   return href.split(/[?#]/)[0] || "/";
 }
@@ -130,7 +157,8 @@ export default function Header() {
           return null;
         }
 
-        const href = getConfiguredNavHref(item);
+        const href =
+          item.slug === "home" ? PRIMARY_WEBSITE_URL : getConfiguredNavHref(item);
         if (!href) {
           return null;
         }
@@ -276,7 +304,7 @@ export default function Header() {
               </svg>
             </button>
             <Link
-              href="/"
+              href={PRIMARY_WEBSITE_URL}
               className="shrink-0 text-white"
               onClick={() => setMenuOpen(false)}
             >
@@ -288,7 +316,7 @@ export default function Header() {
             <div className="flex items-center gap-8 xl:gap-12">
               {leadingNavLinks.map((item) => {
                 const isActive = isNavActive(pathname, item.href);
-                const external = isExternalHref(item.href);
+                const external = shouldOpenInNewTab(item.href);
                 return (
                   <Link
                     key={item.href}
@@ -316,7 +344,7 @@ export default function Header() {
               ) : null}
               {trailingNavLinks.map((item) => {
                 const isActive = isNavActive(pathname, item.href);
-                const external = isExternalHref(item.href);
+                const external = shouldOpenInNewTab(item.href);
                 return (
                   <Link
                     key={item.href}
@@ -383,7 +411,7 @@ export default function Header() {
           <div className="flex w-full flex-col gap-2">
             {leadingNavLinks.map((item) => {
               const isActive = isNavActive(pathname, item.href);
-              const external = isExternalHref(item.href);
+              const external = shouldOpenInNewTab(item.href);
               return (
                 <Link
                   key={item.href}
@@ -412,7 +440,7 @@ export default function Header() {
             ) : null}
             {trailingNavLinks.map((item) => {
               const isActive = isNavActive(pathname, item.href);
-              const external = isExternalHref(item.href);
+              const external = shouldOpenInNewTab(item.href);
               return (
                 <Link
                   key={item.href}

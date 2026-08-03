@@ -82,7 +82,7 @@ function PlanCheckoutPageContent() {
               <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl">Checkout</h1>
               <p className="mt-2 text-sm text-white/85 sm:text-base">Complete Your Purchase Order</p>
               <p className="mt-7 text-sm text-white/90">
-                <Link href="/" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
+                <Link href="https://proteinbargroup.com" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
                 <span>Checkout</span>
               </p>
             </div>
