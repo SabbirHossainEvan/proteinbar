@@ -106,7 +106,7 @@ export default async function CmiReturnPage({
             </Link>
           ) : null}
           <Link
-            href="/"
+            href="https://proteinbargroup.com"
             className="inline-flex h-11 items-center justify-center rounded-xl border border-zinc-300 px-5 text-sm font-medium text-zinc-800 transition hover:border-zinc-400 hover:bg-zinc-50"
           >
             Back to Home

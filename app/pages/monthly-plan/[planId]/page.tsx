@@ -35,7 +35,7 @@ export default function MonthlyPlanDetailsPage() {
               <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-7xl">{plan.title.toUpperCase()}</h1>
               <p className="mt-3 text-sm text-white/85 sm:text-base">Choose the meal plan for your goals</p>
               <p className="mt-8 text-sm text-white/90">
-                <Link href="/" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
+                <Link href="https://proteinbargroup.com" className="hover:text-white">Home</Link> <span className="px-1">{">"}</span>
                 <Link href="/pages/monthly-plan" className="hover:text-white">Monthly Plans</Link>
               </p>
             </div>
