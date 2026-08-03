@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import MonthlyPlanCheckoutForm from "@/components/monthly-plan/MonthlyPlanCheckoutForm";
 import { mapApiPlan } from "@/lib/api-mappers";
@@ -11,7 +11,7 @@ import type { MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
 const CUSTOMER_RETURN_TO_KEY = "proteinbar_customer_return_to";
 
-export default function PlanCheckoutPage() {
+function PlanCheckoutPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams<{ planId: string; planKind: string }>();
@@ -96,5 +96,13 @@ export default function PlanCheckoutPage() {
       ) : null}
       {!isLoading && !matchedPlan ? <section className="py-10">Plan not found.</section> : null}
     </>
+  );
+}
+
+export default function PlanCheckoutPage() {
+  return (
+    <Suspense fallback={<section className="py-10">Checking your account...</section>}>
+      <PlanCheckoutPageContent />
+    </Suspense>
   );
 }

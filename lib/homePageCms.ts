@@ -153,7 +153,7 @@ async function fetchWebsitePage(slug: string, fallback: WebsitePageRecord): Prom
 
   try {
     const response = await fetch(`${baseUrl}/public/website-pages/${slug}`, {
-      cache: "no-store"
+      next: { revalidate: 60 }
     });
 
     if (!response.ok) {

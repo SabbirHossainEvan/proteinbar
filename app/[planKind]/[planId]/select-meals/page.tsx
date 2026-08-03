@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import MonthlyPlanShowMeals from "@/components/monthly-plan/MonthlyPlanShowMeals";
 import { mapApiPlan } from "@/lib/api-mappers";
 import { useGetMonthlyPlanByIdQuery } from "@/redux/api/publicApi";
 import type { MonthlyPlanDetails } from "@/types/monthlyPlanFlow";
 
-export default function SelectMealsPage() {
+function SelectMealsPageContent() {
   const params = useParams<{ planId: string; planKind: string }>();
   const searchParams = useSearchParams();
   const planId = typeof params?.planId === "string" ? params.planId : "";
@@ -79,5 +80,13 @@ export default function SelectMealsPage() {
         <section className="py-10">Plan not found.</section>
       ) : null}
     </>
+  );
+}
+
+export default function SelectMealsPage() {
+  return (
+    <Suspense fallback={<section className="py-10">Loading plan...</section>}>
+      <SelectMealsPageContent />
+    </Suspense>
   );
 }

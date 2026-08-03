@@ -2,8 +2,6 @@ import LegalHeroSection from "@/components/legal/LegalHeroSection";
 import Section from "@/components/ui/Section";
 import { fetchWebsitePageContent } from "@/lib/homePageCms";
 
-export const dynamic = "force-dynamic";
-
 export default async function PrivacyPolicyPage() {
   const page = await fetchWebsitePageContent("privacy-policy");
   const sections = page?.sections.filter((section) => section.isVisible) ?? [];
