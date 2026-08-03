@@ -16,7 +16,7 @@ import {
 import type { AppDispatch } from "@/redux/store";
 
 const CUSTOMER_SESSION_COOKIE_NAME = "proteinbar_customer_session";
-const MEAL_PREP_URL = "https://proteinbargroup.com/mealprep";
+const MEAL_PREP_URL = "https://mealprep.proteinbargroup.com";
 
 type WebsiteNavigationItem = {
   id: string;
@@ -368,9 +368,7 @@ export default function Header() {
               </>
             ) : null}
             <Link
-              href={"/mealprep"}
-              // target="_blank"
-              rel="noopener noreferrer"
+              href={MEAL_PREP_URL}
               className="hidden h-[46px] min-w-[146px] items-center justify-center border border-white/35 bg-white/[0.06] px-6 text-[0.98rem] font-normal !text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur-[1.5px] transition hover:bg-white/[0.1] sm:inline-flex"
               style={{ color: "#ffffff" }}
             >
@@ -465,8 +463,6 @@ export default function Header() {
               ) : null}
               <Link
                 href={MEAL_PREP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
                 onClick={() => setMenuOpen(false)}
                 className="inline-flex h-11 items-center justify-center rounded-lg border border-white text-sm font-medium !text-white transition hover:bg-white/10"
                 style={{ color: "#ffffff" }}
