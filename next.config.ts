@@ -19,6 +19,31 @@ const mealPrepFlowPaths = [
   "/custom/set-plan",
   "/payment/cmi-return",
 ];
+const mainWebsiteOnlyPaths = [
+  { source: "/about-us", destination: "/about-us" },
+  { source: "/contact", destination: "/contact" },
+  { source: "/locations", destination: "/locations" },
+  { source: "/menu", destination: "/menu" },
+  { source: "/pages/about-us", destination: "/about-us" },
+  { source: "/pages/contact", destination: "/contact" },
+  { source: "/pages/locations", destination: "/locations" },
+  { source: "/pages/menu", destination: "/menu" },
+  { source: "/pages/nos-restaurants", destination: "/pages/nos-restaurants" },
+  {
+    source: "/pages/privacy-policy",
+    destination: "/pages/privacy-policy",
+  },
+  {
+    source: "/pages/terms-and-conditions",
+    destination: "/pages/terms-and-conditions",
+  },
+  { source: "/cart", destination: "/cart" },
+  { source: "/checkout", destination: "/checkout" },
+  { source: "/collections/:path*", destination: "/collections/:path*" },
+  { source: "/plans", destination: "/plans" },
+  { source: "/products/:path*", destination: "/products/:path*" },
+  { source: "/search", destination: "/search" },
+];
 
 function redirectMainWebsitePath(source: string, destination: string) {
   return primaryWebsiteHostnames.map((hostname) => ({
@@ -27,6 +52,15 @@ function redirectMainWebsitePath(source: string, destination: string) {
     destination,
     permanent: true,
   }));
+}
+
+function redirectMealPrepWebsitePath(source: string, destination: string) {
+  return {
+    source,
+    has: [{ type: "host" as const, value: mealPrepHostname }],
+    destination: `https://${primaryWebsiteHostnames[0]}${destination}`,
+    permanent: true,
+  };
 }
 
 const nextConfig: NextConfig = {
@@ -58,6 +92,9 @@ const nextConfig: NextConfig = {
       ),
       ...mealPrepFlowPaths.flatMap((path) =>
         redirectMainWebsitePath(path, `https://${mealPrepHostname}${path}`),
+      ),
+      ...mainWebsiteOnlyPaths.map(({ source, destination }) =>
+        redirectMealPrepWebsitePath(source, destination),
       ),
       {
         source: "/mealprep/:path*",
