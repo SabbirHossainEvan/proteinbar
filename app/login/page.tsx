@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   useGetCurrentCustomerQuery,
@@ -48,7 +48,7 @@ function setCustomerSessionCookie(token: string, expiresAt: string) {
   document.cookie = cookieParts.join("; ");
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -195,5 +195,13 @@ export default function LoginPage() {
         )}
       </div>
     </section>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<section className="min-h-[70vh]" />}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

@@ -6,10 +6,6 @@ import Footer from "@/components/layout/Footer";
 import Container from "@/components/ui/Container";
 import Providers from "./providers";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
-
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],

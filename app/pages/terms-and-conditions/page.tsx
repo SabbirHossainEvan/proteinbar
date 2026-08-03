@@ -3,8 +3,6 @@ import AcceptedCards from "@/components/payments/AcceptedCards";
 import Section from "@/components/ui/Section";
 import { fetchWebsitePageContent } from "@/lib/homePageCms";
 
-export const dynamic = "force-dynamic";
-
 export default async function TermsAndConditionsPage() {
   const page = await fetchWebsitePageContent("terms-and-conditions");
   const sections = page?.sections.filter((section) => section.isVisible) ?? [];

@@ -1,14 +1,34 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useGetMonthlyPlansQuery } from "@/redux/api/publicApi";
 import { mapApiPlan } from "@/lib/api-mappers";
 import { getSetPlanPath } from "@/lib/monthlyPlanFlow";
 
-export default function MonthlyPlanPage() {
-  const { data, isLoading } = useGetMonthlyPlansQuery();
-  const monthlyPlans = (data?.data ?? []).map(mapApiPlan);
+type MonthlyPlansResponse = {
+  data?: unknown[];
+};
+
+async function getMonthlyPlans() {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ||
+    "http://localhost:5000/api/v1";
+
+  try {
+    const response = await fetch(
+      `${baseUrl.replace(/\/$/, "")}/public/monthly-plan/plans`,
+      { next: { revalidate: 60 } },
+    );
+
+    if (!response.ok) return [];
+
+    const payload = (await response.json()) as MonthlyPlansResponse;
+    return (payload.data ?? []).map(mapApiPlan);
+  } catch {
+    return [];
+  }
+}
+
+export default async function MonthlyPlanPage() {
+  const monthlyPlans = await getMonthlyPlans();
 
   return (
     <>
@@ -38,9 +58,6 @@ export default function MonthlyPlanPage() {
       </section>
 
       <section className="mt-8 pb-8 sm:mt-10 sm:pb-12">
-        {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading plans...</p>
-        ) : null}
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {monthlyPlans.map((plan) => (
             <article

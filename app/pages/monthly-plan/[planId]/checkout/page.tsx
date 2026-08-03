@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import MonthlyPlanCheckoutForm from "@/components/monthly-plan/MonthlyPlanCheckoutForm";
 import { useGetMonthlyPlansQuery } from "@/redux/api/publicApi";
 import { mapApiPlan } from "@/lib/api-mappers";
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const params = useParams<{ planId: string }>();
   const searchParams = useSearchParams();
   const planId = typeof params?.planId === "string" ? params.planId : "";
@@ -49,5 +50,13 @@ export default function CheckoutPage() {
 
       <MonthlyPlanCheckoutForm plan={plan} selection={selection} />
     </>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<section className="py-10">Loading plan...</section>}>
+      <CheckoutPageContent />
+    </Suspense>
   );
 }
