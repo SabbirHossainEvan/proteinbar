@@ -139,6 +139,57 @@ const defaultHomePage: WebsitePageRecord = {
   ]
 };
 
+const defaultFooterPage: WebsitePageRecord = {
+  id: "footer",
+  slug: "footer",
+  title: "Footer",
+  navLabel: "Footer",
+  summary: "Global footer branding, contact details, and legal links.",
+  kind: "system",
+  status: "published",
+  showInTopNav: false,
+  heroTitle: "PROTEINBAR",
+  heroSubtitle: "The Real Food Revolution",
+  heroBody: "",
+  heroImage: "",
+  heroPrimaryCtaLabel: "",
+  heroPrimaryCtaLink: "",
+  heroSecondaryCtaLabel: "",
+  heroSecondaryCtaLink: "",
+  seoTitle: "Proteinbar Footer",
+  seoDescription: "Global Proteinbar footer content.",
+  updatedAt: new Date("2026-08-06T00:00:00.000Z").toISOString(),
+  sections: [
+    {
+      id: "footer-contact-details",
+      sectionKey: "contact-details",
+      sectionType: "contactInfo",
+      isVisible: true,
+      sortOrder: 0,
+      heading: "Contact Details",
+      body: "",
+      items: [
+        { id: "footer-phone-bourgogne", title: "Bourgogne", label: "T:", value: "05 20 20 63 66", link: "tel:+212520206366" },
+        { id: "footer-phone-val-fleuri", title: "Val-Fleuri", label: "T:", value: "05 22 23 55 39", link: "tel:+212522235539" },
+        { id: "footer-email", title: "Email", label: "E:", value: "Proteinbarmaroc@gmail.com", link: "mailto:Proteinbarmaroc@gmail.com" }
+      ]
+    },
+    {
+      id: "footer-links",
+      sectionKey: "footer-links",
+      sectionType: "cards",
+      isVisible: true,
+      sortOrder: 1,
+      heading: "Footer Links",
+      body: "",
+      items: [
+        { id: "footer-terms", title: "Terms & Conditions", link: "/pages/terms-and-conditions" },
+        { id: "footer-privacy", title: "Privacy Policy", link: "/pages/privacy-policy" }
+      ]
+    }
+  ]
+};
+
 export function getDefaultHomePage() {
   return defaultHomePage;
 }
@@ -174,6 +225,7 @@ export async function fetchHomePageContent(): Promise<WebsitePageRecord> {
 export async function fetchWebsitePageContent(slug: string): Promise<WebsitePageRecord | null> {
   const fallbackPages: Record<string, WebsitePageRecord> = {
     home: defaultHomePage,
+    footer: defaultFooterPage,
     "about-us": {
       id: "about-us",
       slug: "about-us",
