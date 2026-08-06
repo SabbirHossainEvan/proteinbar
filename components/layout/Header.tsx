@@ -17,6 +17,7 @@ import type { AppDispatch } from "@/redux/store";
 
 const CUSTOMER_SESSION_COOKIE_NAME = "proteinbar_customer_session";
 const PRIMARY_WEBSITE_URL = "https://proteinbargroup.com";
+const BRAND_WEBSITE_URL = "https://proteinbar.ma/";
 const MEAL_PREP_URL = "https://mealprep.proteinbargroup.com";
 const proteinbarHostnames = new Set([
   "proteinbargroup.com",
@@ -158,7 +159,9 @@ export default function Header() {
         }
 
         const href =
-          item.slug === "home" ? PRIMARY_WEBSITE_URL : getConfiguredNavHref(item);
+          item.slug === "home"
+            ? PRIMARY_WEBSITE_URL
+            : getConfiguredNavHref(item);
         if (!href) {
           return null;
         }
@@ -304,7 +307,7 @@ export default function Header() {
               </svg>
             </button>
             <Link
-              href={PRIMARY_WEBSITE_URL}
+              href={BRAND_WEBSITE_URL}
               className="shrink-0 text-white"
               onClick={() => setMenuOpen(false)}
             >
